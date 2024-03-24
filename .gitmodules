@@ -1,0 +1,3 @@
+[submodule "excify-core"]
+	path = excify-core
+	url = git@github.com:Mixfaa/excify.git

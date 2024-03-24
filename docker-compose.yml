@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+#  redis:
+#    image: redis
+#    restart: always
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redis-data:/data/redis
+#    environment:
+#      - REDIS_USERNAME=root
+#      - REDIS_PASSWORD=rootpassword
+#      - REDIS_PORT=6379
+#      - REDIS_DATABASES=16
+
+volumes:
+  mongo-data:
+#  redis-data:
