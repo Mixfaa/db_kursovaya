@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 class AnyControllerAdvice {
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFound(exception: NotFoundException): ResponseEntity<ErrorModel> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorModel(exception.localizedMessage?: "unresolved error"))
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorModel(exception))
     }
 
-    @ExceptionHandler(Exception::class)
+    @ExceptionHandler(Throwable::class)
     fun handleException(exception: Throwable): ResponseEntity<ErrorModel> {
-        return ResponseEntity.badRequest().body(ErrorModel(exception.localizedMessage?: "unresolved error"))
+        return ResponseEntity.badRequest().body(ErrorModel(exception))
     }
 }

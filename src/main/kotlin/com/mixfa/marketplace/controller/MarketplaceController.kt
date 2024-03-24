@@ -57,9 +57,8 @@ class MarketplaceController(
         productService.countProducts()
 
     @GetMapping("/product/findV2")
-    fun findProductsV2(query: QueryConstructor, sort: SortConstructor, page: Int, pageSize: Int) {
+    fun findProductsV2(query: QueryConstructor, sort: SortConstructor, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
-    }
 
     /*
     * Discounts

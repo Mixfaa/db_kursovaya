@@ -83,5 +83,5 @@ val orderNotFound = NotFoundException("Order")
 val accountNotFound = NotFoundException("Account")
 
 data class ErrorModel(val message: String) {
-    constructor(ex: Exception) : this(ex.message ?: ex.localizedMessage ?: "Exception without message")
+    constructor(ex: Throwable) : this(ex.message ?: ex.localizedMessage ?: "Unresolved error")
 }
