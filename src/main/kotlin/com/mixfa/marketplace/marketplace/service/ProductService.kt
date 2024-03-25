@@ -26,7 +26,8 @@ class ProductService(
     }
 
     fun updateProductRate(product: Product, newRate: Double): Product {
-        val newProductRate = (product.rate + newRate) / 2.0
+        var newProductRate = (product.rate + newRate) / (if (product.rate == 0.0) 1.0 else 2.0)
+        if (newProductRate < 0.0) newProductRate = 0.0
         return productRepo.save(product.copy(rate = newProductRate))
     }
 

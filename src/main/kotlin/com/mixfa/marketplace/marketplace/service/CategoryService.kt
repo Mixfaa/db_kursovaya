@@ -4,7 +4,7 @@ import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.service.repo.CategoryRepository
 import com.mixfa.marketplace.shared.CheckedPageable
 import com.mixfa.marketplace.shared.NotFoundException
-import com.mixfa.marketplace.shared.categoryNotFound
+import com.mixfa.marketplace.shared.make
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -15,21 +15,19 @@ class CategoryService(
 ) {
     fun findCategoriesByIdOrThrow(ids: List<String>): List<Category> {
         val categories = categoryRepo.findAllById(ids)
-        if (categories.isEmpty()) throw NotFoundException.categoryNotFound()
+        if (categories.size != ids.size) throw NotFoundException.make("Some category")
         return categories
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerCategory(request: Category.CreateRequest): Category {
-        return categoryRepo.save(
-            Category(
-                name = request.name,
-                subcategories = request.subcategories ?: listOf(),
-                requiredProps = request.requiredProps,
-                parentCategory = request.parentCategory
-            )
+    fun registerCategory(request: Category.CreateRequest): Category = categoryRepo.save(
+        Category(
+            name = request.name,
+            subcategories = request.subcategories ?: listOf(),
+            requiredProps = request.requiredProps,
+            parentCategory = request.parentCategory
         )
-    }
+    )
 
     fun findCategories(query: String, pageable: CheckedPageable): Page<Category> {
         return categoryRepo.findAllByNameContainsIgnoreCase(query, pageable)

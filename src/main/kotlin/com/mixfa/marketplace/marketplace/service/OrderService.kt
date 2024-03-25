@@ -1,13 +1,16 @@
 package com.mixfa.marketplace.marketplace.service
 
-import FastThrowable
+import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
-import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.CheckedPageable
+import com.mixfa.marketplace.shared.SecurityUtils
+import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.marketplace.shared.throwIfNot
 import org.springframework.data.domain.Page
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -37,26 +40,26 @@ class OrderService(
             when (discount) {
                 is DiscountByProduct -> {
                     realizedProductBuilders.forEach { builder ->
-                        if (discount.targetProducts.contains(builder.product))
-                            builder.applyDiscount(discount)
+                        if (discount.targetProducts.contains(builder.product)) builder.applyDiscount(discount)
                     }
                 }
 
                 is DiscountByCategory -> {
                     realizedProductBuilders.forEach { builder ->
-                        if (checkCategoriesIntersections(builder.product.categories, discount.targetCategories))
-                            builder.applyDiscount(discount)
+                        if (checkCategoriesIntersections(
+                                builder.product.categories,
+                                discount.targetCategories
+                            )
+                        ) builder.applyDiscount(discount)
                     }
                 }
 
                 is PromoCode -> {
-                    if (promoCode == null)
-                        return@processAllDiscounts
+                    if (promoCode == null) return@processAllDiscounts
 
-                    if (discount.matches(promoCode))
-                        realizedProductBuilders.forEach { builder ->
-                            builder.applyDiscount(discount)
-                        }
+                    if (discount.matches(promoCode)) realizedProductBuilders.forEach { builder ->
+                        builder.applyDiscount(discount)
+                    }
                 }
             }
         }
@@ -71,20 +74,16 @@ class OrderService(
 
         val products = productService.findProductsByIdsOrThrow(request.products)
 
-        if (products.size != request.products.size)
-            throw FastThrowable("Can`t load all requested products")
+        if (products.size != request.products.size) throw FastThrowable("Can`t load all requested products")
 
         // apply discounts and promocode
         val realizedProducts = processDiscounts(products, request.promoCode)
 
-        if (realizedProducts.size != request.products.size)
-            throw FastThrowable("Can`t process all requested products")
+        if (realizedProducts.size != request.products.size) throw FastThrowable("Can`t process all requested products")
 
         // increment products order count
         mongoTemplate.updateMulti(
-            Query(Criteria.where("_id").`in`(request.products)),
-            Update().inc("ordersCount", 1),
-            Product::class.java
+            Query(Criteria.where("_id").`in`(request.products)), Update().inc("ordersCount", 1), Product::class.java
         )
 
         return orderRepo.save(
@@ -128,18 +127,16 @@ class OrderService(
 }
 
 private fun checkCategoriesIntersections(
-    productCategories: List<Category>,
-    discountCategories: List<Category>
+    productCategories: List<Category>, discountCategories: List<Category>
 ): Boolean {
 
-    for (discountCategory in discountCategories)
-        for (productCategory in productCategories)
-            if (discountCategory == productCategory)
-                return true
+    for (discountCategory in discountCategories) for (productCategory in productCategories) if (discountCategory == productCategory) return true
 
-    for (discountCategory in discountCategories)
-        if (checkCategoriesIntersections(productCategories, discountCategory.subcategories))
-            return true
+    for (discountCategory in discountCategories) if (checkCategoriesIntersections(
+            productCategories,
+            discountCategory.subcategories
+        )
+    ) return true
 
     return false
 }

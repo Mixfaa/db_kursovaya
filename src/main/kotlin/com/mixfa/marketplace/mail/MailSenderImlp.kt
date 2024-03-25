@@ -1,6 +1,5 @@
 package com.mixfa.marketplace.mail
 
-import FastThrowable
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
@@ -18,7 +17,7 @@ class MailSenderImlp(
 
     override fun sendSimpleEmail(to: String, subject: String, text: String) {
         if (mails.containsKey(to))
-            throw FastThrowable("Email to this address was already sent")
+            throw EmailThrottlingException.get()
 
         println("Sending email to $to text: $text")
         emailSender.send(SimpleMailMessage().apply {
