@@ -23,7 +23,8 @@ class MarketplaceController(
     */
 
     @PostMapping("/category/register")
-    fun registerCategory(@RequestBody request: Category.CreateRequest) = categoryService.registerCategory(request)
+    fun registerCategory(@RequestBody request: Category.RegisterRequest) =
+        categoryService.registerCategory(request)
 
     @GetMapping("/category/find")
     fun findCategories(query: String, page: Int, pageSize: Int) =
@@ -41,7 +42,7 @@ class MarketplaceController(
     */
 
     @PostMapping("/product/register")
-    fun registerProduct(@RequestBody request: Product.CreateRequest) =
+    fun registerProduct(@RequestBody request: Product.RegisterRequest) =
         productService.registerProduct(request)
 
     @PostMapping("/product/delete")

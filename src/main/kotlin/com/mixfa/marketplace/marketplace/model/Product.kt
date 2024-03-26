@@ -19,7 +19,7 @@ data class Product(
     val rate: Double = 0.0,
     val ordersCount: Long = 0
 ) {
-    data class CreateRequest(
+    data class RegisterRequest(
         @NotBlank
         val caption: String,
         @NotEmpty

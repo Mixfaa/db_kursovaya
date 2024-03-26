@@ -37,7 +37,7 @@ class ProductService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerProduct(request: Product.CreateRequest): Product {
+    fun registerProduct(request: Product.RegisterRequest): Product {
         val categories = categoryService.findCategoriesByIdOrThrow(request.categories)
 
         val productCharacteristicsKeys = request.characteristics.keys

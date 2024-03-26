@@ -1,7 +1,6 @@
 package com.mixfa.marketplace.marketplace.model
 
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
@@ -14,7 +13,7 @@ data class Category(
     @field:DBRef val subcategories: List<Category>,
     val requiredProps: List<String>
 ) {
-    data class CreateRequest(
+    data class RegisterRequest(
         @NotBlank
         val name: String,
         @NotNull

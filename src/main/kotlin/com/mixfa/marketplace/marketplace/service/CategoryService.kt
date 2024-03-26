@@ -21,7 +21,7 @@ class CategoryService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerCategory(request: Category.CreateRequest): Category = categoryRepo.save(
+    fun registerCategory(request: Category.RegisterRequest): Category = categoryRepo.save(
         Category(
             name = request.name,
             subcategories = request.subcategories?.let(::findCategoriesByIdOrThrow) ?: emptyList(),
