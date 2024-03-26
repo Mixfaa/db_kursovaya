@@ -70,7 +70,7 @@ class DiscountService(
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {
         is ProductService.Event.ProductDelete -> handleProductDeletion(event.product)
-        is ProductService.Event.ProductRegister -> {}
+        else -> {}
     }
 }
 

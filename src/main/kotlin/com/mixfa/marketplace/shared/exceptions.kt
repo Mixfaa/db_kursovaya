@@ -44,12 +44,12 @@ class ProductNotInListException : FastThrowable("Product not in list") {
 }
 
 @ExcifyException(cacheNoArgs = true)
-class FavouriteListsLimitException : FastThrowable("One user can`t create more than 10 favourite lists") {
+class FavouriteListsLimitException : FastThrowable("Favourite lists per user limit") {
     companion object
 }
 
 @ExcifyException(cacheNoArgs = true)
-class FavouriteListProductsLimitException : FastThrowable("One list can`t contain more than 50 products") {
+class FavouriteListProductsLimitException : FastThrowable("Products per list limit") {
     companion object
 }
 

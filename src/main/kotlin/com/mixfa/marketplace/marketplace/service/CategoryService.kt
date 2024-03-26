@@ -5,6 +5,7 @@ import com.mixfa.marketplace.marketplace.service.repo.CategoryRepository
 import com.mixfa.marketplace.shared.CheckedPageable
 import com.mixfa.marketplace.shared.NotFoundException
 import com.mixfa.marketplace.shared.make
+import com.mixfa.marketplace.shared.orThrow
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -23,9 +24,9 @@ class CategoryService(
     fun registerCategory(request: Category.CreateRequest): Category = categoryRepo.save(
         Category(
             name = request.name,
-            subcategories = request.subcategories ?: listOf(),
+            subcategories = request.subcategories?.let(::findCategoriesByIdOrThrow) ?: emptyList(),
             requiredProps = request.requiredProps,
-            parentCategory = request.parentCategory
+            parentCategory = request.parentCategory?.let { categoryRepo.findById(it).orThrow() }
         )
     )
 

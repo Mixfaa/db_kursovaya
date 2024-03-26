@@ -1,12 +1,17 @@
 package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Product
+import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
 import com.mixfa.marketplace.shared.*
+import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
@@ -16,7 +21,7 @@ class ProductService(
     private val eventPublisher: ApplicationEventPublisher,
     private val categoryService: CategoryService,
     private val mongoTemplate: MongoTemplate
-) : ApplicationListener<CommentService.Event> {
+) : ApplicationListener<MarketplaceEvent> {
     fun findProductById(id: String) = productRepo.findById(id)
 
     fun findProductsByIdsOrThrow(ids: List<String>): List<Product> {
@@ -81,10 +86,28 @@ class ProductService(
 
     fun countProducts() = productRepo.count()
 
-    override fun onApplicationEvent(event: CommentService.Event) {
+    private fun incProductsOrdersCount(productsIds: List<ObjectId>) {
+        mongoTemplate.updateMulti(
+            Query(Criteria.where("_id").`in`(productsIds)),
+            Update().inc("ordersCount", 1),
+            Product::class.java
+        )
+    }
+
+    private fun decProductOrdersCount(productsIds: List<ObjectId>) {
+        mongoTemplate.updateMulti(
+            Query(Criteria.where("_id").`in`(productsIds)),
+            Update().inc("ordersCount", -1),
+            Product::class.java
+        )
+    }
+
+    override fun onApplicationEvent(event: MarketplaceEvent) {
         when (event) {
             is CommentService.Event.CommentRegister -> updateProductRate(event.comment.product, event.comment.rate)
             is CommentService.Event.CommentDelete -> updateProductRate(event.comment.product, -event.comment.rate)
+            is OrderService.Event.OrderRegister -> incProductsOrdersCount(event.order.products.map(RealizedProduct::productId))
+            is OrderService.Event.OrderCancel -> decProductOrdersCount(event.order.products.map(RealizedProduct::productId))
         }
     }
 

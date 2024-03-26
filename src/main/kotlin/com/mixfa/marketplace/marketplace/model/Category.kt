@@ -2,6 +2,7 @@ package com.mixfa.marketplace.marketplace.model
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
@@ -16,10 +17,10 @@ data class Category(
     data class CreateRequest(
         @NotBlank
         val name: String,
-        @NotEmpty
+        @NotNull
         val requiredProps: List<String>,
-        val subcategories: List<Category>? = null,
-        val parentCategory: Category? = null
+        val subcategories: List<String>? = null,
+        val parentCategory: String? = null
     )
 
     override fun equals(other: Any?): Boolean {

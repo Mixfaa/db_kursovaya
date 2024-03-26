@@ -7,15 +7,9 @@ import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
-import com.mixfa.marketplace.shared.CheckedPageable
-import com.mixfa.marketplace.shared.SecurityUtils
-import com.mixfa.marketplace.shared.orThrow
-import com.mixfa.marketplace.shared.throwIfNot
+import com.mixfa.marketplace.shared.*
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
-import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,7 +20,7 @@ class OrderService(
     private val accountService: AccountService,
     private val discountService: DiscountService,
     private val productService: ProductService,
-    private val mongoTemplate: MongoTemplate
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     fun calculateOrderCost(request: Order.RegisterRequest): TempOrder {
         val products = productService.findProductsByIdsOrThrow(request.products)
@@ -81,11 +75,6 @@ class OrderService(
 
         if (realizedProducts.size != request.products.size) throw FastThrowable("Can`t process all requested products")
 
-        // increment products order count
-        mongoTemplate.updateMulti(
-            Query(Criteria.where("_id").`in`(request.products)), Update().inc("ordersCount", 1), Product::class.java
-        )
-
         return orderRepo.save(
             Order(
                 products = realizedProducts,
@@ -93,7 +82,9 @@ class OrderService(
                 status = OrderStatus.UNPAID,
                 shippingAddress = request.shippingAddress
             )
-        )
+        ).also {
+            eventPublisher.publishEvent(Event.OrderRegister(it, this))
+        }
     }
 
     @PreAuthorize("isAuthenticated() == true")
@@ -115,14 +106,22 @@ class OrderService(
 
         principal.throwIfNot(order.owner)
 
-        val canceledOrder = order.copy(status = OrderStatus.CANCELED)
-        return orderRepo.save(canceledOrder)
+        var canceledOrder = order.copy(status = OrderStatus.CANCELED)
+        canceledOrder = orderRepo.save(canceledOrder)
+
+        eventPublisher.publishEvent(Event.OrderCancel(order, this))
+        return canceledOrder
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun changeOrderStatus(orderId: String, newStatus: OrderStatus): Order {
         val order = orderRepo.findById(orderId).orThrow()
         return orderRepo.save(order.copy(status = newStatus))
+    }
+
+    sealed class Event(src: Any) : MarketplaceEvent(src) {
+        class OrderRegister(val order: Order, src: Any) : Event(src)
+        class OrderCancel(val order: Order, src: Any) : Event(src)
     }
 }
 
