@@ -1,7 +1,7 @@
 package com.mixfa.marketplace.mail
 
 import com.mixfa.marketplace.shared.DEFAULT_FIXED_RATE
-import com.mixfa.marketplace.shared.runCatchLog
+import com.mixfa.marketplace.shared.runOrNull
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.Throws
 
 @Component
 class MailSenderImlp(
@@ -24,21 +25,27 @@ class MailSenderImlp(
         mails.size
     }
 
+    fun sendSimpleEmailWithResult(to: String, subject: String, text: String): Boolean {
+        return runOrNull {
+            sendSimpleEmail(to, subject, text)
+            true
+        } ?: false
+    }
+
+    @Throws
     override fun sendSimpleEmail(to: String, subject: String, text: String) {
         if (mails.containsKey(to))
             throw EmailThrottlingException.get()
 
         logger.info("Sending email to {} text {}", to, text)
-        runCatchLog(logger) {
-            emailSender.send(SimpleMailMessage().apply {
-                this.setTo(to)
-                this.from = this@MailSenderImlp.from
-                this.subject = subject
-                this.text = text
-            })
+        emailSender.send(SimpleMailMessage().apply {
+            this.setTo(to)
+            this.from = this@MailSenderImlp.from
+            this.subject = subject
+            this.text = text
+        })
 
-            mails.put(to, "")
-        }
+        mails.put(to, "")
     }
 
     companion object {

@@ -47,6 +47,7 @@ class FavouriteListsService(
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     private fun handleProductDeletion(product: Product) {
+
         iteratePages(bindToFetchFun(favoriteListRepo::findAllByProductsContains, product)) { favoriteList ->
             favoriteListRepo.save(favoriteList.copy(
                 products = favoriteList.products - product

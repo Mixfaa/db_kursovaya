@@ -4,12 +4,13 @@ import org.slf4j.Logger
 
 const val DEFAULT_FIXED_RATE = 15000L
 
-inline fun runCatchLog(logger: Logger, block: () -> Unit) {
+inline fun <T> runCatchLog(logger: Logger, block: () -> T): T? {
     try {
-        block()
+        return block()
     } catch (ex: Exception) {
         logger.error(ex.localizedMessage ?: "unknown error ($ex)")
     }
+    return null
 }
 
 inline fun <R> runOrNull(block: () -> R): R? {
