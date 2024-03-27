@@ -12,8 +12,8 @@ class NotFoundException(subject: String) : FastThrowable("$subject not found") {
     companion object
 }
 
-@ExcifyException(cacheNoArgs = true)
-class LargePageSizeException() : FastThrowable("Page size is too big, should be <= $MAX_PAGE_SIZE") {
+@ExcifyException
+class LargePageSizeException : FastThrowable("Page size is too big, should be <= $MAX_PAGE_SIZE") {
     companion object
 }
 
@@ -33,27 +33,27 @@ class ProductCharacteristicsNotSetException(
     companion object
 }
 
-@ExcifyException(cacheNoArgs = true)
+@ExcifyException
 class ProductAlreadyInListException : FastThrowable("Product already in list") {
     companion object
 }
 
-@ExcifyException(cacheNoArgs = true)
+@ExcifyException
 class ProductNotInListException : FastThrowable("Product not in list") {
     companion object
 }
 
-@ExcifyException(cacheNoArgs = true)
+@ExcifyException
 class FavouriteListsLimitException : FastThrowable("Favourite lists per user limit") {
     companion object
 }
 
-@ExcifyException(cacheNoArgs = true)
+@ExcifyException
 class FavouriteListProductsLimitException : FastThrowable("Products per list limit") {
     companion object
 }
 
-@ExcifyException(cacheNoArgs = true)
+@ExcifyException
 class FastAccessException : FastThrowable("Access denied") {
     companion object
 }
