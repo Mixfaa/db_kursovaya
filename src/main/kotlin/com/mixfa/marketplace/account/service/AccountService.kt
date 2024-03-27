@@ -4,10 +4,7 @@ import com.mixfa.marketplace.account.*
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.model.Role
 import com.mixfa.marketplace.mail.MailSender
-import com.mixfa.marketplace.shared.CheckedPageable
-import com.mixfa.marketplace.shared.orThrow
-import com.mixfa.marketplace.shared.runOrNull
-import com.mixfa.marketplace.shared.takeWhile
+import com.mixfa.marketplace.shared.*
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -33,9 +30,9 @@ class AccountService(
     private val mailCodes =
         Collections.synchronizedMap(PassiveExpiringMap<String, String>(CODE_EXPIRATION_TIME_IN_MILLI))
 
-    @Scheduled(fixedRate = 15000)
+    @Scheduled(fixedRate = DEFAULT_FIXED_RATE)
     fun removeExpiredMailCodes() {
-        mailCodes.size // due to PassiveExpiringMap it cause removing expired entires
+        mailCodes.size
     }
 
     fun findUsers(query: String, pageable: CheckedPageable) =

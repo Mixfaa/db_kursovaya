@@ -1,5 +1,17 @@
 package com.mixfa.marketplace.shared
 
+import org.slf4j.Logger
+
+const val DEFAULT_FIXED_RATE = 15000L
+
+inline fun runCatchLog(logger: Logger, block: () -> Unit) {
+    try {
+        block()
+    } catch (ex: Exception) {
+        logger.error(ex.localizedMessage ?: "unknown error ($ex)")
+    }
+}
+
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
         block()
