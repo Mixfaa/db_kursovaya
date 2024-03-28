@@ -17,7 +17,7 @@ data class Order(
     val status: OrderStatus,
     val shippingAddress: String,
     val timestamp: ZonedDateTime = ZonedDateTime.now()
-) : WithDto<Order.Dto> {
+) : WithDto {
     data class RegisterRequest(
         val products: List<String>,
         val shippingAddress: String,

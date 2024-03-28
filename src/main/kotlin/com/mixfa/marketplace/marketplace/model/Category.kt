@@ -20,7 +20,7 @@ data class Category(
     @field:DBRef val parentCategory: Category?,
     @field:DBRef val subcategories: List<Category>,
     val requiredProps: List<String>
-) : WithDto<Category.Dto> {
+) : WithDto {
     data class RegisterRequest(
         @NotBlank
         val name: String,

@@ -20,7 +20,7 @@ data class Product(
     val price: Double,
     val rate: Double = 0.0,
     val ordersCount: Long = 0
-) : WithDto<Product.Dto> {
+) : WithDto {
     data class RegisterRequest(
         @NotBlank
         val caption: String,

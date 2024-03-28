@@ -16,7 +16,7 @@ data class FavouriteList(
     @field:DBRef val owner: Account,
     @field:DBRef val products: List<Product>,
     val isPublic: Boolean
-) : WithDto<FavouriteList.Dto> {
+) : WithDto {
     data class RegisterRequest(
         @NotBlank
         val name: String,

@@ -17,7 +17,7 @@ data class Comment(
     val content: String,
     val rate: Double,
     val timestamp: ZonedDateTime = ZonedDateTime.now()
-) : WithDto<Comment.Dto> {
+) : WithDto {
     data class RegisterRequest(
         val productId: String,
         val content: String,
