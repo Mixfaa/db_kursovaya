@@ -38,10 +38,6 @@ fun <T, Arg1> bindToFetchFun(func: (Arg1, Pageable) -> Page<T>, arg1: Arg1): (Pa
     return { func(arg1, it) }
 }
 
-fun <T, Arg1> ((Arg1, Pageable) -> Page<T>).bindToFetchFun(arg1: Arg1): (Pageable) -> Page<T> {
-    return bindToFetchFun(this, arg1)
-}
-
 fun <T, Arg1, Arg2> bindToFetchFun(
     func: (Arg1, Arg2, Pageable) -> Page<T>,
     arg1: Arg1,

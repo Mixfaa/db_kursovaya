@@ -3,6 +3,8 @@ package com.mixfa.marketplace
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import com.fasterxml.jackson.module.kotlin.kotlinModule
+import com.mixfa.marketplace.shared.WithDto
+import com.mixfa.marketplace.shared.WithDtoSerializer
 import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -57,6 +59,7 @@ class DbKursovayaApplication {
         return Jackson2ObjectMapperBuilderCustomizer { builder ->
             builder
                 .serializerByType(ObjectId::class.java, ToStringSerializer())
+                .serializerByType(WithDto::class.java, WithDtoSerializer())
                 .featuresToEnable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .modules(kotlinModule())
         }
@@ -69,10 +72,10 @@ class DbKursovayaApplication {
 
     @Bean
     fun getJavaMailSender(
-        @Value("\${spring.mail.host}") host:String,
-        @Value("\${spring.mail.port}") port:Int,
-        @Value("\${spring.mail.username}") username:String,
-        @Value("\${spring.mail.password}") password:String,
+        @Value("\${spring.mail.host}") host: String,
+        @Value("\${spring.mail.port}") port: Int,
+        @Value("\${spring.mail.username}") username: String,
+        @Value("\${spring.mail.password}") password: String,
     ): JavaMailSender {
         val mailSender = JavaMailSenderImpl()
         mailSender.host = host

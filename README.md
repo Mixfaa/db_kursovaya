@@ -34,8 +34,8 @@
 ### Category
 
 * name: (id) String
-* parentCategory: Category (can be null)
-* subcategories: List of Category
+* parentCategory: String (category id)
+* subcategories: List of Categories ids
 * requiredProps: List of string
 
 #### Register Request
@@ -51,7 +51,7 @@
 
 * id: (id) String
 * caption: String
-* categories: List of category
+* categories: List of categories ids
 * characteristics: Map String to String (prop to value)
 * description: String
 * price: Double
@@ -72,7 +72,7 @@
 
 * id: (id) String
 * products: List of Realized Products
-* owner: Account
+* ownerId: Account`s id
 * status: String (one of UNPAID,PROCESSING,SHIPPING,COMPLETED,CANCELED)
 * shippingAddress: String
 * timestamp: Date
@@ -97,7 +97,7 @@
 ### Comment
 
 * id: (id) String
-* owner: Account
+* ownerId: Account`s id
 * product: Product
 * content: String
 * rate: Double
@@ -115,7 +115,7 @@
 
 * id: (id) String
 * name: String
-* owner: Account
+* ownerId: Account`s id
 * products: List of product
 * isPublic: Boolean
 
