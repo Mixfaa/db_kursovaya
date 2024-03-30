@@ -44,7 +44,7 @@ class ProductService(
 
         for (category in categories)
             if (!productCharacteristicsKeys.containsAll(category.requiredProps))
-                throw ProductCharacteristicsNotSetException.make(
+                throw ProductCharacteristicsNotSetException(
                     category.requiredProps, productCharacteristicsKeys
                 )
 

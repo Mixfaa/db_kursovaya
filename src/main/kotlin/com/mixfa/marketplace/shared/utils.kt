@@ -13,6 +13,15 @@ inline fun <T> runCatchLog(logger: Logger, block: () -> T): T? {
     return null
 }
 
+inline fun <T> runCatchLogThrow(logger: Logger, block: () -> T): T {
+    try {
+        return block()
+    } catch (ex: Exception) {
+        logger.error(ex.localizedMessage ?: "unknown error ($ex)")
+        throw ex
+    }
+}
+
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
         block()

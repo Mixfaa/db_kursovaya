@@ -1,23 +1,20 @@
 package com.mixfa.marketplace.shared
 
 import com.mixfa.excify.ExcifyCachedException
-import com.mixfa.excify.ExcifyException
 import com.mixfa.excify.ExcifyOptionalOrThrow
 import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.marketplace.model.*
 
-@ExcifyException
 class NotFoundException(subject: String) : FastThrowable("$subject not found") {
     companion object
 }
 
-@ExcifyException
+@ExcifyCachedException
 class LargePageSizeException : FastThrowable("Page size is too big, should be <= $MAX_PAGE_SIZE") {
     companion object
 }
 
-@ExcifyException
 class ProductCharacteristicsNotSetException(
     requiredCharacteristics: Collection<String>,
     providedCharacteristics: Collection<String>
@@ -33,27 +30,27 @@ class ProductCharacteristicsNotSetException(
     companion object
 }
 
-@ExcifyException
+@ExcifyCachedException
 class ProductAlreadyInListException : FastThrowable("Product already in list") {
     companion object
 }
 
-@ExcifyException
+@ExcifyCachedException
 class ProductNotInListException : FastThrowable("Product not in list") {
     companion object
 }
 
-@ExcifyException
+@ExcifyCachedException
 class FavouriteListsLimitException : FastThrowable("Favourite lists per user limit") {
     companion object
 }
 
-@ExcifyException
+@ExcifyCachedException
 class FavouriteListProductsLimitException : FastThrowable("Products per list limit") {
     companion object
 }
 
-@ExcifyException
+@ExcifyCachedException
 class FastAccessException : FastThrowable("Access denied") {
     companion object
 }

@@ -52,10 +52,10 @@ class AccountService(
 
     fun register(request: Account.RegisterRequest): Account {
         val existsByUsername = accountRepo.existsByUsername(request.username)
-        if (existsByUsername) throw UsernameTakenException.make(request.username)
+        if (existsByUsername) throw UsernameTakenException(request.username)
 
         val requestedEmail = mailCodes[request.mailCode]
-            ?: throw EmailCodeNotValidException.make(request.mailCode)
+            ?: throw EmailCodeNotValidException(request.mailCode)
 
         mailCodes.remove(request.mailCode)
 
@@ -64,7 +64,7 @@ class AccountService(
 
         val role = runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
         if (role == Role.ADMIN && request.adminSecret != null && request.adminSecret != adminSecret)
-            throw AdminCreationException.make(request.adminSecret)
+            throw AdminCreationException(request.adminSecret)
 
         return accountRepo.save(
             Account(

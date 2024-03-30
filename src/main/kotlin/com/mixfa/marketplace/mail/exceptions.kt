@@ -1,9 +1,9 @@
 package com.mixfa.marketplace.mail
 
-import com.mixfa.excify.ExcifyException
+import com.mixfa.excify.ExcifyCachedException
 import com.mixfa.excify.FastThrowable
 
-@ExcifyException
+@ExcifyCachedException
 class EmailThrottlingException : FastThrowable("Email to this address was already sent") {
     companion object
 }
