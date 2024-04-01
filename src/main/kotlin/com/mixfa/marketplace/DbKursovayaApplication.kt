@@ -3,8 +3,8 @@ package com.mixfa.marketplace
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import com.fasterxml.jackson.module.kotlin.kotlinModule
-import com.mixfa.marketplace.shared.WithDto
-import com.mixfa.marketplace.shared.WithDtoSerializer
+import com.mixfa.marketplace.shared.converter.WithDtoSerializer
+import com.mixfa.marketplace.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication

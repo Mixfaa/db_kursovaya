@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.marketplace.shared.model
 
 import org.springframework.data.domain.Sort
 

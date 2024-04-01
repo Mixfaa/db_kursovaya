@@ -2,7 +2,7 @@ package com.mixfa.marketplace.marketplace.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.account.model.Account
-import com.mixfa.marketplace.shared.WithDto
+import com.mixfa.marketplace.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.hibernate.validator.constraints.Range
 import org.springframework.data.mongodb.core.mapping.DBRef

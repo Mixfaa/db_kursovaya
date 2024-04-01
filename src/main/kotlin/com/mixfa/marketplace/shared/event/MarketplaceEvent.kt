@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.marketplace.shared.event
 
 import org.springframework.context.ApplicationEvent
 

@@ -3,11 +3,10 @@ package com.mixfa.marketplace
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.readValues
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.mixfa.marketplace.shared.AbstractQueryCriteria
-import com.mixfa.marketplace.shared.QueryConstructor
-import com.mixfa.marketplace.shared.SortConstructor
+import com.mixfa.marketplace.shared.model.AbstractQueryCriteria
+import com.mixfa.marketplace.shared.model.QueryConstructor
+import com.mixfa.marketplace.shared.model.SortConstructor
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

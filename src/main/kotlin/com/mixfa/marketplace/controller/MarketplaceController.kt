@@ -3,9 +3,9 @@ package com.mixfa.marketplace.controller
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.service.*
-import com.mixfa.marketplace.shared.CheckedPageable
-import com.mixfa.marketplace.shared.QueryConstructor
-import com.mixfa.marketplace.shared.SortConstructor
+import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.QueryConstructor
+import com.mixfa.marketplace.shared.model.SortConstructor
 import org.springframework.web.bind.annotation.*
 
 @RestController

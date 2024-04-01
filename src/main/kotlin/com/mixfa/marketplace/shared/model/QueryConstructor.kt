@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.marketplace.shared.model
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DatabindContext

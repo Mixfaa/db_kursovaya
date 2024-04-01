@@ -1,5 +1,6 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.marketplace.shared.model
 
+import com.mixfa.marketplace.shared.throwIfNotInBound
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort

@@ -5,6 +5,8 @@ import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
 import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.event.MarketplaceEvent
+import com.mixfa.marketplace.shared.model.CheckedPageable
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize

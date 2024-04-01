@@ -2,7 +2,7 @@ package com.mixfa.marketplace.marketplace.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.account.model.Account
-import com.mixfa.marketplace.shared.WithDto
+import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId

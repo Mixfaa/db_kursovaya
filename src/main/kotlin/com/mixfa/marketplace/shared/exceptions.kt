@@ -26,9 +26,7 @@ class ProductCharacteristicsNotSetException(
     Provided characteristics:
     $providedCharacteristics
 """.trimMargin()
-) {
-    companion object
-}
+)
 
 @ExcifyCachedException
 class ProductAlreadyInListException : FastThrowable("Product already in list") {

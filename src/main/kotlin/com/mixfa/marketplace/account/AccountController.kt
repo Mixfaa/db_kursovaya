@@ -2,7 +2,7 @@ package com.mixfa.marketplace.account
 
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.service.AccountService
-import com.mixfa.marketplace.shared.CheckedPageable
+import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
 import jakarta.validation.constraints.Email
 import org.springframework.web.bind.annotation.*

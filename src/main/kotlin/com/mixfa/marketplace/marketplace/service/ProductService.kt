@@ -4,6 +4,10 @@ import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
 import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.event.MarketplaceEvent
+import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.QueryConstructor
+import com.mixfa.marketplace.shared.model.SortConstructor
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener

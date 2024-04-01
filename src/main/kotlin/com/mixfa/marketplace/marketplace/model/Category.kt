@@ -3,7 +3,7 @@ package com.mixfa.marketplace.marketplace.model
 import com.fasterxml.jackson.annotation.JsonIdentityInfo
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.ObjectIdGenerators
-import com.mixfa.marketplace.shared.WithDto
+import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.springframework.data.annotation.Id

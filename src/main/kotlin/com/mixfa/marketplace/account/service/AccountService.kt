@@ -5,6 +5,7 @@ import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.model.Role
 import com.mixfa.marketplace.mail.MailSender
 import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.model.CheckedPageable
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled

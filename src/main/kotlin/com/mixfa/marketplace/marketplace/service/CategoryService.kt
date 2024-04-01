@@ -2,7 +2,7 @@ package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.service.repo.CategoryRepository
-import com.mixfa.marketplace.shared.CheckedPageable
+import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.NotFoundException
 import com.mixfa.marketplace.shared.orThrow
 import org.springframework.data.domain.Page
