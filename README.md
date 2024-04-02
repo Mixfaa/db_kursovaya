@@ -174,14 +174,14 @@
 
 ### account service
 
-|                Url                 | Method |                                Accepts                                 |         Returns         |                                Comment                                |
-|:----------------------------------:|:------:|:----------------------------------------------------------------------:|:-----------------------:|:---------------------------------------------------------------------:|
+|                Url                 | Method |                                Accepts                                 |         Returns         |                                    Comment                                    |
+|:----------------------------------:|:------:|:----------------------------------------------------------------------:|:-----------------------:|:-----------------------------------------------------------------------------:|
 |             /register              |  post  |                        Account.RegisterRequest                         |         Account         |
 |       /add_shipping_address        |  post  |                        shippingAddress: String                         |         Account         |
 |      /remove_shipping_address      |  post  |                        shippingAddress: String                         |         Account         |
 |              /get_me               |  get   |                                                                        |         Account         |
 |            /find_users             |  get   |                  query:String, page:Int, pageSize:Int                  |         Account         |
-|          /send_email_code          |  post  |                              email:String                              |                         | send email with code to user`s email to pass it with register request |
+|          /send_email_code          |  post  |                              email:String                              |                         |     send email with code to user`s email to pass it with register request     |
 |         /category/register         |  post  |                        Category.RegisterRequest                        |        Category         |
 |           /category/find           |  get   |                  query:String, page:Int, pageSize:Int                  |   Page of Categories    |
 |           /category/list           |  get   |                        page:Int, pageSize: Int                         |   Page of categories    |
@@ -191,7 +191,8 @@
 |           /product/find            |  get   |                  query:String, page:Int, pageSize:Int                  |    Page of products     |
 |           /product/count           |  get   |                                                                        |           Int           |
 |          /product/findV2           |  get   | query: QueryConstructor, sort: SortConstructor, page:Int, pageSize:Int |    Page of products     |
-|           /product/edit            |  post  |                                Product                                 |         Product         |                                                                       |                 
+|          /product/findV3           |  get   |     query: QueryConstructor, sort: String, page:Int, pageSize:Int      |    Page of products     | Sort must be one of PRICE_DESCENDING, PRICE_ASCENDING, ORDER_COUNT_DESCENDING |
+|           /product/edit            |  post  |                                Product                                 |         Product         |                                                                               |                 
 |         /discount/register         |  post  |                        Discount.RegisterRequest                        |        Discount         |
 |          /discount/delete          |  post  |                           discountId:String                            |                         |
 |           /discount/list           |  get   |                         page:Int, pageSize:Int                         |    Page of discounts    |
@@ -200,7 +201,7 @@
 |        /order/change_status        |  post  |                   orderId:String, newStatus: Status                    |          Order          |
 |           /order/list_my           |  get   |                         page:Int, pageSize:Int                         |     Page of orders      |
 |          /order/count_my           |  get   |                                                                        |           Int           |
-|          /order/calculate          |  get   |                         Order.RegisterRequest                          | List of RealizedProduct |                  calculates order with all discounts                  |
+|          /order/calculate          |  get   |                         Order.RegisterRequest                          | List of RealizedProduct |                      calculates order with all discounts                      |
 |         /comments/register         |  post  |                        Comment.RegisterRequest                         |         Comment         |
 |          /comments/delete          |  post  |                           commentId: String                            |                         |
 |           /comments/list           |  get   |               productId:String, page:Int, pageSize: Int                |    Page of comments     |
@@ -210,5 +211,5 @@
 |        /favlist/add_product        |  post  |                    listId:String, productId:String                     |      FavouriteList      |
 |      /favlist/remove_product       |  post  |                    listId:String, productId:String                     |      FavouriteList      |
 |          /favlist/get_my           |  get   |                                                                        |  List of FavouteLists   |
-|        /favlist/get_public         |  get   |                             listId:String                              |      FavouriteList      |               get favourite list by id if it is public                |
-| /favlist/find_account_public_lists |  get   |                            accountId:String                            | List of favourite lists |                      get user`s favourite lists                       |
+|        /favlist/get_public         |  get   |                             listId:String                              |      FavouriteList      |                   get favourite list by id if it is public                    |
+| /favlist/find_account_public_lists |  get   |                            accountId:String                            | List of favourite lists |                          get user`s favourite lists                           |
