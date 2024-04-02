@@ -61,6 +61,10 @@ class MarketplaceController(
     fun findProductsV2(query: QueryConstructor, sort: SortConstructor, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
 
+    @PostMapping("/product/edit")
+    fun editProduct(@RequestBody product: Product) =
+        productService.editProduct(product)
+
     /*
     * Discounts
     */

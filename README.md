@@ -57,6 +57,7 @@
 * price: Double
 * rate: Double
 * ordersCount: Long
+* images: List of strings
 
 #### Register request
 
@@ -65,6 +66,7 @@
 * characteristics: Map String to String (prop to value)
 * description: String
 * price: Double
+* images: List of strings
 
 ---
 
@@ -189,6 +191,7 @@
 |           /product/find            |  get   |                  query:String, page:Int, pageSize:Int                  |    Page of products     |
 |           /product/count           |  get   |                                                                        |           Int           |
 |          /product/findV2           |  get   | query: QueryConstructor, sort: SortConstructor, page:Int, pageSize:Int |    Page of products     |
+|           /product/edit            |  post  |                                Product                                 |         Product         |                                                                       |                 
 |         /discount/register         |  post  |                        Discount.RegisterRequest                        |        Discount         |
 |          /discount/delete          |  post  |                           discountId:String                            |                         |
 |           /discount/list           |  get   |                         page:Int, pageSize:Int                         |    Page of discounts    |

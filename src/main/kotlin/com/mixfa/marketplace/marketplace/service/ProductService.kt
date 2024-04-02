@@ -3,11 +3,14 @@ package com.mixfa.marketplace.marketplace.service
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
-import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.NotFoundException
+import com.mixfa.marketplace.shared.ProductCharacteristicsNotSetException
 import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
+import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.marketplace.shared.productNotFound
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -41,6 +44,14 @@ class ProductService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    fun editProduct(product: Product) : Product {
+        if (!productRepo.existsById(product.id.toString()))
+            throw NotFoundException.productNotFound()
+
+        return productRepo.save(product)
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerProduct(request: Product.RegisterRequest): Product {
         val categories = categoryService.findCategoriesByIdOrThrow(request.categories)
 
@@ -58,7 +69,8 @@ class ProductService(
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,
-                categories = categories
+                categories = categories,
+                images = request.images
             )
         ).also { product -> eventPublisher.publishEvent(Event.ProductRegister(product, this)) }
     }

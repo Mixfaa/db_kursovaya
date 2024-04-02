@@ -19,7 +19,8 @@ data class Product(
     val description: String,
     val price: Double,
     val rate: Double = 0.0,
-    val ordersCount: Long = 0
+    val ordersCount: Long = 0,
+    val images: List<String>
 ) : WithDto {
     data class RegisterRequest(
         @NotBlank
@@ -31,7 +32,8 @@ data class Product(
         @NotBlank
         val description: String,
         @NotNull
-        val price: Double
+        val price: Double,
+        val images: List<String>
     )
 
     @get:JsonIgnore
@@ -45,7 +47,8 @@ data class Product(
         val description: String,
         val price: Double,
         val rate: Double,
-        val ordersCount: Long
+        val ordersCount: Long,
+        val images: List<String>
     ) {
         constructor(product: Product) : this(
             product.id.toString(),
@@ -55,7 +58,8 @@ data class Product(
             product.description,
             product.price,
             product.rate,
-            product.ordersCount
+            product.ordersCount,
+            product.images
         )
     }
 

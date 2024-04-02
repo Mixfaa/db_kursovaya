@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.marketplace.service.repo
 
 import com.mixfa.marketplace.marketplace.model.Product
+import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
