@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.shared.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import org.springframework.data.domain.Sort
 
 data class SortConstructor(
@@ -13,4 +14,11 @@ data class SortConstructor(
 
         return Sort.by(mongoOrders)
     }
+}
+
+@JsonFormat(shape = JsonFormat.Shape.STRING)
+enum class PrecompiledSort(val sort: Sort) {
+    PRICE_DESCENDING(Sort.by("price").descending()),
+    PRICE_ASCENDING(Sort.by("price").ascending()),
+    ORDER_COUNT_DESCENDING(Sort.by("ordersCount").descending());
 }

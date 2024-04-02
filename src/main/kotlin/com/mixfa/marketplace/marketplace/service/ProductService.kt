@@ -7,6 +7,7 @@ import com.mixfa.marketplace.shared.NotFoundException
 import com.mixfa.marketplace.shared.ProductCharacteristicsNotSetException
 import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.PrecompiledSort
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
 import com.mixfa.marketplace.shared.orThrow
@@ -21,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class ProductService(
@@ -29,7 +31,7 @@ class ProductService(
     private val categoryService: CategoryService,
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<MarketplaceEvent> {
-    fun findProductById(id: String) = productRepo.findById(id)
+    fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
 
     fun findProductsByIdsOrThrow(ids: List<String>): List<Product> {
         val products = productRepo.findAllById(ids)
@@ -44,7 +46,7 @@ class ProductService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun editProduct(product: Product) : Product {
+    fun editProduct(product: Product): Product {
         if (!productRepo.existsById(product.id.toString()))
             throw NotFoundException.productNotFound()
 
@@ -96,6 +98,17 @@ class ProductService(
         val sort = sortConstructor.makeSort()
 
         query.with(pageable).with(sort) // applies to same instance
+
+        return mongoTemplate.find(query, Product::class.java)
+    }
+
+    fun findProducts(
+        queryConstructor: QueryConstructor,
+        precompiledSort: PrecompiledSort,
+        pageable: CheckedPageable
+    ): List<Product> {
+        val query = queryConstructor.makeQuery()
+        query.with(pageable).with(precompiledSort.sort) // applies to same instance
 
         return mongoTemplate.find(query, Product::class.java)
     }
