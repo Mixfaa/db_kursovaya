@@ -47,26 +47,31 @@ class AccountService(
         SecurityContextHolder.getContext().authentication!!
 
     @PreAuthorize("isAuthenticated() == true")
-    fun getAuthenticatedAccount() =
+    fun getAuthenticatedAccount(): Optional<Account> =
         accountRepo.findById(getAuthenticatedPrincipal().name)
 
-    fun findAccount(accountId: String) = accountRepo.findById(accountId)
+    fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 
     fun register(request: Account.RegisterRequest): Account {
         val existsByUsername = accountRepo.existsByUsername(request.username)
-        if (existsByUsername) throw UsernameTakenException(request.username)
+        if (existsByUsername) throw FastThrowable("Username ${request.username} is already in use")
 
         val requestedEmail = mailCodes[request.mailCode]
-            ?: throw EmailCodeNotValidException(request.mailCode)
+            ?: throw FastThrowable("Email ${request.mailCode} is already in use")
 
         mailCodes.remove(request.mailCode)
 
         val existsByEmail = accountRepo.existsByEmail(requestedEmail)
-        if (existsByEmail) throw EmailTakenException(requestedEmail)
+        if (existsByEmail) throw FastThrowable("Email $requestedEmail is already in use")
 
         val role = runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
-        if (role == Role.ADMIN && request.adminSecret != null && request.adminSecret != adminSecret)
-            throw AdminCreationException(request.adminSecret)
+        if (role == Role.ADMIN) {
+            if (request.adminSecret == null)
+                throw AdminSecretIsNullException.get()
+
+            if (request.adminSecret != adminSecret)
+                throw FastThrowable("Can`t create admin using ${request.adminSecret}")
+        }
 
         return accountRepo.save(
             Account(
