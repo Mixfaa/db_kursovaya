@@ -35,7 +35,7 @@ class ProductService(
 
     fun findProductsByIdsOrThrow(ids: List<String>): List<Product> {
         val products = productRepo.findAllById(ids)
-        if (products.isEmpty()) throw NotFoundException.productNotFound()
+        if (products.size != ids.size) throw NotFoundException.productNotFound()
         return products
     }
 
@@ -97,7 +97,7 @@ class ProductService(
         val query = queryConstructor.makeQuery()
         val sort = sortConstructor.makeSort()
 
-        query.with(pageable).with(sort) // applies to same instance
+        query.with(pageable).with(sort)
 
         return mongoTemplate.find(query, Product::class.java)
     }
@@ -108,7 +108,7 @@ class ProductService(
         pageable: CheckedPageable
     ): List<Product> {
         val query = queryConstructor.makeQuery()
-        query.with(pageable).with(precompiledSort.sort) // applies to same instance
+        query.with(pageable).with(precompiledSort.sort)
 
         return mongoTemplate.find(query, Product::class.java)
     }
