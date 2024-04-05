@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.account.service
 
+import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.account.*
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.model.Role
@@ -84,7 +85,7 @@ class AccountService(
         val account = getAuthenticatedAccount().orThrow()
 
         if (account.shippingAddresses.contains(shippingAddress))
-            throw Exception("Account already contain $shippingAddress")
+            throw FastThrowable("Account already contain $shippingAddress")
 
         return accountRepo.save(
             account.copy(shippingAddresses = account.shippingAddresses + shippingAddress)
@@ -96,7 +97,7 @@ class AccountService(
         val account = getAuthenticatedAccount().orThrow()
 
         if (!account.shippingAddresses.contains(shippingAddress))
-            throw Exception("Account does not contain $shippingAddress")
+            throw FastThrowable("Account does not contain $shippingAddress")
 
         return accountRepo.save(
             account.copy(shippingAddresses = account.shippingAddresses - shippingAddress)
