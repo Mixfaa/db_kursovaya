@@ -57,7 +57,7 @@ class AccountService(
         if (existsByUsername) throw FastThrowable("Username ${request.username} is already in use")
 
         val requestedEmail = mailCodes[request.mailCode]
-            ?: throw FastThrowable("Email ${request.mailCode} is already in use")1
+            ?: throw FastThrowable("Email ${request.mailCode} is already in use")
 
         mailCodes.remove(request.mailCode)
 
