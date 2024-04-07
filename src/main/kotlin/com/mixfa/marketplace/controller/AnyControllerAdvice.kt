@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.controller
 
+import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.shared.ErrorModel
 import com.mixfa.marketplace.shared.NotFoundException
 import org.springframework.http.HttpStatus
@@ -14,8 +15,8 @@ class AnyControllerAdvice {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorModel(exception))
     }
 
-    @ExceptionHandler(Throwable::class)
-    fun handleException(exception: Throwable): ResponseEntity<ErrorModel> {
+    @ExceptionHandler(FastThrowable::class)
+    fun handleException(exception: FastThrowable): ResponseEntity<ErrorModel> {
         return ResponseEntity.badRequest().body(ErrorModel(exception))
     }
 }

@@ -14,8 +14,7 @@ class AccountController(
     private val accountService: AccountService
 ) {
     @PostMapping("/register")
-    fun register(@RequestBody request: Account.RegisterRequest) =
-        accountService.register(request)
+    fun register(@RequestBody request: Account.RegisterRequest) = accountService.register(request)
 
     @PostMapping("/add_shipping_address")
     fun addShippingAddress(shippingAddress: String) =

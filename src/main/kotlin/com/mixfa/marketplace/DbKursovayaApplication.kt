@@ -25,6 +25,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.transaction.TransactionManager
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CommonsRequestLoggingFilter
 
 
 @SpringBootApplication
@@ -39,10 +43,20 @@ class DbKursovayaApplication {
     }
 
     @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        return UrlBasedCorsConfigurationSource()
+            .apply {
+                registerCorsConfiguration("/**", CorsConfiguration().applyPermitDefaultValues())
+            }
+    }
+
+    @Bean
     fun securityWebFilterChain(
         http: HttpSecurity
     ): SecurityFilterChain =
-        http.httpBasic(Customizer.withDefaults()).csrf { it.disable() }
+        http.httpBasic(Customizer.withDefaults())
+            .csrf { it.disable() }
+            .cors { it.configurationSource(corsConfigurationSource()) }
             .authorizeHttpRequests { httpRequest ->
                 httpRequest
                     .requestMatchers(
@@ -91,6 +105,16 @@ class DbKursovayaApplication {
         props["mail.debug"] = "true"
 
         return mailSender
+    }
+
+    @Bean
+    fun logFilter(): CommonsRequestLoggingFilter {
+        val filter = CommonsRequestLoggingFilter()
+        filter.setIncludeQueryString(true)
+        filter.setIncludePayload(true)
+        filter.setMaxPayloadLength(1000000)
+        filter.setIncludeHeaders(false)
+        return filter
     }
 
 }
