@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.account
+package com.mixfa.marketplace.account.controller
 
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.service.AccountService
