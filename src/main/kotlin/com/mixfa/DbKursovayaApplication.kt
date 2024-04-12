@@ -1,4 +1,4 @@
-package com.mixfa.marketplace
+package com.mixfa
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
