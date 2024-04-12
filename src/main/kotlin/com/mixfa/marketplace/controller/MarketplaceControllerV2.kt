@@ -10,7 +10,7 @@ import com.mixfa.marketplace.shared.model.SortConstructor
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/marketplace")
+@RequestMapping("/v2/marketplace")
 class MarketplaceControllerV2(
     private val categoryService: CategoryService,
     private val commentService: CommentService,

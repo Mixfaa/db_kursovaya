@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 import java.security.Principal
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/v2/account")
 class AccountControllerV2(
     private val accountService: AccountService
 ) {
