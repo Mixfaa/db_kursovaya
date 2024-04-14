@@ -23,50 +23,50 @@ class MarketplaceControllerV2(
     * categories
     */
 
-    @PostMapping("/category/register")
+    @PostMapping("/categories/register")
     fun registerCategory(@RequestBody request: Category.RegisterRequest) =
         categoryService.registerCategory(request)
 
-    @GetMapping("/category/find")
+    @GetMapping("/categories/find")
     fun findCategories(query: String, page: Int, pageSize: Int) =
         categoryService.findCategories(query, CheckedPageable(page, pageSize))
 
-    @GetMapping("/category")
+    @GetMapping("/categories")
     fun listCategories(page: Int, pageSize: Int) =
         categoryService.listCategories(CheckedPageable(page, pageSize))
 
-    @GetMapping("/category/count")
+    @GetMapping("/categories/count")
     fun countCategories() = categoryService.countCategories()
 
     /*
     * Products
     */
 
-    @PostMapping("/product/register")
+    @PostMapping("/products/register")
     fun registerProduct(@RequestBody request: Product.RegisterRequest) =
         productService.registerProduct(request)
 
-    @DeleteMapping("/product/{productId}")
+    @DeleteMapping("/products/{productId}")
     fun deleteProduct(@PathVariable productId: String) =
         productService.deleteProduct(productId)
 
-    @GetMapping("/product/find")
+    @GetMapping("/products/find")
     fun findProducts(query: String, page: Int, pageSize: Int) =
         productService.findProducts(query, CheckedPageable(page, pageSize))
 
-    @GetMapping("/product/count")
+    @GetMapping("/products/count")
     fun countProducts() =
         productService.countProducts()
 
-    @GetMapping("/product/findV2")
+    @GetMapping("/products/findV2")
     fun findProductsV2(query: QueryConstructor, sort: SortConstructor, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
 
-    @GetMapping("/product/findV3")
+    @GetMapping("/products/findV3")
     fun findProductsV3(query: QueryConstructor, sort: PrecompiledSort, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
 
-    @PostMapping("/product/edit")
+    @PostMapping("/products/edit")
     fun editProduct(@RequestBody product: Product) =
         productService.editProduct(product)
 
@@ -74,15 +74,15 @@ class MarketplaceControllerV2(
     * Discounts
     */
 
-    @PostMapping("/discount/register")
+    @PostMapping("/discounts/register")
     fun registerDiscount(@RequestBody request: AbstractDiscount.AbstractRegisterRequest) =
         discountService.registerDiscount(request)
 
-    @DeleteMapping("/discount/{discountId}")
+    @DeleteMapping("/discounts/{discountId}")
     fun deleteDiscount(@PathVariable discountId: String) =
         discountService.deleteDiscount(discountId)
 
-    @GetMapping("/discount")
+    @GetMapping("/discounts")
     fun listDiscounts(page: Int, pageSize: Int) =
         discountService.listDiscounts(CheckedPageable(page, pageSize))
 
@@ -90,27 +90,27 @@ class MarketplaceControllerV2(
     * Orders
     */
 
-    @PostMapping("/order/register")
+    @PostMapping("/orders/register")
     fun registerOrder(@RequestBody request: Order.RegisterRequest) =
         orderService.registerOrder(request)
 
-    @PostMapping("/order/{orderId}/cancel")
+    @PostMapping("/orders/{orderId}/cancel")
     fun cancelOrder(@PathVariable orderId: String) =
         orderService.cancelOrder(orderId)
 
-    @PostMapping("/order/{orderId}/change_status")
+    @PostMapping("/orders/{orderId}/change_status")
     fun changeOrderStatus(@PathVariable orderId: String, newStatus: OrderStatus) =
         orderService.changeOrderStatus(orderId, newStatus)
 
-    @GetMapping("/order/list_my")
+    @GetMapping("/orders/list_my")
     fun listMyOrders(page: Int, pageSize: Int) =
         orderService.listMyOrders(CheckedPageable(page, pageSize))
 
-    @GetMapping("/order/count_my")
+    @GetMapping("/orders/count_my")
     fun countMyOrders() =
         orderService.countMyOrders()
 
-    @GetMapping("/order/calculate")
+    @GetMapping("/orders/calculate")
     fun calculateOrder(request: Order.RegisterRequest) =
         orderService.calculateOrderCost(request)
 
@@ -122,7 +122,7 @@ class MarketplaceControllerV2(
     fun registerComment(@RequestBody request: Comment.RegisterRequest) =
         commentService.registerComment(request)
 
-    @DeleteMapping("/comment/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     fun deleteComment(@PathVariable commentId: String) =
         commentService.deleteComment(commentId)
 
@@ -134,35 +134,35 @@ class MarketplaceControllerV2(
      * Favourite
      */
 
-    @PostMapping("/favlist/create")
+    @PostMapping("/favlists/create")
     fun createFavouriteList(@RequestBody request: FavouriteList.RegisterRequest) =
         favouriteListsService.createList(request)
 
-    @DeleteMapping("/favlist/{listId}")
+    @DeleteMapping("/favlists/{listId}")
     fun deleteFavouriteList(@PathVariable listId: String) =
         favouriteListsService.deleteList(listId)
 
-    @PostMapping("/favlist/{listId}/change_visibility")
+    @PostMapping("/favlists/{listId}/change_visibility")
     fun changeFavouriteListVisibility(@PathVariable listId: String, isPublic: Boolean) =
         favouriteListsService.changeListVisibility(listId, isPublic)
 
-    @PostMapping("/favlist/{listId}/add_product")
-    fun addProductToFavouriteList(@PathVariable listId: String, productId: String) =
+    @PostMapping("/favlists/{listId}/product/{productId}")
+    fun addProductToFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
         favouriteListsService.addProductToList(listId, productId)
 
-    @PostMapping("/favlist/{listId}/remove_product")
-    fun removeProductFromFavouriteList(@PathVariable listId: String, productId: String) =
+    @DeleteMapping("/favlists/{listId}/product/{productId}")
+    fun removeProductFromFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
         favouriteListsService.removeProductFromList(listId, productId)
 
-    @GetMapping("/favlist/my")
+    @GetMapping("/favlists/my")
     fun getMyFavouriteLists() =
         favouriteListsService.getMyFavouriteLists()
 
-    @GetMapping("/favlist/{listId}/get_public")
+    @GetMapping("/favlists/{listId}/get_public")
     fun getPublicFavouriteList(@PathVariable listId: String) =
         favouriteListsService.getPublicFavouriteList(listId)
 
-    @GetMapping("/favlist/from_account/{accountId}")
+    @GetMapping("/favlists/from_account/{accountId}")
     fun findPublicFavouriteListsOf(@PathVariable accountId: String) =
         favouriteListsService.findPublicFavouriteListsOf(accountId)
 }

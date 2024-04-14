@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/file-storage")
+@RequestMapping("/v2/file-storage")
 class FileStorageController(
     private val fsService: FileStorageService
 ) {
