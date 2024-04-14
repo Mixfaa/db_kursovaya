@@ -1,27 +1,19 @@
 package com.mixfa.marketplace
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mixfa.marketplace.shared.model.AbstractQueryCriteria
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class DbKursovayaApplicationTests {
-    companion object {
-        val mapper = ObjectMapper()
-            .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-            .registerKotlinModule()
-    }
-
-    @Test
-    fun contextLoads() {
-    }
+open class DbKursovayaApplicationTests {
+    @Autowired
+    lateinit var mapper: ObjectMapper
 
     @Test
     fun sortConstructorTest() {

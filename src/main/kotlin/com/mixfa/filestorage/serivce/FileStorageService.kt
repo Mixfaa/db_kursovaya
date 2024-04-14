@@ -6,14 +6,15 @@ import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.marketplace.shared.NotFoundException
 import com.mixfa.marketplace.shared.fileNotFound
 import com.mixfa.marketplace.shared.orThrow
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.net.URI
 
 @Service
 class FileStorageService(
-    private val filesRepo: StoredFileRepository
+    private val filesRepo: StoredFileRepository,
+    @Value("\${filestorage.max_file_size}") private val maxFileSize: Long
 ) {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun deleteFile(fileId: String) {
@@ -28,10 +29,10 @@ class FileStorageService(
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun saveFile(file: MultipartFile): StoredFile {
-        if (file.size >= MAX_FILE_SIZE_B) throw FileToBigException.get()
+        if (file.size >= maxFileSize) throw FileToBigException.get()
 
         return filesRepo.save(
-            StoredFile(
+            StoredFile.LocallyStored(
                 name = file.name,
                 bytes = file.bytes
             )
@@ -39,24 +40,10 @@ class FileStorageService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun saveFile(fileName: String, uri: String): StoredFile {
-        val bytes = URI.create(uri)
-            .toURL()
-            .openStream().use { stream ->
-                if (stream.available() > MAX_FILE_SIZE_B) throw FileToBigException.get()
-
-                stream.readBytes()
-            }
-
-        return filesRepo.save(
-            StoredFile(
-                name = fileName,
-                bytes = bytes
-            )
+    fun saveFile(fileName: String, uri: String): StoredFile = filesRepo.save(
+        StoredFile.ExternallyStored(
+            name = fileName,
+            link = uri,
         )
-    }
-
-    companion object {
-        const val MAX_FILE_SIZE_B = 16000000L
-    }
+    )
 }
