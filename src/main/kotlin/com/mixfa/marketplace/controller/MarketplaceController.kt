@@ -19,6 +19,9 @@ class MarketplaceController(
     private val productService: ProductService,
     private val favouriteListsService: FavouriteListsService
 ) {
+    @GetMapping("/status")
+    fun getStatus(): String = "Marketplace probably works"
+
     /*
     * categories
     */
