@@ -66,10 +66,13 @@ class MarketplaceControllerV2(
     fun findProductsV3(query: QueryConstructor, sort: PrecompiledSort, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
 
-    @PostMapping("/products/edit")
-    fun editProduct(@RequestBody product: Product) =
-        productService.editProduct(product)
+    @PostMapping("/products/{productId}/image}")
+    fun addProductImage(@PathVariable productId: String, image: String) =
+        productService.addProductImage(productId, image)
 
+    @DeleteMapping("/products/{productId}/image}")
+    fun deleteProductImage(@PathVariable productId: String, image: String) =
+        productService.removeProductImage(productId, image)
     /*
     * Discounts
     */

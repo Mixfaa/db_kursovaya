@@ -63,7 +63,6 @@ sealed class StoredFile(
             return result
         }
     }
-
 }
 
 

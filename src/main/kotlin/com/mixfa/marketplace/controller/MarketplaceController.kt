@@ -9,6 +9,7 @@ import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
 import org.springframework.web.bind.annotation.*
 
+@Deprecated
 @RestController
 @RequestMapping("/marketplace")
 class MarketplaceController(

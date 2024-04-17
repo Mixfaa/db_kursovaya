@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.marketplace.service
 
+import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
@@ -46,11 +47,26 @@ class ProductService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun editProduct(product: Product): Product {
-        if (!productRepo.existsById(product.id.toString()))
-            throw NotFoundException.productNotFound()
+    fun addProductImage(productId: String, imageLink: String): Product {
+        if (imageLink.isBlank())
+            throw FastThrowable("Can`t add $imageLink to product images")
 
-        return productRepo.save(product)
+        val product = findProductById(productId).orThrow()
+
+        if (!product.images.contains(imageLink))
+            return productRepo.save(product.copy(images = product.images + imageLink))
+
+        return product
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    fun removeProductImage(productId: String, imageLink: String): Product {
+        val product = findProductById(productId).orThrow()
+
+        if (product.images.contains(imageLink))
+            return productRepo.save(product.copy(images = product.images - imageLink))
+
+        return product
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
