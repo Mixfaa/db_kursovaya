@@ -3,6 +3,7 @@ package com.mixfa.marketplace.shared
 import org.slf4j.Logger
 
 const val DEFAULT_FIXED_RATE = 15000L
+const val IS_AUTHENTICATED = "isAuthenticated() == true"
 
 inline fun <T> runCatchLog(logger: Logger, block: () -> T): T? {
     try {

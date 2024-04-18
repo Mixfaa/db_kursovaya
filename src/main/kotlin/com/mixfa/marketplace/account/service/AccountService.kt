@@ -7,11 +7,8 @@ import com.mixfa.marketplace.account.get
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.model.Role
 import com.mixfa.marketplace.mail.MailSender
-import com.mixfa.marketplace.shared.DEFAULT_FIXED_RATE
+import com.mixfa.marketplace.shared.*
 import com.mixfa.marketplace.shared.model.CheckedPageable
-import com.mixfa.marketplace.shared.orThrow
-import com.mixfa.marketplace.shared.runOrNull
-import com.mixfa.marketplace.shared.takeWhile
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -25,8 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.security.Principal
 import java.util.*
-import kotlin.collections.minus
-import kotlin.collections.plus
 import kotlin.collections.set
 import kotlin.random.Random
 
@@ -48,15 +43,11 @@ class AccountService(
     fun findUsers(query: String, pageable: CheckedPageable) =
         accountRepo.findAllByText(query, pageable)
 
-    fun accountByPrincipal(principal: Principal) = accountRepo.findById(principal.name)
+    fun accountByPrincipal(principal: Principal): Optional<Account> = accountRepo.findById(principal.name)
 
-    @PreAuthorize("isAuthenticated() == true")
-    fun getAuthenticatedPrincipal(): Authentication =
-        SecurityContextHolder.getContext().authentication!!
-
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize(IS_AUTHENTICATED)
     fun getAuthenticatedAccount(): Optional<Account> =
-        accountRepo.findById(getAuthenticatedPrincipal().name)
+        accountRepo.findById(SecurityUtils.getAuthenticatedPrincipal().name)
 
     fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 
@@ -66,10 +57,8 @@ class AccountService(
         val existsByUsername = accountRepo.existsByUsername(request.username)
         if (existsByUsername) throw FastThrowable("Username ${request.username} is already in use")
 
-        val requestedEmail = mailCodes[request.mailCode]
+        val requestedEmail = mailCodes.remove(request.mailCode)
             ?: throw FastThrowable("Code ${request.mailCode} not related to any email")
-
-        mailCodes.remove(request.mailCode)
 
         val existsByEmail = accountRepo.existsByEmail(requestedEmail)
         if (existsByEmail) throw FastThrowable("Email $requestedEmail is already in use")
@@ -95,7 +84,7 @@ class AccountService(
         )
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize(IS_AUTHENTICATED)
     fun addShippingAddress(shippingAddress: String): Account {
         val account = getAuthenticatedAccount().orThrow()
 
@@ -107,7 +96,7 @@ class AccountService(
         )
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize(IS_AUTHENTICATED)
     fun removeShippingAddress(shippingAddress: String): Account {
         val account = getAuthenticatedAccount().orThrow()
 
