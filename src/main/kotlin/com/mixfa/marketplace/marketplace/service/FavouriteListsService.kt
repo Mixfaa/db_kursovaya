@@ -16,14 +16,14 @@ class FavouriteListsService(
     private val favoriteListRepo: FavoriteListRepository
 ) : ApplicationListener<ProductService.Event> {
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:READ')")
     private fun findFavouriteListSecure(listId: String): FavouriteList {
         val favouriteList = favoriteListRepo.findById(listId).orThrow()
         SecurityUtils.getAuthenticatedPrincipal().throwIfNot(favouriteList.owner)
         return favouriteList
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:WRITE')")
     fun createList(request: FavouriteList.RegisterRequest): FavouriteList {
         val account = accountService.getAuthenticatedAccount().orThrow()
 
@@ -47,7 +47,6 @@ class FavouriteListsService(
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     private fun handleProductDeletion(product: Product) {
-
         iteratePages(bindToFetchFun(favoriteListRepo::findAllByProductsContains, product)) { favoriteList ->
             favoriteListRepo.save(favoriteList.copy(
                 products = favoriteList.products - product
@@ -55,13 +54,13 @@ class FavouriteListsService(
         }
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:WRITE')")
     fun deleteList(listId: String) {
         val account = accountService.getAuthenticatedAccount().orThrow()
         favoriteListRepo.deleteByIdAndOwner(listId, account)
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:WRITE')")
     fun changeListVisibility(listId: String, isPublic: Boolean) {
         val favouriteList = findFavouriteListSecure(listId)
 
@@ -72,7 +71,7 @@ class FavouriteListsService(
         )
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:WRITE')")
     fun addProductToList(listId: String, productId: String): FavouriteList {
         val favouriteList = findFavouriteListSecure(listId)
 
@@ -91,7 +90,7 @@ class FavouriteListsService(
         )
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:WRITE')")
     fun removeProductFromList(listId: String, productId: String): FavouriteList {
         val favouriteList = findFavouriteListSecure(listId)
 
@@ -107,16 +106,18 @@ class FavouriteListsService(
         )
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('FAVLIST:READ')")
     fun getMyFavouriteLists(): List<FavouriteList> {
         val account = accountService.getAuthenticatedAccount().orThrow()
         return favoriteListRepo.findAllByOwner(account)
     }
 
+    @PreAuthorize("hasAuthority('FAVLIST:READ')")
     fun getPublicFavouriteList(listId: String): FavouriteList {
         return favoriteListRepo.findByIdAndIsPublicTrue(listId).orThrow()
     }
 
+    @PreAuthorize("hasAuthority('FAVLIST:READ')")
     fun findPublicFavouriteListsOf(accountId: String): List<FavouriteList> {
         val account = accountService.findAccount(accountId).orThrow()
         return favoriteListRepo.findAllByOwnerAndIsPublicTrue(account)

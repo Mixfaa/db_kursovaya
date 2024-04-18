@@ -60,11 +60,12 @@ class DbKursovayaApplication {
             .authorizeHttpRequests { httpRequest ->
                 httpRequest
                     .requestMatchers(
-                        "/account/register",
-                        "/account/send_email_code"
+                        "**/account/register",
+                        "**/account/send_email_code"
                     ).permitAll()
-                    .requestMatchers("/account/**").authenticated()
-                    .requestMatchers("/marketplace/**").authenticated()
+                    .requestMatchers("**/account/**").authenticated()
+                    .requestMatchers("**/file-storage/**").authenticated()
+                    .requestMatchers("**/marketplace/**").authenticated()
             }.build()
 
 

@@ -3,7 +3,6 @@ package com.mixfa.marketplace.shared
 import com.mixfa.excify.ExcifyCachedException
 import com.mixfa.excify.ExcifyOptionalOrThrow
 import com.mixfa.excify.FastThrowable
-import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.marketplace.model.*
 

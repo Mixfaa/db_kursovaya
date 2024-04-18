@@ -21,7 +21,7 @@ class CommentService(
     private val eventPublisher: ApplicationEventPublisher
 ) : ApplicationListener<ProductService.Event> {
     @Transactional
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('COMMENTS:WRITE')")
     open fun registerComment(request: Comment.RegisterRequest): Comment {
         val account = accountService.getAuthenticatedAccount().orThrow()
         val product = productService.findProductById(request.productId).orThrow()
@@ -33,7 +33,7 @@ class CommentService(
         ).also { comment -> eventPublisher.publishEvent(Event.CommentRegister(comment, this)) }
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('COMMENTS:WRITE')")
     fun deleteComment(commentId: String) {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         val comment = commentRepo.findById(commentId).orThrow()
@@ -46,6 +46,7 @@ class CommentService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
 
+    @PreAuthorize("hasAuthority('COMMENTS:READ')")
     fun listProductComments(productId: String, pageable: CheckedPageable) =
         commentRepo.findAllByProductId(productId, pageable)
 

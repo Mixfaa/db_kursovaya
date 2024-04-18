@@ -30,13 +30,16 @@ class CategoryService(
         )
     )
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun findCategories(query: String, pageable: CheckedPageable): Page<Category> {
         return categoryRepo.findAllByNameContainsIgnoreCase(query, pageable)
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun listCategories(pageable: CheckedPageable): Page<Category> {
         return categoryRepo.findAll(pageable)
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun countCategories() = categoryRepo.count()
 }

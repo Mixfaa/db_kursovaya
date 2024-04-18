@@ -7,3 +7,8 @@ import com.mixfa.excify.FastThrowable
 class AdminSecretIsNullException : FastThrowable("Requested admin role but admin secret is null") {
     companion object
 }
+
+@ExcifyCachedException
+class UsernameNotValidException : FastThrowable("Username not valid") {
+    companion object
+}

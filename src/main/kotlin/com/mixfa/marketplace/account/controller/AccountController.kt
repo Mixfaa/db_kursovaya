@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Email
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
 
-@Deprecated
+@Deprecated("User AccountControllerV2")
 @RestController
 @RequestMapping("/account")
 class AccountController(

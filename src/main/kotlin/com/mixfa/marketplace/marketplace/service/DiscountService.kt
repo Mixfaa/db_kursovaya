@@ -66,6 +66,7 @@ class DiscountService(
 
     fun processAllDiscounts(handler: (AbstractDiscount) -> Unit) = iteratePages(discountRepo::findAll, handler)
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun listDiscounts(pageable: CheckedPageable) = discountRepo.findAll(pageable)
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {

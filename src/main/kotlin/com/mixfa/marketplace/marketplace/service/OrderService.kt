@@ -64,7 +64,7 @@ class OrderService(
     }
 
     @Transactional
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('ORDER:WRITE')")
     fun registerOrder(request: Order.RegisterRequest): Order {
         val account = accountService.getAuthenticatedAccount().orThrow()
 
@@ -89,19 +89,19 @@ class OrderService(
         }
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('ORDER:READ')")
     fun listMyOrders(pageable: CheckedPageable): Page<Order> {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         return orderRepo.findAllByOwnerEmail(principal.name, pageable)
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('ORDER:READ')")
     fun countMyOrders(): Long {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         return orderRepo.countByOwnerEmail(principal.name)
     }
 
-    @PreAuthorize("isAuthenticated() == true")
+    @PreAuthorize("hasAuthority('ORDER:WRITE')")
     fun cancelOrder(orderId: String): Order {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         val order = orderRepo.findById(orderId).orThrow()

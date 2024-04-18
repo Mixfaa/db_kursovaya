@@ -9,7 +9,7 @@ import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
 import org.springframework.web.bind.annotation.*
 
-@Deprecated
+@Deprecated("Use MarketplaceControllerV2")
 @RestController
 @RequestMapping("/marketplace")
 class MarketplaceController(
@@ -69,10 +69,10 @@ class MarketplaceController(
     @GetMapping("/product/findV3")
     fun findProductsV3(query: QueryConstructor, sort: PrecompiledSort, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
-
-    @PostMapping("/product/edit")
-    fun editProduct(@RequestBody product: Product) =
-        productService.editProduct(product)
+//
+//    @PostMapping("/product/edit")
+//    fun editProduct(@RequestBody product: Product) =
+//        productService.editProduct(product)
 
     /*
     * Discounts

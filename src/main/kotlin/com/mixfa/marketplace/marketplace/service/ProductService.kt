@@ -32,14 +32,17 @@ class ProductService(
     private val categoryService: CategoryService,
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<MarketplaceEvent> {
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun findProductsByIdsOrThrow(ids: List<String>): List<Product> {
         val products = productRepo.findAllById(ids)
         if (products.size != ids.size) throw NotFoundException.productNotFound()
         return products
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:WRITE')")
     fun updateProductRate(product: Product, newRate: Double): Product {
         var newProductRate = (product.rate + newRate) / (if (product.rate == 0.0) 1.0 else 2.0)
         if (newProductRate < 0.0) newProductRate = 0.0
@@ -101,10 +104,12 @@ class ProductService(
         eventPublisher.publishEvent(Event.ProductDelete(product, this))
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun findProducts(query: String, pageable: CheckedPageable): Page<Product> {
         return productRepo.findAllByText(query, pageable)
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun findProducts(
         queryConstructor: QueryConstructor,
         sortConstructor: SortConstructor,
@@ -118,6 +123,7 @@ class ProductService(
         return mongoTemplate.find(query, Product::class.java)
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun findProducts(
         queryConstructor: QueryConstructor,
         precompiledSort: PrecompiledSort,
@@ -129,6 +135,7 @@ class ProductService(
         return mongoTemplate.find(query, Product::class.java)
     }
 
+    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun countProducts() = productRepo.count()
 
     private fun incProductsOrdersCount(productsIds: List<ObjectId>) {

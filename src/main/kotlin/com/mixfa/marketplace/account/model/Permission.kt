@@ -1,6 +1,17 @@
 package com.mixfa.marketplace.account.model
 
 enum class Permission {
-    ADMIN_PERMISSIONS,
-    CUSTOMER_PERMISSIONS
+    FILES_READ,
+    FILES_WRITE,
+
+    MARKETPLACE_READ,
+    MARKETPLACE_WRITE,
+
+    COMMENTS_READ,
+    COMMENTS_WRITE,
+    FAVLIST_READ,
+    FAVLIST_WRITE,
+    ORDER_READ,
+    ORDER_WRITE;
+
 }
