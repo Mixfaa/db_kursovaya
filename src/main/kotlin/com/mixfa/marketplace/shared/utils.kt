@@ -3,25 +3,7 @@ package com.mixfa.marketplace.shared
 import org.slf4j.Logger
 
 const val DEFAULT_FIXED_RATE = 15000L
-const val IS_AUTHENTICATED = "isAuthenticated() == true"
-
-inline fun <T> runCatchLog(logger: Logger, block: () -> T): T? {
-    try {
-        return block()
-    } catch (ex: Exception) {
-        logger.error(ex.localizedMessage ?: "unknown error ($ex)")
-    }
-    return null
-}
-
-inline fun <T> runCatchLogThrow(logger: Logger, block: () -> T): T {
-    try {
-        return block()
-    } catch (ex: Exception) {
-        logger.error(ex.localizedMessage ?: "unknown error ($ex)")
-        throw ex
-    }
-}
+const val IS_AUTHENTICATED = "isAuthenticated() == true && !hasRole('ROLE_GUEST')"
 
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
