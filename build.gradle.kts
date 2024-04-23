@@ -24,7 +24,6 @@ dependencies {
     implementation("com.github.Mixfaa:excify:0.0.1")
     ksp("com.github.Mixfaa:excify:0.0.1")
 
-
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -38,6 +37,8 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.apache.commons:commons-collections4:4.4")
+
+    implementation("io.arrow-kt:arrow-core:1.2.4")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

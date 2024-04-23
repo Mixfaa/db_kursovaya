@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.marketplace.service
 
+import arrow.core.partially1
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.FavouriteList
 import com.mixfa.marketplace.marketplace.model.Product
@@ -46,7 +47,7 @@ class FavouriteListsService(
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     private fun handleProductDeletion(product: Product) {
-        iteratePages(bindToFetchFun(favoriteListRepo::findAllByProductsContains, product)) { favoriteList ->
+        iteratePages(favoriteListRepo::findAllByProductsContains.partially1(product)) { favoriteList ->
             favoriteListRepo.save(
                 favoriteList.copy(
                     products = favoriteList.products - product

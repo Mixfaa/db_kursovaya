@@ -33,35 +33,3 @@ inline fun <T> iteratePages(fetchMethod: (Pageable) -> Page<T>, handler: (T) -> 
         pageable = pageable.next()
     } while (page.hasNext())
 }
-
-fun <T, Arg1> bindToFetchFun(func: (Arg1, Pageable) -> Page<T>, arg1: Arg1): (Pageable) -> Page<T> {
-    return { func(arg1, it) }
-}
-
-fun <T, Arg1, Arg2> bindToFetchFun(
-    func: (Arg1, Arg2, Pageable) -> Page<T>,
-    arg1: Arg1,
-    arg2: Arg2
-): (Pageable) -> Page<T> {
-    return { func(arg1, arg2, it) }
-}
-
-fun <T, Arg1, Arg2, Arg3> bindToFetchFun(
-    func: (Arg1, Arg2, Arg3, Pageable) -> Page<T>,
-    arg1: Arg1,
-    arg2: Arg2,
-    arg3: Arg3
-): (Pageable) -> Page<T> {
-    return { func(arg1, arg2, arg3, it) }
-}
-
-fun <T, Arg1, Arg2, Arg3, Arg4> bindToFetchFun(
-    func: (Arg1, Arg2, Arg3, Arg4, Pageable) -> Page<T>,
-    arg1: Arg1,
-    arg2: Arg2,
-    arg3: Arg3,
-    arg4: Arg4
-): (Pageable) -> Page<T> {
-    return { func(arg1, arg2, arg3, arg4, it) }
-}
-
