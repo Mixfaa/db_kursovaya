@@ -1,7 +1,9 @@
 package com.mixfa.filestorage.model
 
+import com.mixfa.marketplace.account.model.Account
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.net.URI
 
@@ -9,6 +11,7 @@ import java.net.URI
 sealed class StoredFile(
     @Id val id: ObjectId = ObjectId(),
     val name: String,
+    @DBRef val owner: Account
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -28,16 +31,18 @@ sealed class StoredFile(
     class LocallyStored(
         name: String,
         val bytes: ByteArray,
+        owner: Account,
         id: ObjectId = ObjectId()
-    ) : StoredFile(id, name) {
+    ) : StoredFile(id, name, owner) {
         override fun bytes(): ByteArray = bytes
     }
 
     class ExternallyStored(
         name: String,
         val link: String,
+        owner: Account,
         id: ObjectId = ObjectId()
-    ) : StoredFile(id, name) {
+    ) : StoredFile(id, name, owner) {
 
         private val bytes: ByteArray by lazy {
             URI.create(link)
