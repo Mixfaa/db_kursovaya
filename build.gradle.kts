@@ -17,14 +17,13 @@ java {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://jitpack.io")
-    }
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation(project(":excify-core"))
-    ksp(project(":excify-core"))
+    implementation("com.github.Mixfaa:excify:0.0.1")
+    ksp("com.github.Mixfaa:excify:0.0.1")
+
 
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-web")
