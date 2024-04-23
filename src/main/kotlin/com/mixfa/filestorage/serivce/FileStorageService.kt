@@ -18,7 +18,7 @@ class FileStorageService(
     private val accountService: AccountService,
     @Value("\${filestorage.max_file_size}") private val maxFileSize: Long
 ) {
-    @PreAuthorize("hasAuthority('FILES: WRITE')")
+    @PreAuthorize("hasAuthority('FILES:EDIT')")
     fun deleteFile(fileId: String) {
         val file = filesRepo.findById(fileId).orThrow()
 
@@ -28,12 +28,9 @@ class FileStorageService(
         filesRepo.deleteById(fileId)
     }
 
-    @PreAuthorize("hasAuthority('FILES:READ')")
-    fun getFile(fileId: String): StoredFile {
-        return filesRepo.findById(fileId).orThrow()
-    }
+    fun getFile(fileId: String): StoredFile = filesRepo.findById(fileId).orThrow()
 
-    @PreAuthorize("hasRole('FILES:WRITE')")
+    @PreAuthorize("hasRole('FILES:EDIT')")
     fun saveFile(file: MultipartFile): StoredFile {
         if (file.size >= maxFileSize) throw FileToBigException.get()
         val account = accountService.getAuthenticatedAccount().orThrow()
@@ -45,7 +42,7 @@ class FileStorageService(
         )
     }
 
-    @PreAuthorize("hasRole('FILES:WRITE')")
+    @PreAuthorize("hasRole('FILES:EDIT')")
     fun saveFile(fileName: String, uri: String): StoredFile {
         val account = accountService.getAuthenticatedAccount().orThrow()
         return filesRepo.save(

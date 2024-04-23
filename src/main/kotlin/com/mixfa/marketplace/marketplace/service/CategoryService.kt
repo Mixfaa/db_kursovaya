@@ -2,9 +2,9 @@ package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.service.repo.CategoryRepository
-import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.NotFoundException
 import com.mixfa.marketplace.shared.categoryNotFound
+import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
@@ -30,16 +30,11 @@ class CategoryService(
         )
     )
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
-    fun findCategories(query: String, pageable: CheckedPageable): Page<Category> {
-        return categoryRepo.findAllByNameContainsIgnoreCase(query, pageable)
-    }
+    fun findCategories(query: String, pageable: CheckedPageable): Page<Category> =
+        categoryRepo.findAllByNameContainsIgnoreCase(query, pageable)
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
-    fun listCategories(pageable: CheckedPageable): Page<Category> {
-        return categoryRepo.findAll(pageable)
-    }
+    fun listCategories(pageable: CheckedPageable): Page<Category> =
+        categoryRepo.findAll(pageable)
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:READ')")
     fun countCategories() = categoryRepo.count()
 }

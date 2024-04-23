@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.shared
 
-import org.slf4j.Logger
+import org.springframework.security.access.prepost.PreAuthorize
+import java.lang.annotation.Inherited
 
 const val DEFAULT_FIXED_RATE = 15000L
 const val IS_AUTHENTICATED = "isAuthenticated() == true && !hasRole('ROLE_GUEST')"

@@ -7,9 +7,11 @@ import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
-import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.SecurityUtils
 import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.marketplace.shared.throwIfNot
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
@@ -64,7 +66,7 @@ class OrderService(
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('ORDER:WRITE')")
+    @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun registerOrder(request: Order.RegisterRequest): Order {
         val account = accountService.getAuthenticatedAccount().orThrow()
 
@@ -89,19 +91,19 @@ class OrderService(
         }
     }
 
-    @PreAuthorize("hasAuthority('ORDER:READ')")
+    @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun listMyOrders(pageable: CheckedPageable): Page<Order> {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         return orderRepo.findAllByOwnerEmail(principal.name, pageable)
     }
 
-    @PreAuthorize("hasAuthority('ORDER:READ')")
+    @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun countMyOrders(): Long {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         return orderRepo.countByOwnerEmail(principal.name)
     }
 
-    @PreAuthorize("hasAuthority('ORDER:WRITE')")
+    @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun cancelOrder(orderId: String): Order {
         val principal = SecurityUtils.getAuthenticatedPrincipal()
         val order = orderRepo.findById(orderId).orThrow()

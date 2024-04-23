@@ -7,25 +7,17 @@ enum class Role(
 ) {
     ADMIN(
         setOf(
-            Permission.FILES_READ, Permission.FILES_WRITE,
-            Permission.MARKETPLACE_READ, Permission.MARKETPLACE_WRITE,
+            Permission.FILES_EDIT,
+            Permission.MARKETPLACE_EDIT,
         )
     ),
     CUSTOMER(
         setOf(
-            Permission.FILES_READ, Permission.FILES_WRITE,
-            Permission.MARKETPLACE_READ,
-            Permission.COMMENTS_READ, Permission.COMMENTS_WRITE,
-            Permission.FAVLIST_READ, Permission.FAVLIST_WRITE,
-            Permission.ORDER_READ, Permission.ORDER_WRITE
-        )
-    ),
-    GUEST(
-        setOf(
-            Permission.FILES_READ,
-            Permission.MARKETPLACE_READ,
-            Permission.FAVLIST_READ,
-            Permission.COMMENTS_READ,
+            Permission.FILES_EDIT,
+            Permission.MARKETPLACE_EDIT,
+            Permission.ORDERS_EDIT,
+            Permission.FAVLIST_EDIT,
+            Permission.COMMENTS_EDIT
         )
     );
 
