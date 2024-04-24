@@ -48,14 +48,14 @@ class AccountService(
     fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 
     fun register(request: Account.RegisterRequest): Account {
-        val existsByUsername = accountRepo.existsByUsername(request.username)
-        if (existsByUsername) throw FastThrowable("Username ${request.username} is already in use")
+        if (accountRepo.existsByUsername(request.username))
+            throw FastThrowable("Username ${request.username} is already in use")
 
         val requestedEmail = mailCodes.remove(request.mailCode)
             ?: throw FastThrowable("Code ${request.mailCode} not related to any email")
 
-        val existsByEmail = accountRepo.existsByEmail(requestedEmail)
-        if (existsByEmail) throw FastThrowable("Email $requestedEmail is already in use")
+        if (accountRepo.existsByEmail(requestedEmail))
+            throw FastThrowable("Email $requestedEmail is already in use")
 
         val role = runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
         if (role == Role.ADMIN) {

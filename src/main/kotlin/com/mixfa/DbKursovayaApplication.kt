@@ -52,21 +52,12 @@ class DbKursovayaApplication {
 
     @Bean
     fun securityWebFilterChain(
-        http: HttpSecurity
+        http: HttpSecurity,
+        corsConfigurationSource: CorsConfigurationSource
     ): SecurityFilterChain =
         http.httpBasic(Customizer.withDefaults())
             .csrf { it.disable() }
-            .cors { it.configurationSource(corsConfigurationSource()) }
-//            .authorizeHttpRequests { httpRequest ->
-//                httpRequest
-//                    .requestMatchers(
-//                        "**/account/register",
-//                        "**/account/send_email_code"
-//                    ).permitAll()
-//                    .requestMatchers("**/account/**").authenticated()
-//                    .requestMatchers("**/file-storage/**").authenticated()
-//                    .requestMatchers("**/marketplace/**").authenticated()
-//            }
+            .cors { it.configurationSource(corsConfigurationSource) }
             .build()
 
 
@@ -118,7 +109,6 @@ class DbKursovayaApplication {
         filter.setIncludeHeaders(false)
         return filter
     }
-
 }
 
 fun main(args: Array<String>) {
