@@ -1,7 +1,7 @@
 package com.mixfa.marketplace.shared
 
 const val DEFAULT_FIXED_RATE = 15000L
-const val IS_AUTHENTICATED = "isAuthenticated() == true && !hasRole('ROLE_GUEST')"
+const val IS_AUTHENTICATED = "isAuthenticated() == true"
 
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {

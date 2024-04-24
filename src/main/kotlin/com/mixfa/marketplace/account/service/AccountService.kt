@@ -108,7 +108,7 @@ class AccountService(
         val code = takeWhile(mailCodes::containsKey, ::random6DigitCode)
 
         mailCodes[code] = email
-        mailSender.sendSimpleEmail(email, "marketplace email verification", code)
+        mailSender.sendMail(email, "marketplace email verification", code)
     }
 
     override fun loadUserByUsername(username: String): UserDetails {
