@@ -22,8 +22,8 @@ class FileStorageService(
     fun deleteFile(fileId: String) {
         val file = filesRepo.findById(fileId).orThrow()
 
-        val principal = SecurityUtils.getAuthenticatedPrincipal()
-        principal.throwIfNot(file.owner)
+        SecurityUtils.getAuthenticatedPrincipal()
+            .throwIfNot(file.owner)
 
         filesRepo.deleteById(fileId)
     }
