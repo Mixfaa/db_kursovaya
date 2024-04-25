@@ -7,6 +7,7 @@ import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.PrecompiledSort
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
+import com.mixfa.marketplace.shared.orThrow
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -49,6 +50,9 @@ class MarketplaceControllerV2(
     @DeleteMapping("/products/{productId}")
     fun deleteProduct(@PathVariable productId: String) =
         productService.deleteProduct(productId)
+
+    @GetMapping("/products/{productId}")
+    fun getProduct(@PathVariable productId: String) = productService.findProductById(productId).orThrow()
 
     @GetMapping("/products/find")
     fun findProducts(query: String, page: Int, pageSize: Int) =
