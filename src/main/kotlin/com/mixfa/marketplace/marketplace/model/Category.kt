@@ -37,7 +37,7 @@ data class Category(
         val name: String,
         val parentCategory: String?,
         val subcategories: List<String>,
-        val requiredProps: List<String>
+            val requiredProps: List<String>
     ) {
         constructor(category: Category) : this(
             category.name,

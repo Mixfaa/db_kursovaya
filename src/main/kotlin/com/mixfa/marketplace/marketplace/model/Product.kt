@@ -20,7 +20,8 @@ data class Product(
     val price: Double,
     val rate: Double = 0.0,
     val ordersCount: Long = 0,
-    val images: List<String>
+    val images: List<String>,
+    val actualPrice: Double = price,
 ) : WithDto {
     data class RegisterRequest(
         @NotBlank
@@ -46,9 +47,10 @@ data class Product(
         val characteristics: Map<String, String>,
         val description: String,
         val price: Double,
+        val actualPrice: Double,
         val rate: Double,
         val ordersCount: Long,
-        val images: List<String>
+        val images: List<String>,
     ) {
         constructor(product: Product) : this(
             product.id.toString(),
@@ -57,6 +59,7 @@ data class Product(
             product.characteristics,
             product.description,
             product.price,
+            product.actualPrice,
             product.rate,
             product.ordersCount,
             product.images

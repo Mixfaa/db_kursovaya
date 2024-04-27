@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.marketplace.model.discount
 
 import com.mixfa.marketplace.marketplace.model.Category
+import com.mixfa.marketplace.marketplace.model.Product
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
@@ -10,7 +11,7 @@ class DiscountByCategory(
     description: String,
     discount: Double,
     @field:DBRef val targetCategories: List<Category>
-) : AbstractDiscount(description, discount) {
+) : AbstractDiscount(description, discount), ProductApplicable {
     class RegisterRequest(
         @NotBlank
         description: String,
@@ -19,4 +20,21 @@ class DiscountByCategory(
         @NotEmpty
         val targetCategoriesIds: List<String>
     ) : AbstractRegisterRequest(description, discount)
+
+    override fun isApplicableTo(product: Product) = checkCategoriesIntersections(product.categories, targetCategories)
+}
+
+private fun checkCategoriesIntersections(
+    productCategories: List<Category>, discountCategories: List<Category>
+): Boolean {
+
+    for (discountCategory in discountCategories) for (productCategory in productCategories) if (discountCategory == productCategory) return true
+
+    for (discountCategory in discountCategories) if (checkCategoriesIntersections(
+            productCategories,
+            discountCategory.subcategories
+        )
+    ) return true
+
+    return false
 }

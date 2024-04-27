@@ -3,16 +3,15 @@ package com.mixfa.marketplace.marketplace.service
 import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
+import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
+import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
-import com.mixfa.marketplace.shared.NotFoundException
-import com.mixfa.marketplace.shared.ProductCharacteristicsNotSetException
+import com.mixfa.marketplace.shared.*
 import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.PrecompiledSort
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
-import com.mixfa.marketplace.shared.orThrow
-import com.mixfa.marketplace.shared.productNotFound
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -154,12 +153,31 @@ class ProductService(
         )
     }
 
+    private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
+        iteratePages(productRepo::findAll) { product ->
+            when (discount) {
+                is ProductApplicable -> {
+                    if (discount.isApplicableTo(product))
+                        productRepo.save(
+                            product.copy(
+                                actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
+                            )
+                        )
+                }
+            }
+
+        }
+    }
+
     override fun onApplicationEvent(event: MarketplaceEvent) {
         when (event) {
             is CommentService.Event.CommentRegister -> updateProductRate(event.comment.product, event.comment.rate)
             is CommentService.Event.CommentDelete -> updateProductRate(event.comment.product, -event.comment.rate)
             is OrderService.Event.OrderRegister -> incProductsOrdersCount(event.order.products.map(RealizedProduct::productId))
             is OrderService.Event.OrderCancel -> decProductOrdersCount(event.order.products.map(RealizedProduct::productId))
+
+            is DiscountService.Event.DiscountRegister -> updateProductsPrices(event.discount, false)
+            is DiscountService.Event.DiscountDelete -> updateProductsPrices(event.discount, true)
         }
     }
 

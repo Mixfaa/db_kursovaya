@@ -55,6 +55,7 @@
 * characteristics: Map String to String (prop to value)
 * description: String
 * price: Double
+* actualPrice: Double // price with discounts
 * rate: Double
 * ordersCount: Long
 * images: List of strings

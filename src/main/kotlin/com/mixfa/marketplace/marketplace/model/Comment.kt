@@ -31,7 +31,7 @@ data class Comment(
     data class Dto(
         val id: String,
         val ownerId: String,
-        val product: Product.Dto,
+        val productId: String,
         val content: String,
         val rate: Double,
         val timestamp: ZonedDateTime
@@ -39,7 +39,7 @@ data class Comment(
         constructor(comment: Comment) : this(
             comment.id.toString(),
             comment.owner.username,
-            comment.product.asDto,
+            comment.product.id.toString(),
             comment.content,
             comment.rate,
             comment.timestamp

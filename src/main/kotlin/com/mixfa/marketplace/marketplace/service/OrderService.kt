@@ -3,8 +3,7 @@ package com.mixfa.marketplace.marketplace.service
 import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.*
-import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
-import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
+import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
 import com.mixfa.marketplace.shared.SecurityUtils
@@ -36,19 +35,10 @@ class OrderService(
 
         discountService.processAllDiscounts { discount ->
             when (discount) {
-                is DiscountByProduct -> {
+                is ProductApplicable -> {
                     realizedProductBuilders.forEach { builder ->
-                        if (discount.targetProducts.contains(builder.product)) builder.applyDiscount(discount)
-                    }
-                }
-
-                is DiscountByCategory -> {
-                    realizedProductBuilders.forEach { builder ->
-                        if (checkCategoriesIntersections(
-                                builder.product.categories,
-                                discount.targetCategories
-                            )
-                        ) builder.applyDiscount(discount)
+                        if (discount.isApplicableTo(builder.product))
+                            builder.applyDiscount(discount)
                     }
                 }
 
@@ -129,17 +119,3 @@ class OrderService(
     }
 }
 
-private fun checkCategoriesIntersections(
-    productCategories: List<Category>, discountCategories: List<Category>
-): Boolean {
-
-    for (discountCategory in discountCategories) for (productCategory in productCategories) if (discountCategory == productCategory) return true
-
-    for (discountCategory in discountCategories) if (checkCategoriesIntersections(
-            productCategories,
-            discountCategory.subcategories
-        )
-    ) return true
-
-    return false
-}

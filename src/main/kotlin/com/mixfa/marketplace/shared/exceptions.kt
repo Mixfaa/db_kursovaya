@@ -5,6 +5,7 @@ import com.mixfa.excify.ExcifyOptionalOrThrow
 import com.mixfa.excify.FastThrowable
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.marketplace.model.*
+import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 
 class NotFoundException(subject: String) : FastThrowable("$subject not found") {
     companion object
@@ -76,6 +77,10 @@ val orderNotFound = NotFoundException("Order")
 @ExcifyCachedException
 @ExcifyOptionalOrThrow(type = Account::class, methodName = "orThrow")
 val accountNotFound = NotFoundException("Account")
+
+@ExcifyCachedException
+@ExcifyOptionalOrThrow(type = AbstractDiscount::class, methodName = "orThrow")
+val discountNotFound = NotFoundException("Discount")
 
 data class ErrorModel(val message: String) {
     constructor(ex: Throwable) : this(ex.message ?: ex.localizedMessage ?: "Unresolved error")

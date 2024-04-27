@@ -1,12 +1,17 @@
 package com.mixfa.marketplace.marketplace.model.discount
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.mixfa.marketplace.marketplace.model.Product
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.Document
+
+interface ProductApplicable {
+    fun isApplicableTo(product: Product): Boolean
+}
 
 @Document("discount")
 abstract class AbstractDiscount(
