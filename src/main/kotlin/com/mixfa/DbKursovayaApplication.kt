@@ -1,5 +1,6 @@
 package com.mixfa
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 import com.fasterxml.jackson.module.kotlin.kotlinModule
@@ -65,6 +66,9 @@ class DbKursovayaApplication {
                 .serializerByType(WithDto::class.java, WithDtoSerializer())
                 .featuresToEnable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .modules(kotlinModule())
+                .postConfigurer {
+                    it.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                }
         }
     }
 

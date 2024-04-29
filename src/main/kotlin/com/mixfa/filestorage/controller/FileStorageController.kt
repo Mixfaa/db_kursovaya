@@ -2,13 +2,14 @@ package com.mixfa.filestorage.controller
 
 import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.filestorage.serivce.FileStorageService
+import com.mixfa.filestorage.serivce.ImgurFileStorage
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/v2/file-storage")
 class FileStorageController(
-    private val fsService: FileStorageService
+    private val fsService: ImgurFileStorage
 ) {
     @PostMapping("/file")
     fun uploadFile(file: MultipartFile) = fsService.saveFile(file)

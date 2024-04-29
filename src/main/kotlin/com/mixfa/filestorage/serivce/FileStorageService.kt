@@ -1,5 +1,6 @@
 package com.mixfa.filestorage.serivce
 
+import com.mixfa.excify.FastThrowable
 import com.mixfa.filestorage.FileToBigException
 import com.mixfa.filestorage.get
 import com.mixfa.filestorage.model.StoredFile
@@ -32,6 +33,10 @@ class FileStorageService(
 
     @PreAuthorize("hasRole('FILES:EDIT')")
     fun saveFile(file: MultipartFile): StoredFile {
+        val fileType = file.contentType
+        if (fileType == null || !checkFileType(fileType))
+            throw FastThrowable("File type $fileType not supported")
+
         if (file.size >= maxFileSize) throw FileToBigException.get()
         val account = accountService.getAuthenticatedAccount().orThrow()
 
@@ -50,5 +55,10 @@ class FileStorageService(
                 name = fileName, link = uri, owner = account
             )
         )
+    }
+
+    companion object {
+        private val SUPPORTED_FILE_TYPES = arrayOf("jpg", "png", "webp", "jpeg", "bmp", "avif", "svg")
+        fun checkFileType(type: String): Boolean = type.lowercase() in SUPPORTED_FILE_TYPES
     }
 }

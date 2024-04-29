@@ -31,3 +31,9 @@ inline fun <T> takeUntil(predicate: (T) -> Boolean, supplier: () -> T): T {
     } while (!predicate(value))
     return value
 }
+
+inline fun <T> sneakyTry(block: () -> T): T? = try {
+    block()
+} catch (ex: Exception) {
+    null
+}

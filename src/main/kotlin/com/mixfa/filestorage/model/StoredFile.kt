@@ -68,6 +68,44 @@ sealed class StoredFile(
             return result
         }
     }
+
+    class ImgurStored(
+        name: String,
+        val link: String,
+        owner: Account,
+        val deleteHash: String,
+        val imgurId: String,
+        id: ObjectId = ObjectId()
+    ) : StoredFile(id, name, owner) {
+
+        private val bytes: ByteArray by lazy {
+            URI.create(link)
+                .toURL()
+                .readBytes()
+        }
+
+        override fun bytes(): ByteArray = bytes
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ImgurStored) return false
+            if (!super.equals(other)) return false
+
+            if (link != other.link) return false
+            if (deleteHash != other.deleteHash) return false
+            if (imgurId != other.imgurId) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + link.hashCode()
+            result = 31 * result + deleteHash.hashCode()
+            result = 31 * result + imgurId.hashCode()
+            return result
+        }
+
+    }
 }
 
 
