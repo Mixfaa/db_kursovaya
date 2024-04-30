@@ -1,5 +1,12 @@
 package com.mixfa.marketplace.shared
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import jdk.internal.net.http.ResponseSubscribers.ByteArraySubscriber
+import jdk.internal.net.http.common.Utils
+import java.net.http.HttpResponse.*
+import java.nio.charset.Charset
+
 const val DEFAULT_FIXED_RATE = 15000L
 const val IS_AUTHENTICATED = "isAuthenticated() == true"
 
@@ -37,3 +44,22 @@ inline fun <T> sneakyTry(block: () -> T): T? = try {
 } catch (ex: Exception) {
     null
 }
+
+object HttpClientUtils {
+    inline fun <reified T> mappingToSubscriber(mapper: ObjectMapper, charset: Charset): BodySubscriber<T> {
+        return ByteArraySubscriber { bytes: ByteArray? ->
+            mapper.readValue<T>(String(bytes!!, charset))
+        }
+    }
+
+
+    inline fun <reified T> mappingToHandler(mapper: ObjectMapper): BodyHandler<T> {
+        return BodyHandler<T> { responseInfo: ResponseInfo ->
+            mappingToSubscriber(
+                mapper,
+                Utils.charsetFrom(responseInfo.headers())
+            )
+        }
+    }
+}
+
