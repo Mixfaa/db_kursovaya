@@ -16,10 +16,10 @@ data class Category(
     val requiredProps: List<String>
 ) : WithDto {
     data class RegisterRequest(
-        @NotBlank
+        @field:NotBlank
         val name: String,
         val parentCategory: String? = null,
-        @NotNull
+        @field:NotNull
         val requiredProps: List<String>,
         val subcategories: List<String>? = null,
     )

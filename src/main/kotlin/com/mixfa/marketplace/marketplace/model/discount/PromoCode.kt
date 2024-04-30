@@ -12,12 +12,9 @@ class PromoCode(
     fun matches(code: String) = this.code == code
 
     class RegisterRequest(
-        @NotBlank
+        @field:NotBlank
         val code: String,
-        @NotBlank
         description: String,
-        @NotNull
-        @Range(min = 1, max = 100)
         discount: Double
     ) : AbstractRegisterRequest(description, discount)
 }

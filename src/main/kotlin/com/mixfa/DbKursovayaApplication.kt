@@ -26,6 +26,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.transaction.TransactionManager
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
@@ -78,6 +80,18 @@ class DbKursovayaApplication {
     }
 
     @Bean
+    fun validator(): LocalValidatorFactoryBean {
+        return LocalValidatorFactoryBean()
+    }
+
+    @Bean
+    fun validationPostProcessor(): MethodValidationPostProcessor {
+        val processor = MethodValidationPostProcessor()
+        processor.setAdaptConstraintViolations(true);
+        return processor;
+    }
+
+    @Bean
     fun getJavaMailSender(
         @Value("\${spring.mail.host}") host: String,
         @Value("\${spring.mail.port}") port: Int,
@@ -100,6 +114,7 @@ class DbKursovayaApplication {
         return mailSender
     }
 }
+
 
 fun main(args: Array<String>) {
     runApplication<DbKursovayaApplication>(*args)

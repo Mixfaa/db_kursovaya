@@ -2,9 +2,12 @@ package com.mixfa.marketplace.marketplace.model.discount
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.marketplace.model.Product
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId
+import org.jetbrains.annotations.Range
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.Document
@@ -25,9 +28,11 @@ abstract class AbstractDiscount(
         get() = discount / 100.0
 
     sealed class AbstractRegisterRequest(
-        @NotBlank
+        @field:NotBlank
         val description: String,
-        @NotNull
+        @field:NotNull
+        @field:Max(100)
+        @field:Min(0)
         val discount: Double,
     )
 

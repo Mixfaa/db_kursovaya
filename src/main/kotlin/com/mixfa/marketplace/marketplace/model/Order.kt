@@ -3,6 +3,8 @@ package com.mixfa.marketplace.marketplace.model
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
@@ -20,7 +22,9 @@ data class Order(
     val timestamp: ZonedDateTime = ZonedDateTime.now()
 ) : WithDto {
     data class RegisterRequest(
+        @field:NotEmpty
         val products: List<String>,
+        @field:NotBlank
         val shippingAddress: String,
         val promoCode: String? = null,
     )

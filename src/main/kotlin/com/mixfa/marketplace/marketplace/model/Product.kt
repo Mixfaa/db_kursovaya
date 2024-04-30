@@ -1,6 +1,5 @@
 package com.mixfa.marketplace.marketplace.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
@@ -24,16 +23,18 @@ data class Product(
     val images: List<String>,
     val actualPrice: Double = price,
 ) : WithDto {
+
     data class RegisterRequest(
-        @NotBlank
+        @field:NotBlank
         val caption: String,
-        @NotEmpty
+        @field:NotEmpty
         val categories: List<String>,
-        @NotNull
+        @field:NotNull
+        @field:NotEmpty
         val characteristics: Map<String, String>,
-        @NotBlank
+        @field:NotBlank
         val description: String,
-        @NotNull
+        @field:NotNull
         val price: Double,
         val images: List<String>
     )

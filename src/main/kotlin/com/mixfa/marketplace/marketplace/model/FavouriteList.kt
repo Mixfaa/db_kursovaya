@@ -1,6 +1,5 @@
 package com.mixfa.marketplace.marketplace.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
@@ -19,9 +18,9 @@ data class FavouriteList(
     val isPublic: Boolean
 ) : WithDto {
     data class RegisterRequest(
-        @NotBlank
+        @field:NotBlank
         val name: String,
-        @NotNull
+        @field:NotNull
         val isPublic: Boolean,
         val productsIds: List<String>? = null
     )

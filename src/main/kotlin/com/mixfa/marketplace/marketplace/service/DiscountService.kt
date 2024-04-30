@@ -10,13 +10,16 @@ import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.iteratePages
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
+import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 
 
 @Service
+@Validated
 class DiscountService(
     private val discountRepo: DiscountRepository,
     private val categoryService: CategoryService,
@@ -24,7 +27,7 @@ class DiscountService(
     private val publisher: ApplicationEventPublisher,
 ) : ApplicationListener<ProductService.Event> {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerDiscount(request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
+    fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
         is DiscountByProduct.RegisterRequest -> {
             val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds)
 

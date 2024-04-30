@@ -12,6 +12,7 @@ import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.PrecompiledSort
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
+import jakarta.validation.Valid
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -22,9 +23,11 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 import java.util.*
 
 @Service
+@Validated
 class ProductService(
     private val productRepo: ProductRepository,
     private val eventPublisher: ApplicationEventPublisher,
@@ -42,7 +45,7 @@ class ProductService(
     }
 
     @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
-    fun updateProductRate(product: Product, newRate: Double): Product {
+    private fun updateProductRate(product: Product, newRate: Double): Product {
         var newProductRate = (product.rate + newRate) / (if (product.rate == 0.0) 1.0 else 2.0)
         if (newProductRate < 0.0) newProductRate = 0.0
         return productRepo.save(product.copy(rate = newProductRate))
@@ -72,7 +75,7 @@ class ProductService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerProduct(request: Product.RegisterRequest): Product {
+    fun registerProduct(@Valid request: Product.RegisterRequest): Product {
         val categories = categoryService.findCategoriesByIdOrThrow(request.categories)
 
         val productCharacteristicsKeys = request.characteristics.keys

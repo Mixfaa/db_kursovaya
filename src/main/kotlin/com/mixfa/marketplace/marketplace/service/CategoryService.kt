@@ -6,11 +6,14 @@ import com.mixfa.marketplace.shared.NotFoundException
 import com.mixfa.marketplace.shared.categoryNotFound
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 
 @Service
+@Validated
 class CategoryService(
     private val categoryRepo: CategoryRepository
 ) {
@@ -22,7 +25,7 @@ class CategoryService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerCategory(request: Category.RegisterRequest): Category = categoryRepo.save(
+    fun registerCategory(@Valid request: Category.RegisterRequest): Category = categoryRepo.save(
         Category(
             name = request.name,
             subcategories = request.subcategories?.let(::findCategoriesByIdOrThrow) ?: emptyList(),

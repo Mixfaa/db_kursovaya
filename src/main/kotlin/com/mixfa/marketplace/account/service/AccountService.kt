@@ -8,6 +8,8 @@ import com.mixfa.marketplace.account.model.Role
 import com.mixfa.marketplace.mail.MailSender
 import com.mixfa.marketplace.shared.*
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -17,12 +19,14 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 import java.security.Principal
 import java.util.*
 import kotlin.collections.set
 import kotlin.random.Random
 
 @Service
+@Validated
 class AccountService(
     private val accountRepo: AccountRepository,
     private val passwordEncoder: PasswordEncoder,
@@ -47,7 +51,7 @@ class AccountService(
 
     fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 
-    fun register(request: Account.RegisterRequest): Account {
+    fun register(@Valid request: Account.RegisterRequest): Account {
         if (accountRepo.existsByUsername(request.username))
             throw FastThrowable("Username ${request.username} is already in use")
 
@@ -79,7 +83,7 @@ class AccountService(
     }
 
     @PreAuthorize(IS_AUTHENTICATED)
-    fun addShippingAddress(shippingAddress: String): Account {
+    fun addShippingAddress(@Valid @NotBlank shippingAddress: String): Account {
         val account = getAuthenticatedAccount().orThrow()
 
         if (account.shippingAddresses.contains(shippingAddress))
@@ -91,7 +95,7 @@ class AccountService(
     }
 
     @PreAuthorize(IS_AUTHENTICATED)
-    fun removeShippingAddress(shippingAddress: String): Account {
+    fun removeShippingAddress(@Valid @NotBlank shippingAddress: String): Account {
         val account = getAuthenticatedAccount().orThrow()
 
         if (!account.shippingAddresses.contains(shippingAddress))
@@ -102,9 +106,7 @@ class AccountService(
         )
     }
 
-    fun sendEmailTo(email: String) {
-        if (email.isBlank()) throw FastThrowable("Can`t send email code to $email")
-
+    fun sendEmailTo(@Valid @NotBlank email: String) {
         val code = takeWhile(mailCodes::containsKey, ::random6DigitCode)
 
         mailCodes[code] = email

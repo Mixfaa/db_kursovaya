@@ -4,16 +4,21 @@ import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
-import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.SecurityUtils
 import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.marketplace.shared.throwIfNot
+import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.validation.annotation.Validated
 
 @Service
+@Validated
 class CommentService(
     private val commentRepo: CommentRepository,
     private val accountService: AccountService,
@@ -22,7 +27,7 @@ class CommentService(
 ) : ApplicationListener<ProductService.Event> {
     @Transactional
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
-    open fun registerComment(request: Comment.RegisterRequest): Comment {
+    open fun registerComment(@Valid request: Comment.RegisterRequest): Comment {
         val account = accountService.getAuthenticatedAccount().orThrow()
         val product = productService.findProductById(request.productId).orThrow()
 
@@ -44,7 +49,7 @@ class CommentService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
+    private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
 
     fun listProductComments(productId: String, pageable: CheckedPageable) =
         commentRepo.findAllByProductId(productId, pageable)

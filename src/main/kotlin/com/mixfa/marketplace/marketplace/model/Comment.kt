@@ -2,6 +2,8 @@ package com.mixfa.marketplace.marketplace.model
 
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import org.bson.types.ObjectId
 import org.hibernate.validator.constraints.Range
 import org.springframework.data.annotation.Transient
@@ -19,9 +21,11 @@ data class Comment(
     val timestamp: ZonedDateTime = ZonedDateTime.now()
 ) : WithDto {
     data class RegisterRequest(
+        @field:NotBlank
         val productId: String,
+        @field:NotBlank
         val content: String,
-        @Range(min = 0L, max = 5L)
+        @field:Range(min = 0L, max = 5L)
         val rate: Double
     )
 

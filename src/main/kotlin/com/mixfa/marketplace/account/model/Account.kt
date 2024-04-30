@@ -45,21 +45,17 @@ data class Account(
     override fun isEnabled(): Boolean = true
 
     data class RegisterRequest(
-        @NotBlank
+        @field:NotBlank
         val username: String,
-        @NotBlank
+        @field:NotBlank
         val firstname: String,
-
-        @NotBlank
+        @field:NotBlank
         val lastname: String,
-
-        @Length(min = 8, max = 25)
+        @field:Length(min = 8, max = 25)
         val password: String,
-
-        @NotBlank
+        @field:NotBlank
         val role: String,
-
-        @NotBlank
+        @field:NotBlank
         val mailCode: String,
         val adminSecret: String? = null
     )

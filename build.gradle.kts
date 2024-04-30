@@ -29,6 +29,9 @@ dependencies {
     implementation("com.github.Mixfaa:excify:0.0.1")
     ksp("com.github.Mixfaa:excify:0.0.1")
 
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("io.arrow-kt:arrow-core:1.2.4")
 

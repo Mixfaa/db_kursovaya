@@ -11,13 +11,16 @@ import com.mixfa.marketplace.shared.event.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
+import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.validation.annotation.Validated
 
 @Service
+@Validated
 class OrderService(
     private val orderRepo: OrderRepository,
     private val accountService: AccountService,
@@ -25,7 +28,7 @@ class OrderService(
     private val productService: ProductService,
     private val eventPublisher: ApplicationEventPublisher
 ) {
-    fun calculateOrderCost(request: Order.RegisterRequest): TempOrder {
+    fun calculateOrderCost(@Valid request: Order.RegisterRequest): TempOrder {
         val products = productService.findProductsByIdsOrThrow(request.products)
         return TempOrder(processDiscounts(products, request.promoCode))
     }
@@ -57,7 +60,7 @@ class OrderService(
 
     @Transactional
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
-    fun registerOrder(request: Order.RegisterRequest): Order {
+    fun registerOrder(@Valid request: Order.RegisterRequest): Order {
         val account = accountService.getAuthenticatedAccount().orThrow()
 
         val products = productService.findProductsByIdsOrThrow(request.products)

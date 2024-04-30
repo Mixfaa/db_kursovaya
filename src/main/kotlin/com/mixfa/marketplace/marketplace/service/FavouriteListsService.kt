@@ -6,11 +6,14 @@ import com.mixfa.marketplace.marketplace.model.FavouriteList
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.FavoriteListRepository
 import com.mixfa.marketplace.shared.*
+import jakarta.validation.Valid
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 
 @Service
+@Validated
 class FavouriteListsService(
     private val accountService: AccountService,
     private val productService: ProductService,
@@ -24,7 +27,7 @@ class FavouriteListsService(
     }
 
     @PreAuthorize("hasAuthority('FAVLIST:EDIT')")
-    fun createList(request: FavouriteList.RegisterRequest): FavouriteList {
+    fun createList(@Valid request: FavouriteList.RegisterRequest): FavouriteList {
         val account = accountService.getAuthenticatedAccount().orThrow()
 
         if (favoriteListRepo.countByOwner(account) >= MAX_LISTS_PER_USER)
