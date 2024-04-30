@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -37,7 +38,7 @@ data class Product(
         val images: List<String>
     )
 
-    @get:JsonIgnore
+    @delegate:Transient
     override val asDto: Dto by lazy { Dto(this) }
 
     data class Dto(

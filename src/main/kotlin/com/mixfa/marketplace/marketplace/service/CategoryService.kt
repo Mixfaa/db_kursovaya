@@ -15,6 +15,7 @@ class CategoryService(
     private val categoryRepo: CategoryRepository
 ) {
     fun findCategoriesByIdOrThrow(ids: List<String>): List<Category> {
+        if (ids.isEmpty()) return emptyList()
         val categories = categoryRepo.findAllById(ids)
         if (categories.size != ids.size) throw NotFoundException.categoryNotFound()
         return categories
@@ -25,8 +26,8 @@ class CategoryService(
         Category(
             name = request.name,
             subcategories = request.subcategories?.let(::findCategoriesByIdOrThrow) ?: emptyList(),
+            parentCategory = request.parentCategory?.let { categoryRepo.findById(it).orThrow() },
             requiredProps = request.requiredProps,
-            parentCategory = request.parentCategory?.let { categoryRepo.findById(it).orThrow() }
         )
     )
 

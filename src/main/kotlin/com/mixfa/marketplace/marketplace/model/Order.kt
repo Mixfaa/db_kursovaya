@@ -5,6 +5,7 @@ import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -24,7 +25,7 @@ data class Order(
         val promoCode: String? = null,
     )
 
-    @get:JsonIgnore
+    @delegate:Transient
     override val asDto: Dto by lazy { Dto(this) }
 
     data class Dto(

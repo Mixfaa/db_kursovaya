@@ -1,11 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.2.3"
+    id("org.springframework.boot") version "3.2.5"
     id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
     id("com.google.devtools.ksp") version "1.9.23-1.0.19"
+    kotlin("plugin.allopen") version "1.9.23"
 }
 
 group = "com.mixfa"
@@ -13,6 +14,10 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
+}
+
+allOpen {
+    annotation("org.springframework.data.mongodb.core.mapping.Document")
 }
 
 repositories {
@@ -24,7 +29,8 @@ dependencies {
     implementation("com.github.Mixfaa:excify:0.0.1")
     ksp("com.github.Mixfaa:excify:0.0.1")
 
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("io.arrow-kt:arrow-core:1.2.4")
 
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -38,9 +44,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.apache.commons:commons-collections4:4.4")
 
-    implementation("io.arrow-kt:arrow-core:1.2.4")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

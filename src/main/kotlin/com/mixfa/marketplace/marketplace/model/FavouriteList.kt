@@ -6,6 +6,7 @@ import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId
+import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -25,7 +26,7 @@ data class FavouriteList(
         val productsIds: List<String>? = null
     )
 
-    @get:JsonIgnore
+    @delegate:Transient
     override val asDto: Dto by lazy { Dto(this) }
 
     data class Dto(

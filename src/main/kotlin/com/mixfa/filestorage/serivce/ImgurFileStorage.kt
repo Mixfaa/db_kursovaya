@@ -1,17 +1,14 @@
 package com.mixfa.filestorage.serivce
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.mixfa.excify.FastThrowable
 import com.mixfa.filestorage.model.ImgurUploadResponse
 import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.marketplace.account.service.AccountService
-import com.mixfa.marketplace.shared.HttpClientUtils
 import com.mixfa.marketplace.shared.SecurityUtils
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -60,7 +57,8 @@ class ImgurFileStorage(
             .build()
 
         val response =
-            webClient.send(uploadRequest, HttpClientUtils.mappingToHandler<ImgurUploadResponse>(objectMapper)).body()
+            webClient.send(uploadRequest, BodyHandlers.ofString()).body()
+                .let { objectMapper.readValue<ImgurUploadResponse>(it) }
 
         if (response.status != 200) throw FastThrowable("Imgur error: ${response.status}")
         val account = accountService.getAuthenticatedAccount().orThrow()

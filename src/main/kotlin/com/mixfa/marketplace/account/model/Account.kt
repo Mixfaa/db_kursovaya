@@ -1,7 +1,6 @@
 package com.mixfa.marketplace.account.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.annotation.Id
@@ -12,16 +11,15 @@ import java.security.Principal
 
 @Document("account")
 data class Account(
-    @Id @field:JvmField val username: String,
+    @Id private val username: String,
     val firstname: String,
     val lastname: String,
 
     @field:JsonIgnore
     val email: String,
 
-    @field:JvmField
     @field:JsonIgnore
-    val password: String,
+    private val password: String,
     val role: Role,
     @field:JsonIgnore
     val shippingAddresses: List<String> = listOf(),

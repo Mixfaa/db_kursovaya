@@ -1,10 +1,10 @@
 package com.mixfa.marketplace.marketplace.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.hibernate.validator.constraints.Range
+import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -25,7 +25,7 @@ data class Comment(
         val rate: Double
     )
 
-    @get:JsonIgnore
+    @delegate:Transient
     override val asDto: Dto by lazy { Dto(this) }
 
     data class Dto(
