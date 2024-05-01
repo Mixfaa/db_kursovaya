@@ -35,8 +35,7 @@ class ImgurFileStorage(
             .throwIfNot(file.owner)
 
         if (file is StoredFile.ImgurStored) {
-
-            val deleteRequest = HttpRequest.newBuilder(URI.create("$IMGUR_URL/image/${file.deleteHash}"))
+            val deleteRequest = HttpRequest.newBuilder(URI("$IMGUR_URL/image/${file.deleteHash}"))
                 .DELETE()
                 .build()
 
@@ -53,7 +52,7 @@ class ImgurFileStorage(
                 throw FastThrowable("File type $fileType not supported")
         }
 
-        val uploadRequest = HttpRequest.newBuilder(UPLOAD_URI)
+        val uploadRequest = HttpRequest.newBuilder(URI("$IMGUR_URL/upload"))
             .POST(HttpRequest.BodyPublishers.ofInputStream { file.inputStream })
             .build()
 
@@ -76,7 +75,6 @@ class ImgurFileStorage(
 
     companion object {
         const val IMGUR_URL = "https://api.imgur.com/3"
-        val UPLOAD_URI: URI = URI("$IMGUR_URL/upload")
 
         val webClient: HttpClient = HttpClient.newHttpClient()
     }
