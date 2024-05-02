@@ -36,10 +36,8 @@ inline fun <T> takeUntil(predicate: (T) -> Boolean, supplier: () -> T): T {
     return value
 }
 
-inline fun <T> sneakyTry(block: () -> T): T? = try {
-    block()
-} catch (ex: Exception) {
-    null
+fun Int.httpSuccessful(): Boolean {
+    return this >= 200 && this < 300
 }
 
 inline fun <reified T> HttpResponse<String>.mapBodyToOrNull(mapper: ObjectMapper): T? =

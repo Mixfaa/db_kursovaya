@@ -1,18 +1,29 @@
 package com.mixfa.filestorage.model
 
 import com.mixfa.marketplace.account.model.Account
+import com.mixfa.marketplace.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.net.URI
 
 @Document("storedFile")
 sealed class StoredFile(
-    @Id val id: ObjectId = ObjectId(),
-    val name: String,
-    @DBRef val owner: Account
-) {
+    @Id val id: ObjectId = ObjectId(), val name: String, @DBRef val owner: Account
+) : WithDto {
+
+    @delegate:Transient
+    override val asDto: Dto by lazy { Dto(this) }
+
+    data class Dto(
+        val id: String, val name: String, val ownerId: String
+    ) {
+        constructor(file: StoredFile) : this(file.id.toString(), file.name, file.owner.username)
+    }
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is StoredFile) return false
@@ -29,25 +40,17 @@ sealed class StoredFile(
     abstract fun bytes(): ByteArray
 
     class LocallyStored(
-        name: String,
-        val bytes: ByteArray,
-        owner: Account,
-        id: ObjectId = ObjectId()
+        name: String, val bytes: ByteArray, owner: Account, id: ObjectId = ObjectId()
     ) : StoredFile(id, name, owner) {
         override fun bytes(): ByteArray = bytes
     }
 
     class ExternallyStored(
-        name: String,
-        val link: String,
-        owner: Account,
-        id: ObjectId = ObjectId()
+        name: String, val link: String, owner: Account, id: ObjectId = ObjectId()
     ) : StoredFile(id, name, owner) {
 
         private val bytes: ByteArray by lazy {
-            URI.create(link)
-                .toURL()
-                .readBytes()
+            URI.create(link).toURL().readBytes()
         }
 
         override fun bytes(): ByteArray = bytes
@@ -79,9 +82,7 @@ sealed class StoredFile(
     ) : StoredFile(id, name, owner) {
 
         private val bytes: ByteArray by lazy {
-            URI.create(link)
-                .toURL()
-                .readBytes()
+            URI.create(link).toURL().readBytes()
         }
 
         override fun bytes(): ByteArray = bytes

@@ -7,7 +7,7 @@ import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
 import com.mixfa.marketplace.shared.SecurityUtils
-import com.mixfa.marketplace.shared.event.MarketplaceEvent
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
@@ -86,19 +86,19 @@ class OrderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun listMyOrders(pageable: CheckedPageable): Page<Order> {
-        val principal = SecurityUtils.getAuthenticatedPrincipal()
+        val principal = SecurityUtils.authenticatedPrincipal()
         return orderRepo.findAllByOwnerEmail(principal.name, pageable)
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun countMyOrders(): Long {
-        val principal = SecurityUtils.getAuthenticatedPrincipal()
+        val principal = SecurityUtils.authenticatedPrincipal()
         return orderRepo.countByOwnerEmail(principal.name)
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun cancelOrder(orderId: String): Order {
-        val principal = SecurityUtils.getAuthenticatedPrincipal()
+        val principal = SecurityUtils.authenticatedPrincipal()
         val order = orderRepo.findById(orderId).orThrow()
 
         principal.throwIfNot(order.owner)

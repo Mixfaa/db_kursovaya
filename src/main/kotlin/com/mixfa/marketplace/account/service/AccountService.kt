@@ -47,7 +47,7 @@ class AccountService(
     fun accountByPrincipal(principal: Principal): Optional<Account> = accountRepo.findById(principal.name)
 
     fun getAuthenticatedAccount(): Optional<Account> =
-        accountRepo.findById(SecurityUtils.getAuthenticatedPrincipal().name)
+        accountRepo.findById(SecurityUtils.authenticatedPrincipal().name)
 
     fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 

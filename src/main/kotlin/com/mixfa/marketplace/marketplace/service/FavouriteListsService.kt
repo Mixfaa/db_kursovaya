@@ -22,7 +22,7 @@ class FavouriteListsService(
 
     private fun findFavListByAuthenticated(listId: String): FavouriteList {
         val favouriteList = favoriteListRepo.findById(listId).orThrow()
-        SecurityUtils.getAuthenticatedPrincipal().throwIfNot(favouriteList.owner)
+        SecurityUtils.authenticatedPrincipal().throwIfNot(favouriteList.owner)
         return favouriteList
     }
 

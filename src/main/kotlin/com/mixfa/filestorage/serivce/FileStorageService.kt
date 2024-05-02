@@ -23,7 +23,7 @@ class FileStorageService(
     fun deleteFile(fileId: String) {
         val file = filesRepo.findById(fileId).orThrow()
 
-        SecurityUtils.getAuthenticatedPrincipal()
+        SecurityUtils.authenticatedPrincipal()
             .throwIfNot(file.owner)
 
         filesRepo.deleteById(fileId)
@@ -31,7 +31,7 @@ class FileStorageService(
 
     fun getFile(fileId: String): StoredFile = filesRepo.findById(fileId).orThrow()
 
-    @PreAuthorize("hasRole('FILES:EDIT')")
+    @PreAuthorize("hasAuthority('FILES:EDIT')")
     fun saveFile(file: MultipartFile): StoredFile {
         val fileType = file.contentType
         if (fileType == null || !checkFileType(fileType))
@@ -47,7 +47,7 @@ class FileStorageService(
         )
     }
 
-    @PreAuthorize("hasRole('FILES:EDIT')")
+    @PreAuthorize("hasAuthority('FILES:EDIT')")
     fun saveFile(fileName: String, uri: String): StoredFile {
         val account = accountService.getAuthenticatedAccount().orThrow()
         return filesRepo.save(
@@ -58,7 +58,9 @@ class FileStorageService(
     }
 
     companion object {
-        private val SUPPORTED_FILE_TYPES = arrayOf("jpg", "png", "webp", "jpeg", "bmp", "avif", "svg")
+        private val SUPPORTED_FILE_TYPES =
+            arrayOf("image/jpg", "image/png", "image/webp", "image/jpeg", "image/bmp", "image/avif", "image/svg")
+
         fun checkFileType(type: String): Boolean = type.lowercase() in SUPPORTED_FILE_TYPES
     }
 }

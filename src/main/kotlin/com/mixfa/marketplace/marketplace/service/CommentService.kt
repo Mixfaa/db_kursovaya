@@ -5,7 +5,7 @@ import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
 import com.mixfa.marketplace.shared.SecurityUtils
-import com.mixfa.marketplace.shared.event.MarketplaceEvent
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
@@ -40,7 +40,7 @@ class CommentService(
 
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
     fun deleteComment(commentId: String) {
-        val principal = SecurityUtils.getAuthenticatedPrincipal()
+        val principal = SecurityUtils.authenticatedPrincipal()
         val comment = commentRepo.findById(commentId).orThrow()
         principal.throwIfNot(comment.owner)
 

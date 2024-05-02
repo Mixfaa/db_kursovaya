@@ -7,7 +7,7 @@ import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
 import com.mixfa.marketplace.shared.*
-import com.mixfa.marketplace.shared.event.MarketplaceEvent
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.PrecompiledSort
 import com.mixfa.marketplace.shared.model.QueryConstructor

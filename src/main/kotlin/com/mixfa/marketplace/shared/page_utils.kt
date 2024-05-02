@@ -19,9 +19,7 @@ fun Pageable.throwIfNotInBound() {
     if (this.isNotInBound()) throw LargePageSizeException.get()
 }
 
-fun Principal.throwIfNot(account: Account) {
-    if (!this.matchesById(account)) throw FastAccessException.get()
-}
+
 
 inline fun <T> iteratePages(fetchMethod: (Pageable) -> Page<T>, handler: (T) -> Unit) {
     var page: Page<T>
