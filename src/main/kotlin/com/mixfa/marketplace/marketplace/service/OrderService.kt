@@ -1,14 +1,14 @@
 package com.mixfa.marketplace.marketplace.service
 
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
-import com.mixfa.marketplace.shared.SecurityUtils
-import com.mixfa.marketplace.shared.model.MarketplaceEvent
+import com.mixfa.marketplace.shared.authenticatedPrincipal
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
 import jakarta.validation.Valid
@@ -65,12 +65,12 @@ class OrderService(
 
         val products = productService.findProductsByIdsOrThrow(request.products)
 
-        if (products.size != request.products.size) throw FastThrowable("Can`t load all requested products")
+        if (products.size != request.products.size) throw FastException("Can`t load all requested products")
 
         // apply discounts and promocode
         val realizedProducts = processDiscounts(products, request.promoCode)
 
-        if (realizedProducts.size != request.products.size) throw FastThrowable("Can`t process all requested products")
+        if (realizedProducts.size != request.products.size) throw FastException("Can`t process all requested products")
 
         return orderRepo.save(
             Order(
@@ -86,19 +86,19 @@ class OrderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun listMyOrders(pageable: CheckedPageable): Page<Order> {
-        val principal = SecurityUtils.authenticatedPrincipal()
-        return orderRepo.findAllByOwnerEmail(principal.name, pageable)
+        val principal = authenticatedPrincipal()
+        return orderRepo.findAllByOwnerUsername(principal.name, pageable)
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun countMyOrders(): Long {
-        val principal = SecurityUtils.authenticatedPrincipal()
-        return orderRepo.countByOwnerEmail(principal.name)
+        val principal = authenticatedPrincipal()
+        return orderRepo.countByOwnerUsername(principal.name)
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun cancelOrder(orderId: String): Order {
-        val principal = SecurityUtils.authenticatedPrincipal()
+        val principal = authenticatedPrincipal()
         val order = orderRepo.findById(orderId).orThrow()
 
         principal.throwIfNot(order.owner)

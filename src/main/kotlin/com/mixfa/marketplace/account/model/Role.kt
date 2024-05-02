@@ -9,6 +9,7 @@ enum class Role(
         setOf(
             Permission.FILES_EDIT,
             Permission.MARKETPLACE_EDIT,
+            Permission.COMMENTS_EDIT,
         )
     ),
     CUSTOMER(

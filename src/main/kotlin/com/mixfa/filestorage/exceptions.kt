@@ -2,12 +2,12 @@ package com.mixfa.filestorage
 
 import com.mixfa.excify.ExcifyCachedException
 import com.mixfa.excify.ExcifyOptionalOrThrow
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.marketplace.shared.NotFoundException
 
 @ExcifyCachedException
-class FileToBigException : FastThrowable("File is too large to be stored") {
+class FileToBigException : FastException("File is too large to be stored") {
     companion object
 }
 

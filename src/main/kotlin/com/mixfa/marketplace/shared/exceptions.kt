@@ -2,24 +2,24 @@ package com.mixfa.marketplace.shared
 
 import com.mixfa.excify.ExcifyCachedException
 import com.mixfa.excify.ExcifyOptionalOrThrow
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 
-class NotFoundException(subject: String) : FastThrowable("$subject not found") {
+class NotFoundException(subject: String) : FastException("$subject not found") {
     companion object
 }
 
 @ExcifyCachedException
-class LargePageSizeException : FastThrowable("Page size is too big, should be <= $MAX_PAGE_SIZE") {
+class LargePageSizeException : FastException("Page size is too big, should be <= $MAX_PAGE_SIZE") {
     companion object
 }
 
 class ProductCharacteristicsNotSetException(
     requiredCharacteristics: Collection<String>,
     providedCharacteristics: Collection<String>
-) : FastThrowable(
+) : FastException(
     """Can`t register product, required characteristics not set
     Required characteristics:
     $requiredCharacteristics
@@ -30,27 +30,27 @@ class ProductCharacteristicsNotSetException(
 )
 
 @ExcifyCachedException
-class ProductAlreadyInListException : FastThrowable("Product already in list") {
+class ProductAlreadyInListException : FastException("Product already in list") {
     companion object
 }
 
 @ExcifyCachedException
-class ProductNotInListException : FastThrowable("Product not in list") {
+class ProductNotInListException : FastException("Product not in list") {
     companion object
 }
 
 @ExcifyCachedException
-class FavouriteListsLimitException : FastThrowable("Favourite lists per user limit") {
+class FavouriteListsLimitException : FastException("Favourite lists per user limit") {
     companion object
 }
 
 @ExcifyCachedException
-class FavouriteListProductsLimitException : FastThrowable("Products per list limit") {
+class FavouriteListProductsLimitException : FastException("Products per list limit") {
     companion object
 }
 
 @ExcifyCachedException
-class FastAccessException : FastThrowable("Access denied") {
+class FastAccessException : FastException("Access denied") {
     companion object
 }
 

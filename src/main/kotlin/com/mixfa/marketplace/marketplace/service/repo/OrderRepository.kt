@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
 
 interface OrderRepository : MongoRepository<Order, String> {
-    fun findAllByOwnerEmail(email: String, pageable: Pageable): Page<Order>
-    fun countByOwnerEmail(email: String): Long
+    fun findAllByOwnerUsername(username: String, pageable: Pageable): Page<Order>
+    fun countByOwnerUsername(username: String): Long
 }

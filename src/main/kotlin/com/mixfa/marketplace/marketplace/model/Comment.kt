@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
+import java.util.Date
 
 @Document("comment")
 data class Comment(
@@ -18,7 +19,7 @@ data class Comment(
     @field:DBRef val product: Product,
     val content: String,
     val rate: Double,
-    val timestamp: ZonedDateTime = ZonedDateTime.now()
+    val timestamp: String = "5/2/2024"
 ) : WithDto {
     data class RegisterRequest(
         @field:NotBlank
@@ -38,7 +39,7 @@ data class Comment(
         val productId: String,
         val content: String,
         val rate: Double,
-        val timestamp: ZonedDateTime
+        val timestamp: String
     ) {
         constructor(comment: Comment) : this(
             comment.id.toString(),

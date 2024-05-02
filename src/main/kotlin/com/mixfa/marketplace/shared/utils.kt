@@ -45,21 +45,3 @@ inline fun <reified T> HttpResponse<String>.mapBodyToOrNull(mapper: ObjectMapper
 
 inline fun <reified T> HttpResponse<String>.mapBodyTo(mapper: ObjectMapper): T = mapper.readValue<T>(this.body())
 
-//object HttpClientUtils {
-//    inline fun <reified T> mappingToSubscriber(mapper: ObjectMapper, charset: Charset): BodySubscriber<T> {
-//        return ByteArraySubscriber { bytes: ByteArray? ->
-//            mapper.readValue<T>(String(bytes!!, charset))
-//        }
-//    }
-//
-//
-//    inline fun <reified T> mappingToHandler(mapper: ObjectMapper): BodyHandler<T> {
-//        return BodyHandler<T> { responseInfo: ResponseInfo ->
-//            mappingToSubscriber(
-//                mapper,
-//                Utils.charsetFrom(responseInfo.headers())
-//            )
-//        }
-//    }
-//}
-

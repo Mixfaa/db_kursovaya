@@ -4,17 +4,17 @@ import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
-import com.mixfa.marketplace.shared.SecurityUtils
-import com.mixfa.marketplace.shared.model.MarketplaceEvent
+import com.mixfa.marketplace.shared.authenticatedPrincipal
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
 import jakarta.validation.Valid
+import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
 
 @Service
@@ -25,9 +25,8 @@ class CommentService(
     private val productService: ProductService,
     private val eventPublisher: ApplicationEventPublisher
 ) : ApplicationListener<ProductService.Event> {
-    @Transactional
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
-    open fun registerComment(@Valid request: Comment.RegisterRequest): Comment {
+    fun registerComment(@Valid request: Comment.RegisterRequest): Comment {
         val account = accountService.getAuthenticatedAccount().orThrow()
         val product = productService.findProductById(request.productId).orThrow()
 
@@ -40,9 +39,8 @@ class CommentService(
 
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
     fun deleteComment(commentId: String) {
-        val principal = SecurityUtils.authenticatedPrincipal()
         val comment = commentRepo.findById(commentId).orThrow()
-        principal.throwIfNot(comment.owner)
+        authenticatedPrincipal().throwIfNot(comment.owner)
 
         commentRepo.delete(comment)
         eventPublisher.publishEvent(Event.CommentDelete(comment, this))
@@ -52,7 +50,7 @@ class CommentService(
     private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
 
     fun listProductComments(productId: String, pageable: CheckedPageable) =
-        commentRepo.findAllByProductId(productId, pageable)
+        commentRepo.findAllByProductId(ObjectId(productId), pageable)
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {
         is ProductService.Event.ProductDelete -> deleteCommentsByProductId(event.product)

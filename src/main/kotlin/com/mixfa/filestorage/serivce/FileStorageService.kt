@@ -1,17 +1,18 @@
 package com.mixfa.filestorage.serivce
 
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.filestorage.FileToBigException
 import com.mixfa.filestorage.get
 import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.marketplace.account.service.AccountService
-import com.mixfa.marketplace.shared.SecurityUtils
+import com.mixfa.marketplace.shared.authenticatedPrincipal
 import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.throwIfNot
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+
 
 @Service
 class FileStorageService(
@@ -23,8 +24,7 @@ class FileStorageService(
     fun deleteFile(fileId: String) {
         val file = filesRepo.findById(fileId).orThrow()
 
-        SecurityUtils.authenticatedPrincipal()
-            .throwIfNot(file.owner)
+        authenticatedPrincipal().throwIfNot(file.owner)
 
         filesRepo.deleteById(fileId)
     }
@@ -35,7 +35,7 @@ class FileStorageService(
     fun saveFile(file: MultipartFile): StoredFile {
         val fileType = file.contentType
         if (fileType == null || !checkFileType(fileType))
-            throw FastThrowable("File type $fileType not supported")
+            throw FastException("File type $fileType not supported")
 
         if (file.size >= maxFileSize) throw FileToBigException.get()
         val account = accountService.getAuthenticatedAccount().orThrow()

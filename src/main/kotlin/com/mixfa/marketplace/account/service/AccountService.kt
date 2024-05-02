@@ -1,6 +1,6 @@
 package com.mixfa.marketplace.account.service
 
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.marketplace.account.AdminSecretIsNullException
 import com.mixfa.marketplace.account.get
 import com.mixfa.marketplace.account.model.Account
@@ -47,19 +47,19 @@ class AccountService(
     fun accountByPrincipal(principal: Principal): Optional<Account> = accountRepo.findById(principal.name)
 
     fun getAuthenticatedAccount(): Optional<Account> =
-        accountRepo.findById(SecurityUtils.authenticatedPrincipal().name)
+        accountRepo.findById(authenticatedPrincipal().name)
 
     fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 
     fun register(@Valid request: Account.RegisterRequest): Account {
         if (accountRepo.existsByUsername(request.username))
-            throw FastThrowable("Username ${request.username} is already in use")
+            throw FastException("Username ${request.username} is already in use")
 
         val requestedEmail = mailCodes.remove(request.mailCode)
-            ?: throw FastThrowable("Code ${request.mailCode} not related to any email")
+            ?: throw FastException("Code ${request.mailCode} not related to any email")
 
         if (accountRepo.existsByEmail(requestedEmail))
-            throw FastThrowable("Email $requestedEmail is already in use")
+            throw FastException("Email $requestedEmail is already in use")
 
         val role = runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
         if (role == Role.ADMIN) {
@@ -67,7 +67,7 @@ class AccountService(
                 throw AdminSecretIsNullException.get()
 
             if (request.adminSecret != adminSecret)
-                throw FastThrowable("Can`t create admin using ${request.adminSecret}")
+                throw FastException("Can`t create admin using ${request.adminSecret}")
         }
 
         return accountRepo.save(
@@ -87,7 +87,7 @@ class AccountService(
         val account = getAuthenticatedAccount().orThrow()
 
         if (account.shippingAddresses.contains(shippingAddress))
-            throw FastThrowable("Account already contain $shippingAddress")
+            throw FastException("Account already contain $shippingAddress")
 
         return accountRepo.save(
             account.copy(shippingAddresses = account.shippingAddresses + shippingAddress)
@@ -99,7 +99,7 @@ class AccountService(
         val account = getAuthenticatedAccount().orThrow()
 
         if (!account.shippingAddresses.contains(shippingAddress))
-            throw FastThrowable("Account does not contain $shippingAddress")
+            throw FastException("Account does not contain $shippingAddress")
 
         return accountRepo.save(
             account.copy(shippingAddresses = account.shippingAddresses - shippingAddress)

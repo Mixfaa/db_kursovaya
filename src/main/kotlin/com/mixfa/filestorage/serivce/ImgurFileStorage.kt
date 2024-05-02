@@ -1,7 +1,7 @@
 package com.mixfa.filestorage.serivce
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.filestorage.model.ImgurUploadResponse
 import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.marketplace.account.service.AccountService
@@ -25,17 +25,15 @@ class ImgurFileStorage(
     override fun deleteFile(fileId: String) {
         val file = filesRepo.findById(fileId).orThrow()
 
-        SecurityUtils.authenticatedPrincipal()
+        authenticatedPrincipal()
             .throwIfNot(file.owner)
 
         if (file is StoredFile.ImgurStored) {
-            runOrNull {
-                val deleteRequest = HttpRequest.newBuilder(URI("$IMGUR_URL/image/${file.deleteHash}"))
-                    .DELETE()
-                    .build()
+            val deleteRequest = HttpRequest.newBuilder(URI("$IMGUR_URL/image/${file.deleteHash}"))
+                .DELETE()
+                .build()
 
-                webClient.send(deleteRequest, BodyHandlers.discarding())
-            }
+            webClient.send(deleteRequest, BodyHandlers.discarding())
         }
 
         filesRepo.deleteById(fileId)
@@ -44,7 +42,7 @@ class ImgurFileStorage(
     override fun saveFile(file: MultipartFile): StoredFile {
         file.contentType.let { fileType ->
             if (fileType == null || !checkFileType(fileType))
-                throw FastThrowable("File type $fileType not supported")
+                throw FastException("File type $fileType not supported")
         }
 
         val account = accountService.getAuthenticatedAccount().orThrow()
@@ -58,7 +56,7 @@ class ImgurFileStorage(
 
             response.statusCode().let { statusCode ->
                 if (!statusCode.httpSuccessful())
-                    throw FastThrowable("Imgur returned error: $statusCode ${response.body()}")
+                    throw FastException("Imgur returned error: $statusCode ${response.body()}")
             }
 
             val uploadResponse = response.mapBodyTo<ImgurUploadResponse>(objectMapper)

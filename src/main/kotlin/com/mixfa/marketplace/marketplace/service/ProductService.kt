@@ -1,6 +1,6 @@
 package com.mixfa.marketplace.marketplace.service
 
-import com.mixfa.excify.FastThrowable
+import com.mixfa.excify.FastException
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
@@ -34,7 +34,6 @@ class ProductService(
     private val categoryService: CategoryService,
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<MarketplaceEvent> {
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
     fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
 
     @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
@@ -54,7 +53,7 @@ class ProductService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun addProductImage(productId: String, imageLink: String): Product {
         if (imageLink.isBlank())
-            throw FastThrowable("Can`t add $imageLink to product images")
+            throw FastException("Can`t add $imageLink to product images")
 
         val product = findProductById(productId).orThrow()
 

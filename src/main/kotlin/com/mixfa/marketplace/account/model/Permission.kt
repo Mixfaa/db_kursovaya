@@ -5,5 +5,5 @@ enum class Permission {
     MARKETPLACE_EDIT,
     COMMENTS_EDIT,
     FAVLIST_EDIT,
-    ORDERS_EDIT,
+    ORDERS_EDIT;
 }
