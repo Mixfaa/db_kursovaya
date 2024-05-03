@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
+import java.util.*
 
 @Service
 @Validated
@@ -32,7 +33,11 @@ class CommentService(
 
         return commentRepo.save(
             Comment(
-                owner = account, product = product, content = request.content, rate = request.rate
+                owner = account,
+                product = product,
+                content = request.content,
+                rate = request.rate,
+                timestamp = Calendar.getInstance().time
             )
         ).also { comment -> eventPublisher.publishEvent(Event.CommentRegister(comment, this)) }
     }

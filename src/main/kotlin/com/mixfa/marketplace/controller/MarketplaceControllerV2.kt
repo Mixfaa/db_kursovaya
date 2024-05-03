@@ -3,10 +3,10 @@ package com.mixfa.marketplace.controller
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.service.*
+import com.mixfa.marketplace.shared.model.AssembleableSortConstructor
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.PrecompiledSort
 import com.mixfa.marketplace.shared.model.QueryConstructor
-import com.mixfa.marketplace.shared.model.SortConstructor
 import com.mixfa.marketplace.shared.orThrow
 import org.springframework.web.bind.annotation.*
 
@@ -63,7 +63,7 @@ class MarketplaceControllerV2(
         productService.countProducts()
 
     @GetMapping("/products/findV2")
-    fun findProductsV2(query: QueryConstructor, sort: SortConstructor, page: Int, pageSize: Int) =
+    fun findProductsV2(query: QueryConstructor, sort: AssembleableSortConstructor, page: Int, pageSize: Int) =
         productService.findProducts(query, sort, CheckedPageable(page, pageSize))
 
     @GetMapping("/products/findV3")

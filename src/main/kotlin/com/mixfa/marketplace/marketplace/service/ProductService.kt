@@ -7,12 +7,9 @@ import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
 import com.mixfa.marketplace.shared.*
-import com.mixfa.marketplace.shared.model.MarketplaceEvent
-import com.mixfa.marketplace.shared.model.CheckedPageable
-import com.mixfa.marketplace.shared.model.PrecompiledSort
-import com.mixfa.marketplace.shared.model.QueryConstructor
-import com.mixfa.marketplace.shared.model.SortConstructor
+import com.mixfa.marketplace.shared.model.*
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -51,8 +48,8 @@ class ProductService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun addProductImage(productId: String, imageLink: String): Product {
-        if (imageLink.isBlank())
+    fun addProductImage(productId: String, @NotBlank imageLink: String): Product {
+        if (imageLink.isBlank()) // probably redundant
             throw FastException("Can`t add $imageLink to product images")
 
         val product = findProductById(productId).orThrow()
@@ -120,18 +117,6 @@ class ProductService(
         val sort = sortConstructor.makeSort()
 
         query.with(pageable).with(sort)
-
-        return mongoTemplate.find(query, Product::class.java)
-    }
-
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
-    fun findProducts(
-        queryConstructor: QueryConstructor,
-        precompiledSort: PrecompiledSort,
-        pageable: CheckedPageable
-    ): List<Product> {
-        val query = queryConstructor.makeQuery()
-        query.with(pageable).with(precompiledSort.sort)
 
         return mongoTemplate.find(query, Product::class.java)
     }

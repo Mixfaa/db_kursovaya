@@ -19,7 +19,7 @@ data class Comment(
     @field:DBRef val product: Product,
     val content: String,
     val rate: Double,
-    val timestamp: String = "5/2/2024"
+    val timestamp: Date
 ) : WithDto {
     data class RegisterRequest(
         @field:NotBlank
@@ -39,7 +39,7 @@ data class Comment(
         val productId: String,
         val content: String,
         val rate: Double,
-        val timestamp: String
+        val timestamp: Date
     ) {
         constructor(comment: Comment) : this(
             comment.id.toString(),
