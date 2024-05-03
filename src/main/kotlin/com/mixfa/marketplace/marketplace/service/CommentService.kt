@@ -51,7 +51,6 @@ class CommentService(
         eventPublisher.publishEvent(Event.CommentDelete(comment, this))
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
 
     fun listProductComments(productId: String, pageable: CheckedPageable) =
