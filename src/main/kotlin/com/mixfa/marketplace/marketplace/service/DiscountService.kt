@@ -65,8 +65,8 @@ class DiscountService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun deleteDiscount(discountId: String) {
         val discount = discountRepo.findById(discountId).orThrow()
-        val event = Event.DiscountDelete(discount, this)
-        publisher.publishEvent(event)
+
+        publisher.publishEvent(Event.DiscountDelete(discount, this))
 
         discountRepo.deleteById(discountId)
     }
@@ -108,6 +108,5 @@ class DiscountService(
         class DiscountRegister(val discount: AbstractDiscount, src: Any) : Event(src)
         class DiscountDelete(val discount: AbstractDiscount, src: Any) : Event(src)
     }
-
 }
 

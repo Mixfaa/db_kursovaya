@@ -65,14 +65,12 @@ class OrderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun listMyOrders(pageable: CheckedPageable): Page<Order> {
-        val principal = authenticatedPrincipal()
-        return orderRepo.findAllByOwnerUsername(principal.name, pageable)
+        return orderRepo.findAllByOwnerUsername(authenticatedPrincipal().name, pageable)
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun countMyOrders(): Long {
-        val principal = authenticatedPrincipal()
-        return orderRepo.countByOwnerUsername(principal.name)
+        return orderRepo.countByOwnerUsername(authenticatedPrincipal().name)
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
