@@ -71,5 +71,3 @@ data class Account(
         val shippingAddresses: List<String>,
     )
 }
-
-fun Principal.matchesById(account: Account): Boolean = this.name == account.username
