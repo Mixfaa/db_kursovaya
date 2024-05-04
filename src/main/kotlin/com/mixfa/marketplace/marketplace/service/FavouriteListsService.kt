@@ -7,10 +7,7 @@ import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.FavoriteListRepository
 import com.mixfa.marketplace.shared.*
 import jakarta.validation.Valid
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.GlobalScope
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -53,7 +50,7 @@ class FavouriteListsService(
     }
 
     private fun handleProductDeletion(product: Product) {
-        coroutineScope.launch {
+        GlobalScope.launchIO {
             iteratePages(favoriteListRepo::findAllByProductsContains.partially1(product)) { favoriteList ->
                 favoriteListRepo.save(
                     favoriteList.copy(
@@ -139,7 +136,5 @@ class FavouriteListsService(
     companion object {
         const val MAX_LISTS_PER_USER = 10
         const val MAX_PRODUCTS_PER_LIST = 50
-
-        private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     }
 }

@@ -13,10 +13,7 @@ import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.GlobalScope
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -144,7 +141,7 @@ class ProductService(
     }
 
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
-        coroutineScope.launch {
+        GlobalScope.launchIO {
             iteratePages(productRepo::findAll) { product ->
                 when (discount) {
                     is ProductApplicable -> {
@@ -176,10 +173,6 @@ class ProductService(
     sealed class Event(src: Any) : MarketplaceEvent(src) {
         class ProductRegister(val product: Product, src: Any) : Event(src)
         class ProductDelete(val product: Product, src: Any) : Event(src)
-    }
-
-    companion object {
-        private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     }
 }
 
