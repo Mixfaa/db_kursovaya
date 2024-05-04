@@ -14,10 +14,8 @@ data class Account(
     @Id private val username: String,
     val firstname: String,
     val lastname: String,
-
     @field:JsonIgnore
     val email: String,
-
     @field:JsonIgnore
     private val password: String,
     val role: Role,

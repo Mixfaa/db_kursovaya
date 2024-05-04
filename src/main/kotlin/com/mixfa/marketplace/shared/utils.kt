@@ -1,7 +1,9 @@
 package com.mixfa.marketplace.shared
 
+import arrow.core.memoize
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.mixfa.excify.FastException
 import kotlinx.coroutines.*
 import java.net.http.HttpResponse
 
@@ -49,3 +51,7 @@ inline fun <reified T> HttpResponse<String>.mapBodyTo(mapper: ObjectMapper): T =
 @DelicateCoroutinesApi
 fun GlobalScope.launchIO(block: suspend CoroutineScope.() -> Unit) =
     this.launch(Dispatchers.IO, CoroutineStart.DEFAULT, block)
+
+private val fastExceptionMemorizedConstructor = ::FastException.memoize()
+fun makeMemorizedException(message: String) : FastException = fastExceptionMemorizedConstructor(message)
+

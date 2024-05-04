@@ -59,7 +59,7 @@ class AccountService(
             ?: throw FastException("Code ${request.mailCode} not related to any email")
 
         if (accountRepo.existsByEmail(requestedEmail))
-            throw FastException("Email $requestedEmail is already in use")
+            throw makeMemorizedException("Email is already in use")
 
         val role = runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
         if (role == Role.ADMIN) {
@@ -67,7 +67,7 @@ class AccountService(
                 throw AdminSecretIsNullException.get()
 
             if (request.adminSecret != adminSecret)
-                throw FastException("Can`t create admin using ${request.adminSecret}")
+                throw makeMemorizedException("Invalid admin secret key")
         }
 
         return accountRepo.save(
@@ -121,6 +121,5 @@ class AccountService(
         private const val CODE_EXPIRATION_TIME_IN_MILLI = 5L * 60L * 1000L
 
         fun random6DigitCode() = String.format("%06d", Random.Default.nextInt(999999))
-
     }
 }
