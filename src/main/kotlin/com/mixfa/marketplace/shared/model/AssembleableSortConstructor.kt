@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.shared.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.domain.Sort
 
 interface SortConstructor {
@@ -21,10 +22,11 @@ data class AssembleableSortConstructor(
 }
 
 @JsonFormat(shape = JsonFormat.Shape.STRING)
-enum class PrecompiledSort(val sort: Sort) : SortConstructor {
+enum class PrecompiledSort(private val sort: Sort) : SortConstructor {
     PRICE_DESCENDING(Sort.by("actualPrice").descending()),
     PRICE_ASCENDING(Sort.by("actualPrice").ascending()),
     ORDER_COUNT_DESCENDING(Sort.by("ordersCount").descending());
 
+    @JsonIgnore
     override fun makeSort(): Sort = this.sort
 }
