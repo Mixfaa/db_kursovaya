@@ -23,7 +23,6 @@ sealed class StoredFile(
         constructor(file: StoredFile) : this(file.id.toString(), file.name, file.owner.username)
     }
 
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is StoredFile) return false
@@ -46,7 +45,7 @@ sealed class StoredFile(
     }
 
     class ExternallyStored(
-        name: String, val link: String, owner: Account, id: ObjectId = ObjectId()
+        val link: String, name: String, owner: Account, id: ObjectId = ObjectId()
     ) : StoredFile(id, name, owner) {
 
         private val bytes: ByteArray by lazy {
@@ -73,11 +72,11 @@ sealed class StoredFile(
     }
 
     class ImgurStored(
-        name: String,
         val link: String,
-        owner: Account,
         val deleteHash: String,
         val imgurId: String,
+        name: String,
+        owner: Account,
         id: ObjectId = ObjectId()
     ) : StoredFile(id, name, owner) {
 

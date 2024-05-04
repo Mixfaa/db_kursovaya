@@ -16,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
 
 @Service
@@ -58,7 +57,6 @@ class OrderService(
         return realizedProductBuilders.map { it.build() }.toList()
     }
 
-    @Transactional
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun registerOrder(@Valid request: Order.RegisterRequest): Order {
         val account = accountService.getAuthenticatedAccount().orThrow()
@@ -79,8 +77,8 @@ class OrderService(
                 status = OrderStatus.UNPAID,
                 shippingAddress = request.shippingAddress
             )
-        ).also {
-            eventPublisher.publishEvent(Event.OrderRegister(it, this))
+        ).also { order ->
+            eventPublisher.publishEvent(Event.OrderRegister(order, this))
         }
     }
 
@@ -98,10 +96,8 @@ class OrderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun cancelOrder(orderId: String): Order {
-        val principal = authenticatedPrincipal()
         val order = orderRepo.findById(orderId).orThrow()
-
-        principal.throwIfNot(order.owner)
+        authenticatedPrincipal().throwIfNot(order.owner)
 
         var canceledOrder = order.copy(status = OrderStatus.CANCELED)
         canceledOrder = orderRepo.save(canceledOrder)

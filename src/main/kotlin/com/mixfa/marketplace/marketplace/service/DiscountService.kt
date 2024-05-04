@@ -6,11 +6,15 @@ import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
-import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.iteratePages
 import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.orThrow
 import jakarta.validation.Valid
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
@@ -65,19 +69,19 @@ class DiscountService(
         discountRepo.deleteById(discountId)
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     private fun handleProductDeletion(product: Product) {
-        processAllDiscounts { discount ->
-            if (discount is DiscountByProduct) {
-
-                if (discount.targetProducts.contains(product))
-                    discountRepo.save(
-                        DiscountByProduct(
-                            discount.description,
-                            discount.discount,
-                            discount.targetProducts - product
+        coroutineScope.launch {
+            processAllDiscounts { discount ->
+                if (discount is DiscountByProduct) {
+                    if (discount.targetProducts.contains(product))
+                        discountRepo.save(
+                            DiscountByProduct(
+                                discount.description,
+                                discount.discount,
+                                discount.targetProducts - product
+                            )
                         )
-                    )
+                }
             }
         }
     }
@@ -94,6 +98,10 @@ class DiscountService(
     sealed class Event(src: Any) : MarketplaceEvent(src) {
         class DiscountRegister(val discount: AbstractDiscount, src: Any) : Event(src)
         class DiscountDelete(val discount: AbstractDiscount, src: Any) : Event(src)
+    }
+
+    companion object {
+        private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     }
 }
 

@@ -7,9 +7,16 @@ import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
 import com.mixfa.marketplace.shared.*
-import com.mixfa.marketplace.shared.model.*
+import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.marketplace.shared.model.MarketplaceEvent
+import com.mixfa.marketplace.shared.model.QueryConstructor
+import com.mixfa.marketplace.shared.model.SortConstructor
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -33,7 +40,6 @@ class ProductService(
 ) : ApplicationListener<MarketplaceEvent> {
     fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
     fun findProductsByIdsOrThrow(ids: List<String>): List<Product> {
         val products = productRepo.findAllById(ids)
         if (products.size != ids.size) throw NotFoundException.productNotFound()
@@ -102,12 +108,10 @@ class ProductService(
         eventPublisher.publishEvent(Event.ProductDelete(product, this))
     }
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
     fun findProducts(query: String, pageable: CheckedPageable): Page<Product> {
         return productRepo.findAllByText(query, pageable)
     }
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
     fun findProducts(
         queryConstructor: QueryConstructor,
         sortConstructor: SortConstructor,
@@ -121,7 +125,6 @@ class ProductService(
         return mongoTemplate.find(query, Product::class.java)
     }
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
     fun countProducts() = productRepo.count()
 
     private fun incProductsOrdersCount(productsIds: List<ObjectId>) {
@@ -141,18 +144,20 @@ class ProductService(
     }
 
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
-        iteratePages(productRepo::findAll) { product ->
-            when (discount) {
-                is ProductApplicable -> {
-                    if (discount.isApplicableTo(product))
-                        productRepo.save(
-                            product.copy(
-                                actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
+        coroutineScope.launch {
+            iteratePages(productRepo::findAll) { product ->
+                when (discount) {
+                    is ProductApplicable -> {
+                        if (discount.isApplicableTo(product))
+                            productRepo.save(
+                                product.copy(
+                                    actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
+                                )
                             )
-                        )
+                    }
                 }
-            }
 
+            }
         }
     }
 
@@ -171,6 +176,10 @@ class ProductService(
     sealed class Event(src: Any) : MarketplaceEvent(src) {
         class ProductRegister(val product: Product, src: Any) : Event(src)
         class ProductDelete(val product: Product, src: Any) : Event(src)
+    }
+
+    companion object {
+        private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     }
 }
 

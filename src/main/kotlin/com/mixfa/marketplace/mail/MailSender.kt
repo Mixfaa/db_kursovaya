@@ -1,7 +1,10 @@
 package com.mixfa.marketplace.mail
 
 import com.mixfa.marketplace.shared.DEFAULT_FIXED_RATE
-import com.mixfa.marketplace.shared.runOrNull
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -30,17 +33,21 @@ class MailSender(
             throw EmailThrottlingException.get()
 
         logger.info("Sending email to {} text {}", to, text)
-        emailSender.send(SimpleMailMessage().apply {
-            this.setTo(to)
-            this.from = this@MailSender.from
-            this.subject = subject
-            this.text = text
-        })
 
-        mails[to] = ""
+        coroutineScope.launch {
+            emailSender.send(SimpleMailMessage().apply {
+                this.setTo(to)
+                this.from = this@MailSender.from
+                this.subject = subject
+                this.text = text
+            })
+
+            mails[to] = ""
+        }
     }
 
     companion object {
+        private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         private val logger = LoggerFactory.getLogger(this::class.java)
     }
 }
