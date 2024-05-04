@@ -20,7 +20,7 @@ data class RealizedProduct(
         val product: Product
     ) {
         constructor(product: Product) : this(
-            product.caption, product.description, product.price, product
+            product.caption, product.description, product.actualPrice, product
         )
 
         fun applyDiscount(discount: AbstractDiscount) {

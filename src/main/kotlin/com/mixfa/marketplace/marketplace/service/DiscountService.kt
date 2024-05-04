@@ -15,6 +15,9 @@ import jakarta.validation.Valid
 import kotlinx.coroutines.GlobalScope
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
@@ -27,6 +30,7 @@ class DiscountService(
     private val categoryService: CategoryService,
     private val productService: ProductService,
     private val publisher: ApplicationEventPublisher,
+    private val mongoTemplate: MongoTemplate,
 ) : ApplicationListener<ProductService.Event> {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
@@ -65,6 +69,13 @@ class DiscountService(
         publisher.publishEvent(event)
 
         discountRepo.deleteById(discountId)
+    }
+
+    fun findPromoCode(code: String): PromoCode? {
+        return mongoTemplate.findOne(
+            Query(Criteria.where("code").`is`(code)),
+            PromoCode::class.java
+        )
     }
 
     private fun handleProductDeletion(product: Product) {

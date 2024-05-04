@@ -3,8 +3,6 @@ package com.mixfa.marketplace.marketplace.service
 import com.mixfa.excify.FastException
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.*
-import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
-import com.mixfa.marketplace.marketplace.model.discount.PromoCode
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
 import com.mixfa.marketplace.shared.authenticatedPrincipal
 import com.mixfa.marketplace.shared.model.CheckedPageable
@@ -35,24 +33,9 @@ class OrderService(
     private fun processDiscounts(products: List<Product>, promoCode: String?): List<RealizedProduct> {
         val realizedProductBuilders = products.asSequence().map { RealizedProduct.Builder(it) }
 
-        discountService.processAllDiscounts { discount ->
-            when (discount) {
-                is ProductApplicable -> {
-                    realizedProductBuilders.forEach { builder ->
-                        if (discount.isApplicableTo(builder.product))
-                            builder.applyDiscount(discount)
-                    }
-                }
-
-                is PromoCode -> {
-                    if (promoCode == null) return@processAllDiscounts
-
-                    if (discount.matches(promoCode)) realizedProductBuilders.forEach { builder ->
-                        builder.applyDiscount(discount)
-                    }
-                }
-            }
-        }
+        val promoCodeDiscount = promoCode?.let { code -> discountService.findPromoCode(code) }
+        if (promoCodeDiscount != null)
+            realizedProductBuilders.forEach { it.applyDiscount(promoCodeDiscount) }
 
         return realizedProductBuilders.map { it.build() }.toList()
     }
@@ -60,12 +43,10 @@ class OrderService(
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun registerOrder(@Valid request: Order.RegisterRequest): Order {
         val account = accountService.getAuthenticatedAccount().orThrow()
-
         val products = productService.findProductsByIdsOrThrow(request.products)
 
         if (products.size != request.products.size) throw FastException("Can`t load all requested products")
 
-        // apply discounts and promocode
         val realizedProducts = processDiscounts(products, request.promoCode)
 
         if (realizedProducts.size != request.products.size) throw FastException("Can`t process all requested products")
