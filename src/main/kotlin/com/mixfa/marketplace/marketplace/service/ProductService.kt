@@ -106,7 +106,8 @@ class ProductService(
     }
 
     fun findProducts(query: String, pageable: CheckedPageable): Page<Product> {
-        return productRepo.findAllByText(query, pageable)
+//        return productRepo.findAllByText(query, pageable)
+        return productRepo.findAllByCaptionContainingIgnoreCase(query, pageable)
     }
 
     fun findProducts(

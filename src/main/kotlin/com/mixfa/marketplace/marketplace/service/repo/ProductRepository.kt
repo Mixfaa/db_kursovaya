@@ -9,6 +9,6 @@ import org.springframework.data.mongodb.repository.Query
 
 interface ProductRepository : MongoRepository<Product, String> {
     fun findAllByCaptionContainingIgnoreCase(query: String, pageable: Pageable): Page<Product>
-    @Query("{ \$text :  {\$search: \"?1\"}}")
+    @Query("{ \$text :  {\$search: \"?0\"}}")
     fun findAllByText(query: String, pageable: Pageable): Page<Product>
 }

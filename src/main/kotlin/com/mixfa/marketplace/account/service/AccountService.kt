@@ -61,7 +61,9 @@ class AccountService(
         if (accountRepo.existsByEmail(requestedEmail))
             throw makeMemorizedException("Email is already in use")
 
-        val role = runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
+        val role: Role = if (!request.adminSecret.isNullOrBlank()) Role.ADMIN
+        else runOrNull { Role.valueOf(request.role) } ?: Role.CUSTOMER
+
         if (role == Role.ADMIN) {
             if (request.adminSecret == null)
                 throw AdminSecretIsNullException.get()

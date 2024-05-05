@@ -23,7 +23,6 @@ class DiscountByCategory(
 private fun checkCategoriesIntersections(
     productCategories: List<Category>, discountCategories: List<Category>
 ): Boolean {
-
     for (discountCategory in discountCategories) for (productCategory in productCategories) if (discountCategory == productCategory) return true
 
     for (discountCategory in discountCategories) if (checkCategoriesIntersections(
