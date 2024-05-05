@@ -35,7 +35,7 @@ class CategoryService(
     )
 
     fun findCategories(query: String, pageable: CheckedPageable): Page<Category> =
-        categoryRepo.findAllByNameContainsIgnoreCase(query, pageable)
+        categoryRepo.findByText(query, pageable)
 
     fun listCategories(pageable: CheckedPageable): Page<Category> =
         categoryRepo.findAll(pageable)

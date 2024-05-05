@@ -67,7 +67,6 @@ class DiscountService(
         val discount = discountRepo.findById(discountId).orThrow()
 
         publisher.publishEvent(Event.DiscountDelete(discount, this))
-
         discountRepo.deleteById(discountId)
     }
 
@@ -96,6 +95,8 @@ class DiscountService(
     }
 
     fun processAllDiscounts(handler: (AbstractDiscount) -> Unit) = iteratePages(discountRepo::findAll, handler)
+
+    fun findDiscounts(query: String, pageable: CheckedPageable) = discountRepo.findByText(query, pageable)
 
     fun listDiscounts(pageable: CheckedPageable) = discountRepo.findAll(pageable)
 

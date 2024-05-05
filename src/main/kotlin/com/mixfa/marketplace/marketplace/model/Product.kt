@@ -7,16 +7,17 @@ import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
+import org.springframework.data.mongodb.core.index.TextIndexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document("product")
 data class Product(
     @Id val id: ObjectId = ObjectId(),
-    val caption: String,
-    @field:DBRef val categories: List<Category>,
+    @TextIndexed val caption: String,
+    @DBRef val categories: List<Category>,
     val characteristics: Map<String, String>,
-    val description: String,
+    @TextIndexed val description: String,
     val price: Double,
     val rate: Double = 0.0,
     val ordersCount: Long = 0,

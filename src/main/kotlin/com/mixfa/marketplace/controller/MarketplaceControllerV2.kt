@@ -93,6 +93,10 @@ class MarketplaceControllerV2(
     fun listDiscounts(page: Int, pageSize: Int) =
         discountService.listDiscounts(CheckedPageable(page, pageSize))
 
+    @GetMapping("/discounts/{query}")
+    fun findDiscounts(@PathVariable query: String, page: Int, pageSize: Int) =
+        discountService.findDiscounts(query, CheckedPageable(page, pageSize))
+
     /*
     * Orders
     */

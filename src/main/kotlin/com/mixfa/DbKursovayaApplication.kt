@@ -53,7 +53,9 @@ class DbKursovayaApplication {
                 it.configurationSource(UrlBasedCorsConfigurationSource().apply {
                     registerCorsConfiguration(
                         "/**",
-                        CorsConfiguration().applyPermitDefaultValues()
+                        CorsConfiguration().applyPermitDefaultValues().apply {
+                            allowedMethods = listOf("GET","POST","DELETE","PUT")
+                        }
                     )
                 })
             }

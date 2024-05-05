@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.mixfa.marketplace.marketplace.model.Product
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -12,12 +11,13 @@ import jakarta.validation.constraints.NotNull
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
+import org.springframework.data.mongodb.core.index.TextIndexed
 import org.springframework.data.mongodb.core.mapping.Document
 
 
 @Document("discount")
 abstract class AbstractDiscount(
-    val description: String,
+    @TextIndexed val description: String,
     val discount: Double,
     @field:Id val id: ObjectId = ObjectId()
 ) {
