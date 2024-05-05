@@ -14,9 +14,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.Document
 
-interface ProductApplicable {
-    fun isApplicableTo(product: Product): Boolean
-}
 
 @Document("discount")
 abstract class AbstractDiscount(
@@ -28,7 +25,6 @@ abstract class AbstractDiscount(
     @get:Transient
     val multiplier: Double
         get() = 1.0 / discount
-
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)

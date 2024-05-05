@@ -10,7 +10,7 @@ class DiscountByProduct(
     description: String,
     discount: Double,
     @field:DBRef val targetProducts: List<Product>
-) : AbstractDiscount(description, discount), ProductApplicable {
+) : AbstractDiscount(description, discount) {
     class RegisterRequest(
         @NotBlank
         description: String,
@@ -20,5 +20,5 @@ class DiscountByProduct(
         val targetProductsIds: List<String>
     ) : AbstractRegisterRequest(description, discount)
 
-    override fun isApplicableTo(product: Product) = targetProducts.contains(product)
+    fun isApplicableTo(product: Product) = targetProducts.contains(product)
 }

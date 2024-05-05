@@ -9,7 +9,7 @@ class DiscountByCategory(
     description: String,
     discount: Double,
     @field:DBRef val targetCategories: List<Category>
-) : AbstractDiscount(description, discount), ProductApplicable {
+) : AbstractDiscount(description, discount) {
     class RegisterRequest(
         description: String,
         discount: Double,
@@ -17,7 +17,7 @@ class DiscountByCategory(
         val targetCategoriesIds: List<String>
     ) : AbstractRegisterRequest(description, discount)
 
-    override fun isApplicableTo(product: Product) = checkCategoriesIntersections(product.categories, targetCategories)
+    fun isApplicableTo(product: Product) = checkCategoriesIntersections(product.categories, targetCategories)
 }
 
 private fun checkCategoriesIntersections(

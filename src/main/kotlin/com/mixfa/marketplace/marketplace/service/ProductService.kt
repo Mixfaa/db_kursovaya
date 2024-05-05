@@ -4,7 +4,8 @@ import com.mixfa.excify.FastException
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
-import com.mixfa.marketplace.marketplace.model.discount.ProductApplicable
+import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
+import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
 import com.mixfa.marketplace.shared.*
 import com.mixfa.marketplace.shared.model.CheckedPageable
@@ -144,16 +145,18 @@ class ProductService(
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
         GlobalScope.launchIO {
             iteratePages(productRepo::findAll) { product ->
-                when (discount) {
-                    is ProductApplicable -> {
-                        if (discount.isApplicableTo(product))
-                            productRepo.save(
-                                product.copy(
-                                    actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
-                                )
-                            )
-                    }
+                val isApplicable = when (discount) {
+                    is DiscountByCategory -> discount.isApplicableTo(product)
+                    is DiscountByProduct -> discount.isApplicableTo(product)
+                    else -> false
                 }
+
+                if (isApplicable)
+                    productRepo.save(
+                        product.copy(
+                            actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
+                        )
+                    )
 
             }
         }
