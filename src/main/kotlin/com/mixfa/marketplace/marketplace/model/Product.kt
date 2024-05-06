@@ -11,7 +11,9 @@ import org.springframework.data.mongodb.core.index.TextIndexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document("product")
+const val PRODUCT_MONGO_COLLECTION = "product"
+
+@Document(PRODUCT_MONGO_COLLECTION)
 data class Product(
     @Id val id: ObjectId = ObjectId(),
     @TextIndexed val caption: String,

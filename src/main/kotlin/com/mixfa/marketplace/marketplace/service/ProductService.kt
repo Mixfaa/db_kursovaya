@@ -1,20 +1,22 @@
 package com.mixfa.marketplace.marketplace.service
 
-import com.mixfa.excify.FastException
+import com.mixfa.marketplace.marketplace.model.PRODUCT_MONGO_COLLECTION
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
-import com.mixfa.marketplace.shared.*
+import com.mixfa.marketplace.shared.NotFoundException
+import com.mixfa.marketplace.shared.ProductCharacteristicsNotSetException
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.model.QueryConstructor
 import com.mixfa.marketplace.shared.model.SortConstructor
+import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.marketplace.shared.productNotFound
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
-import kotlinx.coroutines.GlobalScope
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -53,9 +55,6 @@ class ProductService(
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun addProductImage(productId: String, @NotBlank imageLink: String): Product {
-        if (imageLink.isBlank()) // probably redundant
-            throw FastException("Can`t add $imageLink to product images")
-
         val product = findProductById(productId).orThrow()
 
         if (!product.images.contains(imageLink))
@@ -121,7 +120,7 @@ class ProductService(
 
         query.with(pageable).with(sort)
 
-        return mongoTemplate.find(query, Product::class.java)
+        return mongoTemplate.find(query, Product::class.java, PRODUCT_MONGO_COLLECTION)
     }
 
     fun countProducts() = productRepo.count()
@@ -129,37 +128,49 @@ class ProductService(
     private fun incProductsOrdersCount(productsIds: List<ObjectId>) {
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(productsIds)),
-            Update().inc("ordersCount", 1),
-            Product::class.java
+            Update().inc(Product::ordersCount.name, 1),
+            Product::class.java,
+            PRODUCT_MONGO_COLLECTION
         )
     }
 
     private fun decProductOrdersCount(productsIds: List<ObjectId>) {
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(productsIds)),
-            Update().inc("ordersCount", -1),
-            Product::class.java
+            Update().inc(Product::ordersCount.name, -1),
+            Product::class.java,
+            PRODUCT_MONGO_COLLECTION
         )
     }
 
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
-        GlobalScope.launchIO {
-            iteratePages(productRepo::findAll) { product ->
-                val isApplicable = when (discount) {
-                    is DiscountByCategory -> discount.isApplicableTo(product)
-                    is DiscountByProduct -> discount.isApplicableTo(product)
-                    else -> false
-                }
+        val targetProducts = when (discount) {
+            is DiscountByProduct ->
+                mongoTemplate.find(
+                    Query(Criteria.where("_id").`in`(discount.targetProducts.map(Product::id))), // CHECKIT
+                    Product::class.java,
+                    PRODUCT_MONGO_COLLECTION
+                )
 
-                if (isApplicable)
-                    productRepo.save(
-                        product.copy(
-                            actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
-                        )
-                    )
-
+            is DiscountByCategory -> {
+                val categoriesSet = discount.buildCategoriesSet()
+                mongoTemplate.find(
+                    Query(Criteria.where(Product::categories.name).`in`(categoriesSet)), // CHECKIT
+                    Product::class.java,
+                    PRODUCT_MONGO_COLLECTION
+                )
             }
+
+            else -> null
         }
+
+        if (targetProducts != null)
+            for (product in targetProducts)
+                productRepo.save(
+                    product.copy(
+                        actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
+                    )
+                )
     }
 
     override fun onApplicationEvent(event: MarketplaceEvent) {

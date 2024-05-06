@@ -3,16 +3,16 @@ package com.mixfa.marketplace.marketplace.model
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import org.bson.types.ObjectId
 import org.hibernate.validator.constraints.Range
 import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
-import java.time.ZonedDateTime
-import java.util.Date
+import java.util.*
 
-@Document("comment")
+const val COMMENT_MONGO_COLLECTION = "comment"
+
+@Document(COMMENT_MONGO_COLLECTION)
 data class Comment(
     val id: ObjectId = ObjectId(),
     @field:DBRef val owner: Account,

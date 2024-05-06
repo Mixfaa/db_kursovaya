@@ -8,7 +8,9 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document("category")
+const val CATEGORY_MONGO_COLLECTION = "category"
+
+@Document(CATEGORY_MONGO_COLLECTION)
 data class Category(
     @Id val name: String,
     @DBRef val parentCategory: Category?,

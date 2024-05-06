@@ -1,6 +1,5 @@
 package com.mixfa.marketplace.marketplace.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
@@ -12,7 +11,9 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
-@Document("order")
+const val ORDER_MONGO_COLLECTION = "order"
+
+@Document(ORDER_MONGO_COLLECTION)
 data class Order(
     @Id val id: ObjectId = ObjectId(),
     val products: List<RealizedProduct>,

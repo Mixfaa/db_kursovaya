@@ -31,7 +31,6 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
-
 @SpringBootApplication
 @EnableMongoRepositories
 @EnableMethodSecurity
@@ -54,7 +53,7 @@ class DbKursovayaApplication {
                     registerCorsConfiguration(
                         "/**",
                         CorsConfiguration().applyPermitDefaultValues().apply {
-                            allowedMethods = listOf("GET","POST","DELETE","PUT")
+                            allowedMethods = listOf("GET", "POST", "DELETE", "PUT")
                         }
                     )
                 })

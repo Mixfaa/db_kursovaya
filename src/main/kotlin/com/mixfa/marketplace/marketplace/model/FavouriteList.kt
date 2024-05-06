@@ -9,7 +9,9 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document("FavouriteList")
+const val FAVLIST_MONGO_COLLECTION = "favourite_list"
+
+@Document(FAVLIST_MONGO_COLLECTION)
 data class FavouriteList(
     val id: ObjectId = ObjectId(),
     val name: String,

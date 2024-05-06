@@ -30,26 +30,6 @@ class ProductCharacteristicsNotSetException(
 )
 
 @ExcifyCachedException
-class ProductAlreadyInListException : FastException("Product already in list") {
-    companion object
-}
-
-@ExcifyCachedException
-class ProductNotInListException : FastException("Product not in list") {
-    companion object
-}
-
-@ExcifyCachedException
-class FavouriteListsLimitException : FastException("Favourite lists per user limit") {
-    companion object
-}
-
-@ExcifyCachedException
-class FavouriteListProductsLimitException : FastException("Products per list limit") {
-    companion object
-}
-
-@ExcifyCachedException
 class FastAccessException : FastException("Access denied") {
     companion object
 }

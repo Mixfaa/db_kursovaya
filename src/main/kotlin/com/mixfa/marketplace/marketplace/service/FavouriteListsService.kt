@@ -32,7 +32,7 @@ class FavouriteListsService(
         val account = accountService.getAuthenticatedAccount().orThrow()
 
         if (favoriteListRepo.countByOwner(account) >= MAX_LISTS_PER_USER)
-            throw FavouriteListsLimitException.get()
+            throw makeMemorizedException("Favourite lists per user reached")
 
         val products = buildList {
             if (request.productsIds != null)
@@ -83,12 +83,12 @@ class FavouriteListsService(
         val favouriteList = findFavListByAuthenticated(listId)
 
         if (favouriteList.products.size >= MAX_PRODUCTS_PER_LIST)
-            throw FavouriteListsLimitException.get()
+            throw makeMemorizedException("Products limit per list reached")
 
         val product = productService.findProductById(productId).orThrow()
 
         if (favouriteList.products.contains(product))
-            throw ProductAlreadyInListException.get()
+            throw makeMemorizedException("Product already in list")
 
         return favoriteListRepo.save(
             favouriteList.copy(
@@ -104,7 +104,7 @@ class FavouriteListsService(
         val product = productService.findProductById(productId).orThrow()
 
         if (!favouriteList.products.contains(product))
-            throw ProductNotInListException.get()
+            throw makeMemorizedException("Product not found in list")
 
         return favoriteListRepo.save(
             favouriteList.copy(

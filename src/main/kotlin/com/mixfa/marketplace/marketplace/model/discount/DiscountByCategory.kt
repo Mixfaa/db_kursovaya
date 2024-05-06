@@ -20,18 +20,36 @@ class DiscountByCategory(
     ) : AbstractRegisterRequest(description, discount)
 
     fun isApplicableTo(product: Product) = checkCategoriesIntersections(product.categories, targetCategories)
+
+    fun buildCategoriesSet(): Set<Category> {
+        fun addCategories(set: MutableSet<Category>, categories: List<Category>) {
+            set.addAll(categories)
+
+            for (category in categories) {
+                category.parentCategory?.let(set::add)
+                addCategories(set, category.subcategories)
+            }
+        }
+
+        return buildSet {
+            addCategories(this, targetCategories)
+        }
+    }
 }
 
 private fun checkCategoriesIntersections(
     productCategories: List<Category>, discountCategories: List<Category>
 ): Boolean {
-    for (discountCategory in discountCategories) for (productCategory in productCategories) if (discountCategory == productCategory) return true
+    for (discountCategory in discountCategories)
+        for (productCategory in productCategories)
+            if (discountCategory == productCategory) return true
 
-    for (discountCategory in discountCategories) if (checkCategoriesIntersections(
-            productCategories,
-            discountCategory.subcategories
-        )
-    ) return true
+    for (discountCategory in discountCategories)
+        if (checkCategoriesIntersections(
+                productCategories,
+                discountCategory.subcategories
+            )
+        ) return true
 
     return false
 }

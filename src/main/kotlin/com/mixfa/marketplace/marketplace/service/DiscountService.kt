@@ -1,18 +1,12 @@
 package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Product
-import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
-import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
-import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
-import com.mixfa.marketplace.marketplace.model.discount.PromoCode
+import com.mixfa.marketplace.marketplace.model.discount.*
 import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
-import com.mixfa.marketplace.shared.iteratePages
-import com.mixfa.marketplace.shared.launchIO
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.orThrow
 import jakarta.validation.Valid
-import kotlinx.coroutines.GlobalScope
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -72,29 +66,30 @@ class DiscountService(
 
     fun findPromoCode(code: String): PromoCode? {
         return mongoTemplate.findOne(
-            Query(Criteria.where("code").`is`(code)),
-            PromoCode::class.java
+            Query(Criteria.where(PromoCode::code.name).`is`(code)),
+            PromoCode::class.java,
+            DISCOUNT_MONGO_COLLECTION
         )
     }
 
     private fun handleProductDeletion(product: Product) {
-        GlobalScope.launchIO {
-            processAllDiscounts { discount ->
-                if (discount is DiscountByProduct) {
-                    if (discount.targetProducts.contains(product))
-                        discountRepo.save(
-                            DiscountByProduct(
-                                discount.description,
-                                discount.discount,
-                                discount.targetProducts - product
-                            )
-                        )
-                }
-            }
+        val discounts = mongoTemplate.find(
+            Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)), // CHECKIT
+            DiscountByProduct::class.java,
+            DISCOUNT_MONGO_COLLECTION
+        )
+
+        for (discount in discounts) {
+            if (discount.targetProducts.contains(product))
+                discountRepo.save(
+                    DiscountByProduct(
+                        discount.description,
+                        discount.discount,
+                        discount.targetProducts - product
+                    )
+                )
         }
     }
-
-    fun processAllDiscounts(handler: (AbstractDiscount) -> Unit) = iteratePages(discountRepo::findAll, handler)
 
     fun findDiscounts(query: String, pageable: CheckedPageable) = discountRepo.findByText(query, pageable)
 

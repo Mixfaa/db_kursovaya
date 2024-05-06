@@ -14,8 +14,9 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.index.TextIndexed
 import org.springframework.data.mongodb.core.mapping.Document
 
+const val DISCOUNT_MONGO_COLLECTION = "discount"
 
-@Document("discount")
+@Document(DISCOUNT_MONGO_COLLECTION)
 abstract class AbstractDiscount(
     @TextIndexed val description: String,
     val discount: Double,
