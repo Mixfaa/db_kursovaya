@@ -6,12 +6,14 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
+private val accessDeniedException = FastException("Access denied")
+
 fun Principal.throwIfNot(account: UserDetails) {
-    if (this.name != account.username) throw FastAccessException.get()
+    if (this.name != account.username) throw accessDeniedException
 }
 
 fun Principal.throwIfNot(principal: Principal) {
-    if (this.name != principal.name) throw FastAccessException.get()
+    if (this.name != principal.name) throw accessDeniedException
 }
 
 private val notAuthenticatedException = FastException("User not authenticated")

@@ -30,11 +30,6 @@ class ProductCharacteristicsNotSetException(
 )
 
 @ExcifyCachedException
-class FastAccessException : FastException("Access denied") {
-    companion object
-}
-
-@ExcifyCachedException
 @ExcifyOptionalOrThrow(type = FavouriteList::class, methodName = "orThrow")
 val favouriteListNotFound = NotFoundException("Favourite list")
 
