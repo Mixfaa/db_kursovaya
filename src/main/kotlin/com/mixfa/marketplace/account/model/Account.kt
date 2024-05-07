@@ -9,7 +9,9 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
-@Document("account")
+const val ACCOUNT_MONGO_COLLECTION = "account"
+
+@Document(ACCOUNT_MONGO_COLLECTION)
 data class Account(
     @Id private val username: String,
     val firstname: String,

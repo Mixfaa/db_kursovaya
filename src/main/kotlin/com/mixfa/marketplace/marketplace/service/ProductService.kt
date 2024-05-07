@@ -145,32 +145,21 @@ class ProductService(
 
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
         val targetProducts = when (discount) {
-            is DiscountByProduct ->
-                mongoTemplate.find(
-                    Query(Criteria.where("_id").`in`(discount.targetProducts.map(Product::id))), // CHECKIT
-                    Product::class.java,
-                    PRODUCT_MONGO_COLLECTION
-                )
-
             is DiscountByCategory -> {
                 val categoriesSet = discount.buildCategoriesSet()
-                mongoTemplate.find(
-                    Query(Criteria.where(Product::categories.name).`in`(categoriesSet)), // CHECKIT
-                    Product::class.java,
-                    PRODUCT_MONGO_COLLECTION
-                )
+                productRepo.findAllByCategoriesContains(categoriesSet) // add #iteratepages
             }
 
-            else -> null
+            is DiscountByProduct -> discount.targetProducts
+            else -> emptyList()
         }
 
-        if (targetProducts != null)
-            for (product in targetProducts)
-                productRepo.save(
-                    product.copy(
-                        actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
-                    )
+        for (product in targetProducts)
+            productRepo.save(
+                product.copy(
+                    actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
                 )
+            )
     }
 
     override fun onApplicationEvent(event: MarketplaceEvent) {
