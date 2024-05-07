@@ -25,7 +25,7 @@ abstract class AbstractDiscount(
     @get:JsonIgnore
     @get:Transient
     val multiplier: Double
-        get() = 1.0 / discount
+        get() = 1.0 - (discount / 100.0)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
