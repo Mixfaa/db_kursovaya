@@ -30,7 +30,7 @@ class DiscountService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
         is DiscountByProduct.RegisterRequest -> {
-            val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds)
+            val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds).toHashSet()
 
             DiscountByProduct(
                 description = request.description,
@@ -40,7 +40,7 @@ class DiscountService(
         }
 
         is DiscountByCategory.RegisterRequest -> {
-            val targetCategories = categoryService.findCategoriesByIdOrThrow(request.targetCategoriesIds)
+            val targetCategories = categoryService.findCategoriesByIdOrThrow(request.targetCategoriesIds).toHashSet()
 
             DiscountByCategory(
                 description = request.description,

@@ -14,15 +14,15 @@ const val CATEGORY_MONGO_COLLECTION = "category"
 data class Category(
     @Id val name: String,
     @DBRef val parentCategory: Category?,
-    @DBRef val subcategories: List<Category>,
-    val requiredProps: List<String>
+    @DBRef val subcategories: Set<Category>,
+    val requiredProps: Set<String>
 ) : WithDto {
     data class RegisterRequest(
         @field:NotBlank
         val name: String,
         val parentCategory: String? = null,
         @field:NotNull
-        val requiredProps: List<String>,
+        val requiredProps: Set<String>,
     )
 
     @delegate:Transient
@@ -31,7 +31,7 @@ data class Category(
     data class Dto(
         val name: String,
         val subcategories: List<String>,
-        val requiredProps: List<String>
+        val requiredProps: Set<String>
     ) {
         constructor(category: Category) : this(
             category.name,

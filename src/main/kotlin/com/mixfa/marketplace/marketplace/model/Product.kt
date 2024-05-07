@@ -17,7 +17,7 @@ const val PRODUCT_MONGO_COLLECTION = "product"
 data class Product(
     @Id val id: ObjectId = ObjectId(),
     @TextIndexed val caption: String,
-    @DBRef val categories: List<Category>,
+    @DBRef val categories: Set<Category>,
     val characteristics: Map<String, String>,
     @TextIndexed val description: String,
     val price: Double,

@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 class DiscountByProduct(
     description: String,
     discount: Double,
-    @DBRef val targetProducts: List<Product>,
+    @DBRef val targetProducts: Set<Product>,
     id: ObjectId = ObjectId()
 ) : AbstractDiscount(description, discount, id) {
     class RegisterRequest(
@@ -22,5 +22,4 @@ class DiscountByProduct(
         val targetProductsIds: List<String>
     ) : AbstractRegisterRequest(description, discount)
 
-    fun isApplicableTo(product: Product) = targetProducts.contains(product)
 }

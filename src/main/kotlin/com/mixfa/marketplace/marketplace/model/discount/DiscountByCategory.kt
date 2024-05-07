@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 class DiscountByCategory(
     description: String,
     discount: Double,
-    @DBRef val targetCategories: List<Category>,
+    @DBRef val targetCategories: Set<Category>,
     id: ObjectId = ObjectId()
 ) : AbstractDiscount(description, discount, id) {
     class RegisterRequest(
@@ -19,10 +19,8 @@ class DiscountByCategory(
         val targetCategoriesIds: List<String>
     ) : AbstractRegisterRequest(description, discount)
 
-    fun isApplicableTo(product: Product) = checkCategoriesIntersections(product.categories, targetCategories)
-
     fun buildCategoriesSet(): Set<Category> {
-        fun addCategories(set: MutableSet<Category>, categories: List<Category>) {
+        fun addCategories(set: MutableSet<Category>, categories: Set<Category>) {
             set.addAll(categories)
 
             for (category in categories) {
@@ -38,7 +36,7 @@ class DiscountByCategory(
 }
 
 private fun checkCategoriesIntersections(
-    productCategories: List<Category>, discountCategories: List<Category>
+    productCategories: List<Category>, discountCategories: Set<Category>
 ): Boolean {
     for (discountCategory in discountCategories)
         for (productCategory in productCategories)

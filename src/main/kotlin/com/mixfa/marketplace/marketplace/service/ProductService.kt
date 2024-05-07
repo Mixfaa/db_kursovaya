@@ -91,7 +91,7 @@ class ProductService(
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,
-                categories = categories,
+                categories = categories.toHashSet(),
                 images = request.images
             )
         ).also { product -> eventPublisher.publishEvent(Event.ProductRegister(product, this)) }

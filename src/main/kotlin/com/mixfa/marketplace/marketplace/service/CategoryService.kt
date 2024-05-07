@@ -26,12 +26,12 @@ class CategoryService(
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerCategory(@Valid request: Category.RegisterRequest): Category {
-        val parentCategory = request.parentCategory?.let { categoryRepo.findById(it).orThrow() }
+        val parentCategory = request.parentCategory?.let { id -> categoryRepo.findById(id).orThrow() }
 
         return categoryRepo.save(
             Category(
                 name = request.name,
-                subcategories = emptyList(),
+                subcategories = emptySet(),
                 parentCategory = parentCategory,
                 requiredProps = request.requiredProps,
             )
