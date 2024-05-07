@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.account.service
 
+import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
 import com.mixfa.marketplace.account.AdminSecretIsNullException
 import com.mixfa.marketplace.account.get

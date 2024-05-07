@@ -23,7 +23,6 @@ data class Category(
         val parentCategory: String? = null,
         @field:NotNull
         val requiredProps: List<String>,
-        val subcategories: List<String>? = null,
     )
 
     @delegate:Transient

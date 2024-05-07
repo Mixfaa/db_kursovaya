@@ -5,16 +5,14 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 
 const val MAX_PAGE_SIZE = 15
-val pageableRange = 1..MAX_PAGE_SIZE
 
 fun Pageable.isNotInBound(): Boolean {
-    return this.pageSize !in pageableRange
+    return !(pageSize >= 0 && pageSize <= MAX_PAGE_SIZE)
 }
 
 fun Pageable.throwIfNotInBound() {
     if (this.isNotInBound()) throw LargePageSizeException.get()
 }
-
 
 inline fun <T> iteratePages(fetchMethod: (Pageable) -> Page<T>, handler: (T) -> Unit) {
     var page: Page<T>

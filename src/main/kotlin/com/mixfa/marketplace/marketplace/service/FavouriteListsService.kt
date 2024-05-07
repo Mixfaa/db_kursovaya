@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.marketplace.service
 
 import arrow.core.partially1
+import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.FavouriteList
 import com.mixfa.marketplace.marketplace.model.Product

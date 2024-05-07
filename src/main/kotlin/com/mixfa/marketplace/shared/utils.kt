@@ -1,14 +1,11 @@
 package com.mixfa.marketplace.shared
 
-import arrow.core.memoize
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.mixfa.excify.FastException
 import kotlinx.coroutines.*
 import java.net.http.HttpResponse
 
 const val DEFAULT_FIXED_RATE = 15000L
-const val IS_AUTHENTICATED = "isAuthenticated() == true"
 
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
@@ -51,7 +48,3 @@ inline fun <reified T> HttpResponse<String>.mapBodyTo(mapper: ObjectMapper): T =
 @DelicateCoroutinesApi
 fun GlobalScope.launchIO(block: suspend CoroutineScope.() -> Unit) =
     this.launch(Dispatchers.IO, CoroutineStart.DEFAULT, block)
-
-private val fastExceptionMemorizedConstructor = ::FastException.memoize()
-fun makeMemorizedException(message: String) : FastException = fastExceptionMemorizedConstructor(message)
-

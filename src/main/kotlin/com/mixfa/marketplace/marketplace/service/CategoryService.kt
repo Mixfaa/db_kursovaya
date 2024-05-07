@@ -25,14 +25,20 @@ class CategoryService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerCategory(@Valid request: Category.RegisterRequest): Category = categoryRepo.save(
-        Category(
-            name = request.name,
-            subcategories = request.subcategories?.let(::findCategoriesByIdOrThrow) ?: emptyList(),
-            parentCategory = request.parentCategory?.let { categoryRepo.findById(it).orThrow() },
-            requiredProps = request.requiredProps,
-        )
-    )
+    fun registerCategory(@Valid request: Category.RegisterRequest): Category {
+        val parentCategory = request.parentCategory?.let { categoryRepo.findById(it).orThrow() }
+
+        return categoryRepo.save(
+            Category(
+                name = request.name,
+                subcategories = emptyList(),
+                parentCategory = parentCategory,
+                requiredProps = request.requiredProps,
+            )
+        ).also { newCategory ->
+            if (parentCategory != null) categoryRepo.save(parentCategory.copy(subcategories = parentCategory.subcategories + newCategory))
+        }
+    }
 
     fun findCategories(query: String, pageable: CheckedPageable): Page<Category> =
         categoryRepo.findAllByNameContainsIgnoreCase(query, pageable)
