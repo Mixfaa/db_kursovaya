@@ -1,10 +1,12 @@
 package com.mixfa.marketplace.marketplace.service
 
+import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
 import com.mixfa.marketplace.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
 import com.mixfa.marketplace.shared.authenticatedPrincipal
+import com.mixfa.marketplace.shared.contains
 import com.mixfa.marketplace.shared.model.CheckedPageable
 import com.mixfa.marketplace.shared.model.MarketplaceEvent
 import com.mixfa.marketplace.shared.orThrow
@@ -26,12 +28,14 @@ class OrderService(
     private val eventPublisher: ApplicationEventPublisher
 ) {
     fun calculateOrderCost(@Valid request: Order.RegisterRequest): TempOrder {
-        val products = productService.findProductsByIdsOrThrow(request.products)
+        val products = productService.findProductsByIdsOrThrow(request.products.keys)
+            .associateWith(request::findProductQuantity)
         return TempOrder(processDiscounts(products, request.promoCode))
     }
 
-    private fun processDiscounts(products: List<Product>, promoCode: String?): List<RealizedProduct> {
-        val realizedProductBuilders = products.asSequence().map { RealizedProduct.Builder(it) }
+    private fun processDiscounts(products: Map<Product, Long>, promoCode: String?): List<RealizedProduct> {
+        val realizedProductBuilders =
+            products.asSequence().map { (product, quantity) -> RealizedProduct.Builder(product, quantity) }
 
         val promoCodeDiscount = promoCode?.let { code -> discountService.findPromoCode(code) }
         if (promoCodeDiscount != null)
@@ -42,19 +46,26 @@ class OrderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun registerOrder(@Valid request: Order.RegisterRequest): Order {
-        val account = accountService.getAuthenticatedAccount().orThrow()
-        val products = productService.findProductsByIdsOrThrow(request.products)
+        if (request.products.values.contains { it <= 0 })
+            throw makeMemorizedException("Product quantity must be >= 1")
 
-        if (products.size != request.products.size) throw FastException("Can`t load all requested products")
+        val productsWithQuantity = productService
+            .findProductsByIdsOrThrow(request.products.keys)
+            .associateWith(request::findProductQuantity)
 
-        val realizedProducts = processDiscounts(products, request.promoCode)
+        for ((product, quantity) in productsWithQuantity) {
+            if (!product.haveEnoughQuantity(quantity))
+                throw FastException("Product ${product.id} don`t have enough quantity (only available ${product.availableQuantity})")
+        }
 
-        if (realizedProducts.size != request.products.size) throw FastException("Can`t process all requested products")
+        val realizedProducts = processDiscounts(productsWithQuantity, request.promoCode)
+
+        if (realizedProducts.size != request.products.size) throw makeMemorizedException("Can`t process all requested products")
 
         return orderRepo.save(
             Order(
                 products = realizedProducts,
-                owner = account,
+                owner = accountService.getAuthenticatedAccount().orThrow(),
                 status = OrderStatus.UNPAID,
                 shippingAddress = request.shippingAddress
             )

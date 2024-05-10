@@ -21,27 +21,12 @@ data class Product(
     val characteristics: Map<String, String>,
     @TextIndexed val description: String,
     val price: Double,
+    val actualPrice: Double = price,
     val rate: Double = 0.0,
     val ordersCount: Long = 0,
+    val availableQuantity: Long,
     val images: List<String>,
-    val actualPrice: Double = price,
 ) : WithDto {
-
-    data class RegisterRequest(
-        @field:NotBlank
-        val caption: String,
-        @field:NotEmpty
-        val categories: List<String>,
-        @field:NotNull
-        @field:NotEmpty
-        val characteristics: Map<String, String>,
-        @field:NotBlank
-        val description: String,
-        @field:NotNull
-        val price: Double,
-        val images: List<String>
-    )
-
     @delegate:Transient
     override val asDto: Dto by lazy { Dto(this) }
 
@@ -55,6 +40,7 @@ data class Product(
         val actualPrice: Double,
         val rate: Double,
         val ordersCount: Long,
+        val availableQuantity: Long,
         val images: List<String>,
     ) {
         constructor(product: Product) : this(
@@ -67,9 +53,28 @@ data class Product(
             product.actualPrice,
             product.rate,
             product.ordersCount,
-            product.images
+            product.availableQuantity,
+            product.images,
         )
     }
+
+    data class RegisterRequest(
+        @field:NotBlank
+        val caption: String,
+        @field:NotEmpty
+        val categories: List<String>,
+        @field:NotNull
+        @field:NotEmpty
+        val characteristics: Map<String, String>,
+        @field:NotBlank
+        val description: String,
+        @field:NotNull
+        val price: Double,
+        val availableQuantity: Long,
+        val images: List<String>
+    )
+
+    fun haveEnoughQuantity(orderQuantity: Long) : Boolean = availableQuantity >= orderQuantity
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

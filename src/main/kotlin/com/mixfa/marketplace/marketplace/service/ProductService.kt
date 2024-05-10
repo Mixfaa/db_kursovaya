@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.marketplace.service
 
+import com.mixfa.marketplace.marketplace.model.Order
 import com.mixfa.marketplace.marketplace.model.PRODUCT_MONGO_COLLECTION
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.RealizedProduct
@@ -40,7 +41,7 @@ class ProductService(
 ) : ApplicationListener<MarketplaceEvent> {
     fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
 
-    fun findProductsByIdsOrThrow(ids: List<String>): List<Product> {
+    fun findProductsByIdsOrThrow(ids: Collection<String>): List<Product> {
         val products = productRepo.findAllById(ids)
         if (products.size != ids.size) throw NotFoundException.productNotFound()
         return products
@@ -88,10 +89,11 @@ class ProductService(
         return productRepo.save(
             Product(
                 caption = request.caption,
+                categories = categories.toHashSet(),
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,
-                categories = categories.toHashSet(),
+                availableQuantity = request.availableQuantity,
                 images = request.images
             )
         ).also { product -> eventPublisher.publishEvent(Event.ProductRegister(product, this)) }
@@ -106,7 +108,6 @@ class ProductService(
     }
 
     fun findProducts(query: String, pageable: CheckedPageable): Page<Product> {
-//        return productRepo.findAllByText(query, pageable)
         return productRepo.findAllByCaptionContainingIgnoreCase(query, pageable)
     }
 
@@ -125,22 +126,40 @@ class ProductService(
 
     fun countProducts() = productRepo.count()
 
-    private fun incProductsOrdersCount(productsIds: List<ObjectId>) {
+    private fun handleOrderRegistration(order: Order) {
         mongoTemplate.updateMulti(
-            Query(Criteria.where("_id").`in`(productsIds)),
+            Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),
             Update().inc(Product::ordersCount.name, 1),
             Product::class.java,
             PRODUCT_MONGO_COLLECTION
         )
+
+        for (product in order.products) {
+            mongoTemplate.updateFirst(
+                Query(Criteria.where("_id").`is`(product.productId)),
+                Update().inc(Product::availableQuantity.name, -product.quantity),
+                Product::class.java,
+                PRODUCT_MONGO_COLLECTION
+            )
+        }
     }
 
-    private fun decProductOrdersCount(productsIds: List<ObjectId>) {
+    private fun handleOrderCancellation(order: Order) {
         mongoTemplate.updateMulti(
-            Query(Criteria.where("_id").`in`(productsIds)),
+            Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),
             Update().inc(Product::ordersCount.name, -1),
             Product::class.java,
             PRODUCT_MONGO_COLLECTION
         )
+
+        for (product in order.products) {
+            mongoTemplate.updateFirst(
+                Query(Criteria.where("_id").`is`(product.productId)),
+                Update().inc(Product::availableQuantity.name, product.quantity),
+                Product::class.java,
+                PRODUCT_MONGO_COLLECTION
+            )
+        }
     }
 
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
@@ -166,8 +185,8 @@ class ProductService(
         when (event) {
             is CommentService.Event.CommentRegister -> updateProductRate(event.comment.product, event.comment.rate)
             is CommentService.Event.CommentDelete -> updateProductRate(event.comment.product, -event.comment.rate)
-            is OrderService.Event.OrderRegister -> incProductsOrdersCount(event.order.products.map(RealizedProduct::productId))
-            is OrderService.Event.OrderCancel -> decProductOrdersCount(event.order.products.map(RealizedProduct::productId))
+            is OrderService.Event.OrderRegister -> handleOrderRegistration(event.order)
+            is OrderService.Event.OrderCancel -> handleOrderCancellation(event.order)
 
             is DiscountService.Event.DiscountRegister -> updateProductsPrices(event.discount, false)
             is DiscountService.Event.DiscountDelete -> updateProductsPrices(event.discount, true)

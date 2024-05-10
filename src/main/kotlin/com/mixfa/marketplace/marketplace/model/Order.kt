@@ -24,7 +24,7 @@ data class Order(
 ) : WithDto {
     data class RegisterRequest(
         @field:NotEmpty
-        val products: List<String>,
+        val products: Map<String, Long>, // product id to quantity
         @field:NotBlank
         val shippingAddress: String,
         val promoCode: String? = null,
@@ -68,3 +68,5 @@ data class Order(
 data class TempOrder(
     val products: List<RealizedProduct>
 )
+
+fun Order.RegisterRequest.findProductQuantity(product:Product) = this.products[product.id.toString()] ?: throw NoSuchElementException()
