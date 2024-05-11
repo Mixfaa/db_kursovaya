@@ -21,8 +21,7 @@ class FavouriteListsService(
     private val productService: ProductService,
     private val favoriteListRepo: FavoriteListRepository
 ) : ApplicationListener<ProductService.Event> {
-
-    private fun findFavListByAuthenticated(listId: String): FavouriteList {
+    private fun getListByIdAuthenticated(listId: String): FavouriteList {
         val favouriteList = favoriteListRepo.findById(listId).orThrow()
         authenticatedPrincipal().throwIfNot(favouriteList.owner)
         return favouriteList
@@ -70,7 +69,7 @@ class FavouriteListsService(
 
     @PreAuthorize("hasAuthority('FAVLIST:EDIT')")
     fun changeListVisibility(listId: String, isPublic: Boolean) {
-        val favouriteList = findFavListByAuthenticated(listId)
+        val favouriteList = getListByIdAuthenticated(listId)
 
         if (favouriteList.isPublic == isPublic) return
 
@@ -81,7 +80,7 @@ class FavouriteListsService(
 
     @PreAuthorize("hasAuthority('FAVLIST:EDIT')")
     fun addProductToList(listId: String, productId: String): FavouriteList {
-        val favouriteList = findFavListByAuthenticated(listId)
+        val favouriteList = getListByIdAuthenticated(listId)
 
         if (favouriteList.products.size >= MAX_PRODUCTS_PER_LIST)
             throw makeMemorizedException("Products limit per list reached")
@@ -100,7 +99,7 @@ class FavouriteListsService(
 
     @PreAuthorize("hasAuthority('FAVLIST:EDIT')")
     fun removeProductFromList(listId: String, productId: String): FavouriteList {
-        val favouriteList = findFavListByAuthenticated(listId)
+        val favouriteList = getListByIdAuthenticated(listId)
 
         val product = productService.findProductById(productId).orThrow()
 

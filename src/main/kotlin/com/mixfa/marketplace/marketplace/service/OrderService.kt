@@ -14,6 +14,9 @@ import com.mixfa.marketplace.shared.throwIfNot
 import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
@@ -25,7 +28,8 @@ class OrderService(
     private val accountService: AccountService,
     private val discountService: DiscountService,
     private val productService: ProductService,
-    private val eventPublisher: ApplicationEventPublisher
+    private val eventPublisher: ApplicationEventPublisher,
+    private val mongoTemplate: MongoTemplate
 ) {
     fun calculateOrderCost(@Valid request: Order.RegisterRequest): TempOrder {
         val products = productService.findProductsByIdsOrThrow(request.products.keys)
@@ -49,14 +53,13 @@ class OrderService(
         if (request.products.values.contains { it <= 0 })
             throw makeMemorizedException("Product quantity must be >= 1")
 
-        val productsWithQuantity = productService
+        val productsWithQuantity = productService // products and requested quantity
             .findProductsByIdsOrThrow(request.products.keys)
             .associateWith(request::findProductQuantity)
 
-        for ((product, quantity) in productsWithQuantity) {
+        for ((product, quantity) in productsWithQuantity)
             if (!product.haveEnoughQuantity(quantity))
                 throw FastException("Product ${product.id} don`t have enough quantity (only available ${product.availableQuantity})")
-        }
 
         val realizedProducts = processDiscounts(productsWithQuantity, request.promoCode)
 

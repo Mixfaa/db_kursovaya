@@ -1,6 +1,5 @@
 package com.mixfa.marketplace.marketplace.service
 
-import com.mixfa.marketplace.marketplace.model.PRODUCT_MONGO_COLLECTION
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.discount.*
 import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
@@ -80,16 +79,15 @@ class DiscountService(
             DISCOUNT_MONGO_COLLECTION
         )
 
-        for (discount in discounts) {
-            if (discount.targetProducts.contains(product))
-                discountRepo.save(
-                    DiscountByProduct(
-                        discount.description,
-                        discount.discount,
-                        discount.targetProducts - product
-                    )
+        // remake with mongoTemplate.updateMulti (somehow)
+        for (discount in discounts)
+            discountRepo.save(
+                DiscountByProduct(
+                    discount.description,
+                    discount.discount,
+                    discount.targetProducts - product
                 )
-        }
+            )
     }
 
     fun findDiscounts(query: String, pageable: CheckedPageable) = discountRepo.findByText(query, pageable)

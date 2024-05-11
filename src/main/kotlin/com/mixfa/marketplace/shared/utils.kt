@@ -20,6 +20,22 @@ inline fun <T> Iterable<T>.contains(predicate: (T) -> Boolean): Boolean {
     return false
 }
 
+inline fun <T> List<T>.forEachIndexed(block: (Int, T) -> Unit) {
+    var i = 0
+    while (i < this.size) {
+        block(i, this[i])
+        ++i
+    }
+}
+
+inline fun <T> Array<T>.forEachIndexed(block: (Int, T) -> Unit) {
+    var i = 0
+    while (i < this.size) {
+        block(i, this[i])
+        ++i
+    }
+}
+
 inline fun <T> takeWhile(predicate: (T) -> Boolean, supplier: () -> T): T {
     var value: T
     do {
