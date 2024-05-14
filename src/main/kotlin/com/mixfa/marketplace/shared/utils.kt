@@ -20,22 +20,6 @@ inline fun <T> Iterable<T>.contains(predicate: (T) -> Boolean): Boolean {
     return false
 }
 
-inline fun <T> List<T>.forEachIndexed(block: (Int, T) -> Unit) {
-    var i = 0
-    while (i < this.size) {
-        block(i, this[i])
-        ++i
-    }
-}
-
-inline fun <T> Array<T>.forEachIndexed(block: (Int, T) -> Unit) {
-    var i = 0
-    while (i < this.size) {
-        block(i, this[i])
-        ++i
-    }
-}
-
 inline fun <T> takeWhile(predicate: (T) -> Boolean, supplier: () -> T): T {
     var value: T
     do {
@@ -52,9 +36,7 @@ inline fun <T> takeUntil(predicate: (T) -> Boolean, supplier: () -> T): T {
     return value
 }
 
-fun Int.httpSuccessful(): Boolean {
-    return this >= 200 && this < 300
-}
+fun Int.httpSuccessful(): Boolean = this >= 200 && this < 300
 
 inline fun <reified T> HttpResponse<String>.mapBodyToOrNull(mapper: ObjectMapper): T? =
     runOrNull { mapper.readValue<T>(this.body()) }
