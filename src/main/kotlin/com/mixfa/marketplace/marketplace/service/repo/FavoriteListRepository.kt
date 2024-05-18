@@ -10,7 +10,7 @@ import java.util.*
 
 interface FavoriteListRepository : MongoRepository<FavouriteList, String> {
     fun findAllByOwnerAndIsPublicTrue(owner: Account): List<FavouriteList>
-    fun findByIdAndIsPublicTrue(id: String): Optional<FavouriteList>
+    fun findByIdAndIsPublicTrue(id: String): FavouriteList?
     fun findAllByOwner(owner: Account): List<FavouriteList>
     fun countByOwner(owner: Account): Int
     fun deleteByIdAndOwner(id: String, owner: Account)

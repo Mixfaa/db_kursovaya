@@ -14,8 +14,8 @@ data class AssembleableSortConstructor(
     override fun makeSort(): Sort {
         if (orders.isEmpty()) return Sort.unsorted()
 
-        val mongoOrders =
-            orders.map { (prop, direction) -> Sort.Order(direction, prop) }
+        val mongoOrders = orders
+            .map { (prop, direction) -> Sort.Order(direction, prop) }
 
         return Sort.by(mongoOrders)
     }

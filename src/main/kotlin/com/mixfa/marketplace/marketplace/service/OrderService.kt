@@ -14,9 +14,6 @@ import com.mixfa.marketplace.shared.throwIfNot
 import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
-import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.query.Criteria
-import org.springframework.data.mongodb.core.query.Query
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
@@ -29,10 +26,10 @@ class OrderService(
     private val discountService: DiscountService,
     private val productService: ProductService,
     private val eventPublisher: ApplicationEventPublisher,
-    private val mongoTemplate: MongoTemplate
 ) {
     fun calculateOrderCost(@Valid request: Order.RegisterRequest): TempOrder {
-        val products = productService.findProductsByIdsOrThrow(request.products.keys)
+        val products = productService
+            .findProductsByIdsOrThrow(request.products.keys)
             .associateWith(request::findProductQuantity)
         return TempOrder(processDiscounts(products, request.promoCode))
     }
@@ -42,16 +39,14 @@ class OrderService(
             products.asSequence().map { (product, quantity) -> RealizedProduct.Builder(product, quantity) }
 
         val promoCodeDiscount = promoCode?.let { code -> discountService.findPromoCode(code) }
-        if (promoCodeDiscount != null)
-            realizedProductBuilders.forEach { it.applyDiscount(promoCodeDiscount) }
+        if (promoCodeDiscount != null) realizedProductBuilders.forEach { it.applyDiscount(promoCodeDiscount) }
 
         return realizedProductBuilders.map { it.build() }.toList()
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun registerOrder(@Valid request: Order.RegisterRequest): Order {
-        if (request.products.values.contains { it <= 0 })
-            throw makeMemorizedException("Product quantity must be >= 1")
+        if (request.products.values.contains { it <= 0 }) throw makeMemorizedException("Product quantity must be >= 1")
 
         val productsWithQuantity = productService // products and requested quantity
             .findProductsByIdsOrThrow(request.products.keys)

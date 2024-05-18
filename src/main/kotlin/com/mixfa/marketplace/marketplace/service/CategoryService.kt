@@ -36,7 +36,8 @@ class CategoryService(
                 requiredProps = request.requiredProps,
             )
         ).also { newCategory ->
-            if (parentCategory != null) categoryRepo.save(parentCategory.copy(subcategories = parentCategory.subcategories + newCategory))
+            if (parentCategory != null)
+                categoryRepo.save(parentCategory.copy(subcategories = parentCategory.subcategories + newCategory))
         }
     }
 

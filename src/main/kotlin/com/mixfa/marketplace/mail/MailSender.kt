@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.mail
 
+import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.marketplace.shared.DEFAULT_FIXED_RATE
 import com.mixfa.marketplace.shared.launchIO
 import kotlinx.coroutines.GlobalScope
@@ -28,7 +29,7 @@ class MailSender(
     @Throws
     fun sendMail(to: String, subject: String, text: String) {
         if (mails.containsKey(to))
-            throw EmailThrottlingException.get()
+            throw makeMemorizedException("Email to this address was already sent")
 
         logger.info("Sending email to {} text {}", to, text)
 
@@ -40,7 +41,7 @@ class MailSender(
                 this.text = text
             })
 
-            mails[to] = ""
+            mails.remove(to)
         }
     }
 
