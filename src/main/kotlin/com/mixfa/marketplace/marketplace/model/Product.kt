@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.marketplace.model
 
+import com.mixfa.marketplace.shared.defaultLazy
 import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
@@ -28,7 +29,7 @@ data class Product(
     val images: List<String>,
 ) : WithDto {
     @delegate:Transient
-    override val asDto: Dto by lazy { Dto(this) }
+    override val asDto: Dto by defaultLazy { Dto(this) }
 
     data class Dto(
         val id: String,

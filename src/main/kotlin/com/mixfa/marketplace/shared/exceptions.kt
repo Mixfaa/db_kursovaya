@@ -58,5 +58,5 @@ val accountNotFound = NotFoundException("Account")
 val discountNotFound = NotFoundException("Discount")
 
 data class ErrorModel(val message: String) {
-    constructor(ex: Throwable) : this(ex.message ?: ex.localizedMessage ?: "Unresolved error")
+    constructor(ex: Throwable) : this(ex.message ?: ex.localizedMessage ?: "Internal error")
 }

@@ -1,6 +1,7 @@
 package com.mixfa.filestorage.model
 
 import com.mixfa.marketplace.account.model.Account
+import com.mixfa.marketplace.shared.defaultLazy
 import com.mixfa.marketplace.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -48,7 +49,7 @@ sealed class StoredFile(
         val link: String, name: String, owner: Account, id: ObjectId = ObjectId()
     ) : StoredFile(id, name, owner) {
 
-        private val bytes: ByteArray by lazy {
+        private val bytes: ByteArray by defaultLazy {
             URI.create(link).toURL().readBytes()
         }
 
@@ -80,7 +81,7 @@ sealed class StoredFile(
         id: ObjectId = ObjectId()
     ) : StoredFile(id, name, owner) {
 
-        private val bytes: ByteArray by lazy {
+        private val bytes: ByteArray by defaultLazy {
             URI.create(link).toURL().readBytes()
         }
 

@@ -7,6 +7,8 @@ import java.net.http.HttpResponse
 
 const val DEFAULT_FIXED_RATE = 15000L
 
+fun <T> defaultLazy(block: () -> T) = lazy(LazyThreadSafetyMode.PUBLICATION, block)
+
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
         block()

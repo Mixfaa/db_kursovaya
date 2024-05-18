@@ -41,7 +41,7 @@ class OrderService(
         val promoCodeDiscount = promoCode?.let { code -> discountService.findPromoCode(code) }
         if (promoCodeDiscount != null) realizedProductBuilders.forEach { it.applyDiscount(promoCodeDiscount) }
 
-        return realizedProductBuilders.map { it.build() }.toList()
+        return realizedProductBuilders.map(RealizedProduct.Builder::build).toList()
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")

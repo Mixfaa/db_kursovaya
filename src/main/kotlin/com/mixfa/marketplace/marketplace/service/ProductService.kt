@@ -126,6 +126,18 @@ class ProductService(
 
     fun countProducts() = productRepo.count()
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    fun changeProductQuantity(productId: String, quantity: Long) {
+        if (!productRepo.existsById(productId)) throw NotFoundException.productNotFound()
+
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(productId)),
+            Update().set(Product::availableQuantity.name, quantity),
+            Product::class.java,
+            PRODUCT_MONGO_COLLECTION
+        )
+    }
+
     private fun handleOrderRegistration(order: Order) {
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),

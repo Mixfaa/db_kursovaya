@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.marketplace.model
 
 import com.mixfa.marketplace.account.model.Account
+import com.mixfa.marketplace.shared.defaultLazy
 import com.mixfa.marketplace.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -28,7 +29,7 @@ data class FavouriteList(
     )
 
     @delegate:Transient
-    override val asDto: Dto by lazy { Dto(this) }
+    override val asDto: Dto by defaultLazy { Dto(this) }
 
     data class Dto(
         val id: String,

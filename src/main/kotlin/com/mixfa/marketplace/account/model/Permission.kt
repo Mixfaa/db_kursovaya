@@ -6,4 +6,6 @@ enum class Permission {
     COMMENTS_EDIT,
     FAVLIST_EDIT,
     ORDERS_EDIT;
+
+    val normalName = this.name.replace('_',':')
 }

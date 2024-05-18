@@ -77,6 +77,10 @@ class MarketplaceControllerV2(
     @DeleteMapping("/products/{productId}/image")
     fun deleteProductImage(@PathVariable productId: String, image: String) =
         productService.removeProductImage(productId, image)
+
+    @PostMapping("/products/{productId}/quantity")
+    fun changeProductQuantity(@PathVariable productId: String, quantity: Long) =
+        productService.changeProductQuantity(productId, quantity)
     /*
     * Discounts
     */
