@@ -18,7 +18,6 @@ import com.mixfa.marketplace.shared.orThrow
 import com.mixfa.marketplace.shared.productNotFound
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
-import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
@@ -133,7 +132,6 @@ class ProductService(
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(productId)),
             Update().set(Product::availableQuantity.name, quantity),
-            Product::class.java,
             PRODUCT_MONGO_COLLECTION
         )
     }
@@ -142,7 +140,6 @@ class ProductService(
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),
             Update().inc(Product::ordersCount.name, 1),
-            Product::class.java,
             PRODUCT_MONGO_COLLECTION
         )
 
@@ -150,7 +147,6 @@ class ProductService(
             mongoTemplate.updateFirst(
                 Query(Criteria.where("_id").`is`(product.productId)),
                 Update().inc(Product::availableQuantity.name, -product.quantity),
-                Product::class.java,
                 PRODUCT_MONGO_COLLECTION
             )
         }
@@ -160,7 +156,6 @@ class ProductService(
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),
             Update().inc(Product::ordersCount.name, -1),
-            Product::class.java,
             PRODUCT_MONGO_COLLECTION
         )
 
@@ -168,7 +163,6 @@ class ProductService(
             mongoTemplate.updateFirst(
                 Query(Criteria.where("_id").`is`(product.productId)),
                 Update().inc(Product::availableQuantity.name, product.quantity),
-                Product::class.java,
                 PRODUCT_MONGO_COLLECTION
             )
         }
@@ -178,7 +172,7 @@ class ProductService(
         val targetProducts = when (discount) {
             is DiscountByCategory -> {
                 val categoriesSet = discount.buildCategoriesSet()
-                productRepo.findAllByCategoriesContains(categoriesSet) // add #iteratepages
+                productRepo.findAllByCategoriesContains(categoriesSet)
             }
 
             is DiscountByProduct -> discount.targetProducts

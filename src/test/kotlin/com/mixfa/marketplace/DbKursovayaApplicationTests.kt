@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.mixfa.marketplace.shared.model.AbstractQueryCriteria
 import com.mixfa.marketplace.shared.model.QueryConstructor
-import com.mixfa.marketplace.shared.model.AssembleableSortConstructor
+import com.mixfa.marketplace.shared.model.AssembleableSort
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +26,7 @@ open class DbKursovayaApplicationTests {
 }
         """.trimIndent()
 
-        val sort = mapper.readValue<AssembleableSortConstructor>(sortJson)
+        val sort = mapper.readValue<AssembleableSort>(sortJson)
         val mongoSort = sort.makeSort()
 
         Assertions.assertTrue(true)

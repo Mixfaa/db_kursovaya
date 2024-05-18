@@ -8,7 +8,7 @@ interface SortConstructor {
     fun makeSort(): Sort
 }
 
-data class AssembleableSortConstructor(
+data class AssembleableSort(
     val orders: Map<String, Sort.Direction>
 ) : SortConstructor {
     override fun makeSort(): Sort {
