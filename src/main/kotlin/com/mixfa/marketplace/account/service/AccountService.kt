@@ -2,8 +2,6 @@ package com.mixfa.marketplace.account.service
 
 import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
-import com.mixfa.marketplace.account.AdminSecretIsNullException
-import com.mixfa.marketplace.account.get
 import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.account.model.Role
 import com.mixfa.marketplace.mail.MailSender
@@ -26,6 +24,9 @@ import java.util.*
 import kotlin.collections.set
 import kotlin.random.Random
 
+private typealias Mail = String
+private typealias MailCode = String
+
 @Service
 @Validated
 class AccountService(
@@ -35,7 +36,7 @@ class AccountService(
     @Value("\${admin.secret}") private val adminSecret: String,
 ) : UserDetailsService {
     private val mailCodes =
-        Collections.synchronizedMap(PassiveExpiringMap<String, String>(CODE_EXPIRATION_TIME_IN_MILLI))
+        Collections.synchronizedMap(PassiveExpiringMap<MailCode, Mail>(CODE_EXPIRATION_TIME_IN_MILLI))
 
     @Scheduled(fixedRate = DEFAULT_FIXED_RATE)
     fun removeExpiredMailCodes() {
@@ -67,7 +68,7 @@ class AccountService(
 
         if (role == Role.ADMIN) {
             if (request.adminSecret == null)
-                throw AdminSecretIsNullException.get()
+                throw makeMemorizedException("Requested admin role but admin secret is null")
 
             if (request.adminSecret != adminSecret)
                 throw makeMemorizedException("Invalid admin secret key")
@@ -89,10 +90,9 @@ class AccountService(
     fun addShippingAddress(@Valid @NotBlank shippingAddress: String): Account {
         val account = getAuthenticatedAccount().orThrow()
 
-        if (account.shippingAddresses.contains(shippingAddress))
-            throw FastException("Account already contain $shippingAddress")
-
-        return accountRepo.save(
+        return if (account.shippingAddresses.contains(shippingAddress))
+            account
+        else accountRepo.save(
             account.copy(shippingAddresses = account.shippingAddresses + shippingAddress)
         )
     }
@@ -101,12 +101,12 @@ class AccountService(
     fun removeShippingAddress(@Valid @NotBlank shippingAddress: String): Account {
         val account = getAuthenticatedAccount().orThrow()
 
-        if (!account.shippingAddresses.contains(shippingAddress))
-            throw FastException("Account does not contain $shippingAddress")
-
-        return accountRepo.save(
-            account.copy(shippingAddresses = account.shippingAddresses - shippingAddress)
-        )
+        return if (!account.shippingAddresses.contains(shippingAddress))
+            account
+        else
+            accountRepo.save(
+                account.copy(shippingAddresses = account.shippingAddresses - shippingAddress)
+            )
     }
 
     fun sendEmailTo(@Valid @NotBlank email: String) {
@@ -123,6 +123,6 @@ class AccountService(
     companion object {
         private const val CODE_EXPIRATION_TIME_IN_MILLI = 5L * 60L * 1000L
 
-        fun random6DigitCode() = String.format("%06d", Random.Default.nextInt(999999))
+        fun random6DigitCode() = String.format("%06d", Random.Default.nextInt(100000, 999999))
     }
 }

@@ -7,13 +7,12 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import java.security.Principal
 
 const val ACCOUNT_MONGO_COLLECTION = "account"
 
 @Document(ACCOUNT_MONGO_COLLECTION)
 data class Account(
-    @Id private val username: String,
+    @Id val username: String,
     val firstname: String,
     val lastname: String,
     @field:JsonIgnore
@@ -22,7 +21,7 @@ data class Account(
     private val password: String,
     val role: Role,
     @field:JsonIgnore
-    val shippingAddresses: List<String> = listOf(),
+    val shippingAddresses: List<String> = mutableListOf(),
 ) : UserDetails {
     override fun getUsername(): String = username
 
@@ -44,6 +43,8 @@ data class Account(
     @JsonIgnore
     override fun isEnabled(): Boolean = true
 
+    fun toPrivateDetails() = PrivateDetails(username, firstname, lastname, email, role, shippingAddresses)
+
     data class RegisterRequest(
         @field:NotBlank
         val username: String,
@@ -59,8 +60,6 @@ data class Account(
         val mailCode: String,
         val adminSecret: String? = null
     )
-
-    fun toPrivateDetails() = PrivateDetails(username, firstname, lastname, email, role, shippingAddresses)
 
     data class PrivateDetails(
         val username: String,
