@@ -3,9 +3,9 @@ package com.mixfa.marketplace.marketplace.service
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.discount.*
 import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
-import com.mixfa.marketplace.shared.model.CheckedPageable
-import com.mixfa.marketplace.shared.model.MarketplaceEvent
-import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.shared.model.CheckedPageable
+import com.mixfa.shared.model.MarketplaceEvent
+import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener

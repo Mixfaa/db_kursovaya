@@ -1,7 +1,7 @@
 package com.mixfa.marketplace.marketplace.model
 
-import com.mixfa.marketplace.shared.defaultLazy
-import com.mixfa.marketplace.shared.model.WithDto
+import com.mixfa.shared.defaultLazy
+import com.mixfa.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull

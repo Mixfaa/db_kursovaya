@@ -2,10 +2,10 @@ package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.service.repo.CategoryRepository
-import com.mixfa.marketplace.shared.NotFoundException
-import com.mixfa.marketplace.shared.categoryNotFound
-import com.mixfa.marketplace.shared.model.CheckedPageable
-import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.shared.NotFoundException
+import com.mixfa.shared.categoryNotFound
+import com.mixfa.shared.model.CheckedPageable
+import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize

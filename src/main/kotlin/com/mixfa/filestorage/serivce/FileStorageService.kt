@@ -4,10 +4,10 @@ import com.mixfa.excify.FastException
 import com.mixfa.filestorage.FileToBigException
 import com.mixfa.filestorage.get
 import com.mixfa.filestorage.model.StoredFile
-import com.mixfa.marketplace.account.service.AccountService
-import com.mixfa.marketplace.shared.authenticatedPrincipal
-import com.mixfa.marketplace.shared.orThrow
-import com.mixfa.marketplace.shared.throwIfNot
+import com.mixfa.account.service.AccountService
+import com.mixfa.shared.authenticatedPrincipal
+import com.mixfa.shared.orThrow
+import com.mixfa.shared.throwIfNot
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service

@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.shared
 
 import com.mixfa.excify.FastException
 import org.springframework.security.core.Authentication

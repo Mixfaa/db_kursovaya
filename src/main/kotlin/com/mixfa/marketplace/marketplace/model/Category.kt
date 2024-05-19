@@ -1,14 +1,13 @@
 package com.mixfa.marketplace.marketplace.model
 
-import com.mixfa.marketplace.shared.defaultLazy
-import com.mixfa.marketplace.shared.model.WithDto
+import com.mixfa.shared.defaultLazy
+import com.mixfa.shared.model.WithDto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
-import org.springframework.security.web.csrf.LazyCsrfTokenRepository
 
 const val CATEGORY_MONGO_COLLECTION = "category"
 

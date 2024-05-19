@@ -2,9 +2,9 @@ package com.mixfa.marketplace
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.mixfa.marketplace.shared.model.AbstractQueryCriteria
-import com.mixfa.marketplace.shared.model.QueryConstructor
-import com.mixfa.marketplace.shared.model.AssembleableSort
+import com.mixfa.shared.model.AbstractQueryCriteria
+import com.mixfa.shared.model.QueryConstructor
+import com.mixfa.shared.model.AssembleableSort
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

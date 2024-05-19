@@ -1,9 +1,9 @@
-package com.mixfa.marketplace.account.controller
+package com.mixfa.account.controller
 
-import com.mixfa.marketplace.account.model.Account
-import com.mixfa.marketplace.account.service.AccountService
-import com.mixfa.marketplace.shared.model.CheckedPageable
-import com.mixfa.marketplace.shared.orThrow
+import com.mixfa.account.model.Account
+import com.mixfa.account.service.AccountService
+import com.mixfa.shared.model.CheckedPageable
+import com.mixfa.shared.orThrow
 import jakarta.validation.constraints.Email
 import org.springframework.web.bind.annotation.*
 import java.security.Principal

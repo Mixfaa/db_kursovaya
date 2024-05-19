@@ -1,14 +1,14 @@
 package com.mixfa.marketplace.marketplace.service
 
-import com.mixfa.marketplace.account.service.AccountService
+import com.mixfa.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
-import com.mixfa.marketplace.shared.authenticatedPrincipal
-import com.mixfa.marketplace.shared.model.CheckedPageable
-import com.mixfa.marketplace.shared.model.MarketplaceEvent
-import com.mixfa.marketplace.shared.orThrow
-import com.mixfa.marketplace.shared.throwIfNot
+import com.mixfa.shared.authenticatedPrincipal
+import com.mixfa.shared.model.CheckedPageable
+import com.mixfa.shared.model.MarketplaceEvent
+import com.mixfa.shared.orThrow
+import com.mixfa.shared.throwIfNot
 import jakarta.validation.Valid
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher

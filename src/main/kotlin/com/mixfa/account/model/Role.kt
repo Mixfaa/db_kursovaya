@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.account.model
+package com.mixfa.account.model
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 

@@ -1,9 +1,9 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.shared
 
+import com.mixfa.account.model.Account
 import com.mixfa.excify.ExcifyCachedException
 import com.mixfa.excify.ExcifyOptionalOrThrow
 import com.mixfa.excify.FastException
-import com.mixfa.marketplace.account.model.Account
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 
@@ -12,7 +12,8 @@ class NotFoundException(subject: String) : FastException("$subject not found") {
 }
 
 @ExcifyCachedException
-class LargePageSizeException : FastException("Page size is too big, should be <= $MAX_PAGE_SIZE") {
+class LargePageSizeException :
+    FastException("Page size is too big, should be <= $MAX_PAGE_SIZE") {
     companion object
 }
 

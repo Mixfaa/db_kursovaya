@@ -4,7 +4,7 @@ import com.mixfa.excify.ExcifyCachedException
 import com.mixfa.excify.ExcifyOptionalOrThrow
 import com.mixfa.excify.FastException
 import com.mixfa.filestorage.model.StoredFile
-import com.mixfa.marketplace.shared.NotFoundException
+import com.mixfa.shared.NotFoundException
 
 @ExcifyCachedException
 class FileToBigException : FastException("File is too large to be stored") {

@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared.model
+package com.mixfa.shared.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore

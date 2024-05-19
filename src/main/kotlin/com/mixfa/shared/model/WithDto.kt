@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared.model
+package com.mixfa.shared.model
 
 interface WithDto {
     val asDto: Any

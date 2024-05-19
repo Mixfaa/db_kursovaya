@@ -2,11 +2,11 @@ package com.mixfa.marketplace.marketplace.service
 
 import arrow.core.partially1
 import com.mixfa.`excify-either`.makeMemorizedException
-import com.mixfa.marketplace.account.service.AccountService
+import com.mixfa.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.FavouriteList
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.FavoriteListRepository
-import com.mixfa.marketplace.shared.*
+import com.mixfa.shared.*
 import jakarta.validation.Valid
 import kotlinx.coroutines.GlobalScope
 import org.springframework.context.ApplicationListener

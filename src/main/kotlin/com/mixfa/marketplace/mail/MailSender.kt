@@ -1,8 +1,8 @@
 package com.mixfa.marketplace.mail
 
 import com.mixfa.`excify-either`.makeMemorizedException
-import com.mixfa.marketplace.shared.DEFAULT_FIXED_RATE
-import com.mixfa.marketplace.shared.launchIO
+import com.mixfa.shared.DEFAULT_FIXED_RATE
+import com.mixfa.shared.launchIO
 import kotlinx.coroutines.GlobalScope
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.slf4j.LoggerFactory

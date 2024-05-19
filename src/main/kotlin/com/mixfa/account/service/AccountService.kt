@@ -1,12 +1,12 @@
-package com.mixfa.marketplace.account.service
+package com.mixfa.account.service
 
+import com.mixfa.account.model.Account
+import com.mixfa.account.model.Role
 import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
-import com.mixfa.marketplace.account.model.Account
-import com.mixfa.marketplace.account.model.Role
 import com.mixfa.marketplace.mail.MailSender
-import com.mixfa.marketplace.shared.*
-import com.mixfa.marketplace.shared.model.CheckedPageable
+import com.mixfa.shared.*
+import com.mixfa.shared.model.CheckedPageable
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.apache.commons.collections4.map.PassiveExpiringMap
@@ -110,7 +110,7 @@ class AccountService(
     }
 
     fun sendEmailTo(@Valid @NotBlank email: String) {
-        val code = takeWhile(mailCodes::containsKey, ::random6DigitCode)
+        val code = takeWhile(mailCodes::containsKey, Companion::random6DigitCode)
 
         mailCodes[code] = email
         mailSender.sendMail(email, "marketplace email verification", code)

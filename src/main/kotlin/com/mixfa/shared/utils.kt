@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.shared
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

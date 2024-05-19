@@ -1,8 +1,8 @@
 package com.mixfa.marketplace.controller
 
 import com.mixfa.excify.FastException
-import com.mixfa.marketplace.shared.ErrorModel
-import com.mixfa.marketplace.shared.NotFoundException
+import com.mixfa.shared.ErrorModel
+import com.mixfa.shared.NotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice

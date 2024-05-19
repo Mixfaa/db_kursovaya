@@ -1,8 +1,8 @@
 package com.mixfa.filestorage.model
 
-import com.mixfa.marketplace.account.model.Account
-import com.mixfa.marketplace.shared.defaultLazy
-import com.mixfa.marketplace.shared.model.WithDto
+import com.mixfa.account.model.Account
+import com.mixfa.shared.defaultLazy
+import com.mixfa.shared.model.WithDto
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient

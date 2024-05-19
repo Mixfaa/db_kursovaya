@@ -1,6 +1,6 @@
-package com.mixfa.marketplace.account.service
+package com.mixfa.account.service
 
-import com.mixfa.marketplace.account.model.Account
+import com.mixfa.account.model.Account
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository

@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.account.model
+package com.mixfa.account.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.validation.constraints.NotBlank
@@ -12,7 +12,7 @@ const val ACCOUNT_MONGO_COLLECTION = "account"
 
 @Document(ACCOUNT_MONGO_COLLECTION)
 data class Account(
-    @Id val username: String,
+    @Id private val username: String,
     val firstname: String,
     val lastname: String,
     @field:JsonIgnore

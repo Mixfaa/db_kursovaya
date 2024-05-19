@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mixfa.excify.FastException
 import com.mixfa.filestorage.model.ImgurUploadResponse
 import com.mixfa.filestorage.model.StoredFile
-import com.mixfa.marketplace.account.service.AccountService
-import com.mixfa.marketplace.shared.*
+import com.mixfa.account.service.AccountService
+import com.mixfa.shared.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile

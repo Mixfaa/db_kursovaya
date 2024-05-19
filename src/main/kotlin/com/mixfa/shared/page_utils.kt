@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.shared
+package com.mixfa.shared
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest

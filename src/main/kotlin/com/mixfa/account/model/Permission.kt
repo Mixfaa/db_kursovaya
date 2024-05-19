@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.account.model
+package com.mixfa.account.model
 
 enum class Permission {
     FILES_EDIT,
