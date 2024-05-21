@@ -75,7 +75,7 @@ data class Product(
         val images: List<String>
     )
 
-    fun haveEnoughQuantity(orderQuantity: Long) : Boolean = availableQuantity >= orderQuantity
+    fun haveEnoughQuantity(orderQuantity: Long): Boolean = availableQuantity >= orderQuantity
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

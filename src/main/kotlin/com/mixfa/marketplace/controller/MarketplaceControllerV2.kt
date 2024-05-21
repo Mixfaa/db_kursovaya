@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.service.*
@@ -8,6 +9,7 @@ import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.PrecompiledSort
 import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.orThrow
+import com.mixfa.shared.readEncoded64
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -18,7 +20,9 @@ class MarketplaceControllerV2(
     private val discountService: DiscountService,
     private val orderService: OrderService,
     private val productService: ProductService,
-    private val favouriteListsService: FavouriteListsService
+    private val favouriteListsService: FavouriteListsService,
+    private val mapper: ObjectMapper
+
 ) {
     /*
     * categories
@@ -63,12 +67,18 @@ class MarketplaceControllerV2(
         productService.countProducts()
 
     @GetMapping("/products/findV2")
-    fun findProductsV2(query: QueryConstructor, sort: AssembleableSort, page: Int, pageSize: Int) =
-        productService.findProducts(query, sort, CheckedPageable(page, pageSize))
+    fun findProductsV2(query: String, sort: String, page: Int, pageSize: Int): List<Product> {
+        val queryConstructor = mapper.readEncoded64<QueryConstructor>(query)
+        val sortConstructor = mapper.readEncoded64<AssembleableSort>(sort)
+
+        return productService.findProducts(queryConstructor, sortConstructor, CheckedPageable(page, pageSize))
+    }
 
     @GetMapping("/products/findV3")
-    fun findProductsV3(query: QueryConstructor, sort: PrecompiledSort, page: Int, pageSize: Int) =
-        productService.findProducts(query, sort, CheckedPageable(page, pageSize))
+    fun findProductsV3(query: String, sort: PrecompiledSort, page: Int, pageSize: Int): List<Product> {
+        val queryConstructed = mapper.readEncoded64<QueryConstructor>(query)
+        return productService.findProducts(queryConstructed, sort, CheckedPageable(page, pageSize))
+    }
 
     @PostMapping("/products/{productId}/image")
     fun addProductImage(@PathVariable productId: String, image: String) =
@@ -91,7 +101,7 @@ class MarketplaceControllerV2(
 
     @DeleteMapping("/discounts/{discountId}")
     fun deleteDiscount(@PathVariable discountId: String) =
-        discountService.deleteDiscount(discountId)
+    discountService.deleteDiscount(discountId)
 
     @GetMapping("/discounts")
     fun listDiscounts(page: Int, pageSize: Int) =

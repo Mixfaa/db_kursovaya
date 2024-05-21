@@ -23,6 +23,7 @@ data class AssembleableSort(
 
 @JsonFormat(shape = JsonFormat.Shape.STRING)
 enum class PrecompiledSort(private val sort: Sort) : SortConstructor {
+    NONE(Sort.unsorted()),
     PRICE_DESCENDING(Sort.by("actualPrice").descending()),
     PRICE_ASCENDING(Sort.by("actualPrice").ascending()),
     ORDER_COUNT_DESCENDING(Sort.by("ordersCount").descending());

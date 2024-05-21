@@ -74,7 +74,7 @@ class DiscountService(
 
     private fun handleProductDeletion(product: Product) {
         val discounts = mongoTemplate.find(
-            Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)), // CHECKIT
+            Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)),
             DiscountByProduct::class.java,
             DISCOUNT_MONGO_COLLECTION
         )

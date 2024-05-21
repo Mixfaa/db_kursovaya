@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.*
 import java.net.http.HttpResponse
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 const val DEFAULT_FIXED_RATE = 15000L
 
@@ -48,3 +50,8 @@ inline fun <reified T> HttpResponse<String>.mapBodyTo(mapper: ObjectMapper): T =
 @DelicateCoroutinesApi
 fun GlobalScope.launchIO(block: suspend CoroutineScope.() -> Unit) =
     this.launch(Dispatchers.IO, CoroutineStart.DEFAULT, block)
+
+@OptIn(ExperimentalEncodingApi::class)
+inline fun <reified T> ObjectMapper.readEncoded64(encoded: String): T {
+    return this.readValue<T>(Base64.decode(encoded.toByteArray()))
+}

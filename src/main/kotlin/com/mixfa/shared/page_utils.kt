@@ -1,5 +1,6 @@
 package com.mixfa.shared
 
+import com.mixfa.excify.FastException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -10,8 +11,10 @@ fun Pageable.isNotInBound(): Boolean {
     return !(pageSize >= 0 && pageSize <= MAX_PAGE_SIZE)
 }
 
+private val largePageSizeException = FastException("Page size is too big, should be <= $MAX_PAGE_SIZE")
+
 fun Pageable.throwIfNotInBound() {
-    if (this.isNotInBound()) throw LargePageSizeException.get()
+    if (this.isNotInBound()) throw largePageSizeException
 }
 
 inline fun <T> iteratePages(fetchMethod: (Pageable) -> Page<T>, handler: (T) -> Unit) {

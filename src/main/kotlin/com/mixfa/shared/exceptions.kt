@@ -11,12 +11,6 @@ class NotFoundException(subject: String) : FastException("$subject not found") {
     companion object
 }
 
-@ExcifyCachedException
-class LargePageSizeException :
-    FastException("Page size is too big, should be <= $MAX_PAGE_SIZE") {
-    companion object
-}
-
 class ProductCharacteristicsNotSetException(
     requiredCharacteristics: Collection<String>,
     providedCharacteristics: Collection<String>
