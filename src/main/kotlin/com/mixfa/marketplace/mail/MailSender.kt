@@ -41,8 +41,8 @@ class MailSender(
                 this.text = text
             })
 
-            mails.remove(to)
         }
+        mails.remove(to)
     }
 
     companion object {

@@ -7,10 +7,5 @@ import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.shared.NotFoundException
 
 @ExcifyCachedException
-class FileToBigException : FastException("File is too large to be stored") {
-    companion object
-}
-
-@ExcifyCachedException
 @ExcifyOptionalOrThrow(type = StoredFile::class, methodName = "orThrow")
 val fileNotFound = NotFoundException("File")

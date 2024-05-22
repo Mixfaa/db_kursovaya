@@ -1,10 +1,9 @@
 package com.mixfa.filestorage.serivce
 
-import com.mixfa.excify.FastException
-import com.mixfa.filestorage.FileToBigException
-import com.mixfa.filestorage.get
-import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.account.service.AccountService
+import com.mixfa.`excify-either`.makeMemorizedException
+import com.mixfa.excify.FastException
+import com.mixfa.filestorage.model.StoredFile
 import com.mixfa.shared.authenticatedPrincipal
 import com.mixfa.shared.orThrow
 import com.mixfa.shared.throwIfNot
@@ -37,7 +36,7 @@ class FileStorageService(
         if (fileType == null || !checkFileType(fileType))
             throw FastException("File type $fileType not supported")
 
-        if (file.size >= maxFileSize) throw FileToBigException.get()
+        if (file.size >= maxFileSize) throw makeMemorizedException("File is too large to be stored")
         val account = accountService.getAuthenticatedAccount().orThrow()
 
         return filesRepo.save(

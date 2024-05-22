@@ -1,10 +1,10 @@
 package com.mixfa.filestorage.serivce
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mixfa.account.service.AccountService
 import com.mixfa.excify.FastException
 import com.mixfa.filestorage.model.ImgurUploadResponse
 import com.mixfa.filestorage.model.StoredFile
-import com.mixfa.account.service.AccountService
 import com.mixfa.shared.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -25,8 +25,7 @@ class ImgurFileStorage(
     override fun deleteFile(fileId: String) {
         val file = filesRepo.findById(fileId).orThrow()
 
-        authenticatedPrincipal()
-            .throwIfNot(file.owner)
+        authenticatedPrincipal().throwIfNot(file.owner)
 
         if (file is StoredFile.ImgurStored) {
             val deleteRequest = HttpRequest.newBuilder(URI("$IMGUR_URL/image/${file.deleteHash}"))
@@ -75,6 +74,6 @@ class ImgurFileStorage(
 
     companion object {
         const val IMGUR_URL = "https://api.imgur.com/3"
-        val webClient: HttpClient = HttpClient.newHttpClient()
+        private val webClient: HttpClient = HttpClient.newHttpClient()
     }
 }

@@ -38,9 +38,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableScheduling
 class DbKursovayaApplication {
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     fun securityWebFilterChain(
@@ -76,20 +74,16 @@ class DbKursovayaApplication {
     }
 
     @Bean
-    fun transactionManager(factory: MongoDatabaseFactory): TransactionManager {
-        return MongoTransactionManager(factory)
-    }
+    fun transactionManager(factory: MongoDatabaseFactory): TransactionManager = MongoTransactionManager(factory)
 
     @Bean
-    fun validator(): LocalValidatorFactoryBean {
-        return LocalValidatorFactoryBean()
-    }
+    fun validator(): LocalValidatorFactoryBean = LocalValidatorFactoryBean()
 
     @Bean
     fun validationPostProcessor(): MethodValidationPostProcessor {
         val processor = MethodValidationPostProcessor()
-        processor.setAdaptConstraintViolations(true);
-        return processor;
+        processor.setAdaptConstraintViolations(true)
+        return processor
     }
 
     @Bean
