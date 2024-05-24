@@ -6,6 +6,7 @@ import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.orThrow
+import com.mongodb.client.model.changestream.UpdateDescription
 import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -77,9 +78,8 @@ class DiscountService(
             Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)),
             DiscountByProduct::class.java,
             DISCOUNT_MONGO_COLLECTION
-        )
+        ) // probably needs pagination
 
-        // remake with mongoTemplate.updateMulti (somehow)
         for (discount in discounts)
             discountRepo.save(
                 DiscountByProduct(

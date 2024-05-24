@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.jaxb.SpringDataJaxb.PageDto
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -121,7 +120,7 @@ class ProductService(
         val sort = sortConstructor.makeSort()
 
         query.with(pageable).with(sort)
-        
+
         val total = mongoTemplate.count(query, PRODUCT_MONGO_COLLECTION)
         val products = mongoTemplate.find(query, Product::class.java, PRODUCT_MONGO_COLLECTION)
         return PageImpl(products, pageable, total)
