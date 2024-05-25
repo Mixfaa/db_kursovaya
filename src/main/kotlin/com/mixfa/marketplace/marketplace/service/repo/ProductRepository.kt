@@ -14,6 +14,5 @@ interface ProductRepository : MongoRepository<Product, String> {
     @Query("{ \$text :  {\$search: ':#{#query}'}}")
     fun findAllByText(query: String, pageable: Pageable): Page<Product>
 
-    fun findAllByCategoriesContains(categories: Set<Category>) : List<Product>
     fun findAllByIdIn(ids: List<ObjectId>) : List<Product>
 }

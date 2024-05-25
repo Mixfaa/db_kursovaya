@@ -8,14 +8,11 @@ import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
 import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
-import com.mixfa.shared.NotFoundException
-import com.mixfa.shared.ProductCharacteristicsNotSetException
+import com.mixfa.shared.*
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.model.SortConstructor
-import com.mixfa.shared.orThrow
-import com.mixfa.shared.productNotFound
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.context.ApplicationEventPublisher
@@ -174,8 +171,10 @@ class ProductService(
     private fun updateProductsPrices(discount: AbstractDiscount, discountDeleted: Boolean) {
         val targetProducts = when (discount) {
             is DiscountByCategory -> {
-                val categoriesSet = discount.buildCategoriesSet()
-                productRepo.findAllByCategoriesContains(categoriesSet)
+                mongoTemplate.findIterating<Product>(
+                    Query(Criteria.where(Product::categories.name).`in`(discount.allCategoriesIds)),
+                    PRODUCT_MONGO_COLLECTION
+                )
             }
 
             is DiscountByProduct -> discount.targetProducts

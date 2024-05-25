@@ -1,12 +1,13 @@
 package com.mixfa.marketplace.marketplace.service
 
+import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.discount.*
 import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
+import com.mixfa.shared.findIterating
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.orThrow
-import com.mongodb.client.model.changestream.UpdateDescription
 import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
@@ -17,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 
-
 @Service
 @Validated
 class DiscountService(
@@ -27,6 +27,27 @@ class DiscountService(
     private val publisher: ApplicationEventPublisher,
     private val mongoTemplate: MongoTemplate,
 ) : ApplicationListener<ProductService.Event> {
+
+    private fun buildCategoriesSet(targetCategories: List<Category>): Set<Category> {
+        fun addCategories(set: MutableSet<Category>, categories: List<Category>) {
+            set.addAll(categories)
+
+            for (category in categories) {
+                category.parentCategoryId?.let { id ->
+                    val parentCategory = categoryService.findCategoryById(id).orThrow()
+                    set.add(parentCategory)
+                }
+                addCategories(set, category.subcategoriesIds.map { id ->
+                    categoryService.findCategoryById(id).orThrow()
+                })
+            }
+        }
+
+        return buildSet {
+            addCategories(this, targetCategories)
+        }
+    }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
         is DiscountByProduct.RegisterRequest -> {
@@ -40,12 +61,13 @@ class DiscountService(
         }
 
         is DiscountByCategory.RegisterRequest -> {
-            val targetCategories = categoryService.findCategoriesByIdOrThrow(request.targetCategoriesIds).toHashSet()
+            val targetCategories = categoryService.findCategoriesByIdOrThrow(request.targetCategoriesIds)
 
             DiscountByCategory(
                 description = request.description,
                 discount = request.discount,
-                targetCategories = targetCategories
+                targetCategories = targetCategories,
+                allCategoriesIds = buildCategoriesSet(targetCategories).map(Category::name)
             )
         }
 
@@ -74,11 +96,10 @@ class DiscountService(
     }
 
     private fun handleProductDeletion(product: Product) {
-        val discounts = mongoTemplate.find(
+        val discounts = mongoTemplate.findIterating<DiscountByProduct>(
             Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)),
-            DiscountByProduct::class.java,
             DISCOUNT_MONGO_COLLECTION
-        ) // probably needs pagination
+        )
 
         for (discount in discounts)
             discountRepo.save(
@@ -90,7 +111,8 @@ class DiscountService(
             )
     }
 
-    fun findDiscounts(query: String, pageable: CheckedPageable) = discountRepo.findByText(query, pageable)
+    fun findDiscounts(query: String, pageable: CheckedPageable) =
+        discountRepo.findAllByDescriptionContainingIgnoreCase(query, pageable)
 
     fun listDiscounts(pageable: CheckedPageable) = discountRepo.findAll(pageable)
 

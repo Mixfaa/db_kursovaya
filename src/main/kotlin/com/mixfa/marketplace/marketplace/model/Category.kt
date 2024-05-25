@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Transient
-import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
 const val CATEGORY_MONGO_COLLECTION = "category"
@@ -14,8 +13,8 @@ const val CATEGORY_MONGO_COLLECTION = "category"
 @Document(CATEGORY_MONGO_COLLECTION)
 data class Category(
     @Id val name: String,
-    @DBRef val parentCategory: Category?,
-    @DBRef val subcategories: Set<Category>,
+    val parentCategoryId: String?,
+    val subcategoriesIds: Set<String>,
     val requiredProps: Set<String>
 ) : WithDto {
     data class RegisterRequest(
@@ -31,12 +30,12 @@ data class Category(
 
     data class Dto(
         val name: String,
-        val subcategories: List<String>,
+        val subcategories: Set<String>,
         val requiredProps: Set<String>
     ) {
         constructor(category: Category) : this(
             category.name,
-            category.subcategories.map(Category::name),
+            category.subcategoriesIds,
             category.requiredProps
         )
     }

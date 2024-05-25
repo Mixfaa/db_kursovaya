@@ -34,8 +34,11 @@ class MarketplaceControllerV2(
         categoryService.registerCategory(request)
 
     @GetMapping("/categories/find")
-    fun findCategories(query: String, page: Int, pageSize: Int) =
+    fun findCategories(query: String, page: Int, pageSize: Int) = if (query.isEmpty())
+        categoryService.listCategories(CheckedPageable(page, pageSize))
+    else
         categoryService.findCategories(query, CheckedPageable(page, pageSize))
+
 
     @GetMapping("/categories")
     fun listCategories(page: Int, pageSize: Int) =
@@ -102,15 +105,18 @@ class MarketplaceControllerV2(
 
     @DeleteMapping("/discounts/{discountId}")
     fun deleteDiscount(@PathVariable discountId: String) =
-    discountService.deleteDiscount(discountId)
+        discountService.deleteDiscount(discountId)
 
     @GetMapping("/discounts")
     fun listDiscounts(page: Int, pageSize: Int) =
         discountService.listDiscounts(CheckedPageable(page, pageSize))
 
     @GetMapping("/discounts/{query}")
-    fun findDiscounts(@PathVariable query: String, page: Int, pageSize: Int) =
+    fun findDiscounts(@PathVariable query: String, page: Int, pageSize: Int) = if (query.isEmpty())
+        discountService.listDiscounts(CheckedPageable(page, pageSize))
+    else
         discountService.findDiscounts(query, CheckedPageable(page, pageSize))
+
 
     /*
     * Orders

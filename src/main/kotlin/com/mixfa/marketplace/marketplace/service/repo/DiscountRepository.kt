@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.repository.Query
 interface DiscountRepository : MongoRepository<AbstractDiscount, String> {
     override fun findAll(pageable: Pageable): Page<AbstractDiscount>
 
-    @Query("{ \$text : {\$search: ':#{#query}'}}")
-    fun findByText(query: String, pageable: Pageable): Page<AbstractDiscount>
+//    @Query("{ \$text : {\$search: ':#{#query}'}}")
+//    fun findByText(query: String, pageable: Pageable): Page<AbstractDiscount>
+
+    fun findAllByDescriptionContainingIgnoreCase(query: String, pageable: Pageable) : Page<AbstractDiscount>
 }

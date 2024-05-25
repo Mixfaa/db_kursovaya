@@ -17,6 +17,8 @@ import org.springframework.validation.annotation.Validated
 class CategoryService(
     private val categoryRepo: CategoryRepository
 ) {
+    fun findCategoryById(id: String) = categoryRepo.findById(id)
+
     fun findCategoriesByIdOrThrow(ids: List<String>): List<Category> {
         if (ids.isEmpty()) return emptyList()
         val categories = categoryRepo.findAllById(ids)
@@ -31,13 +33,13 @@ class CategoryService(
         return categoryRepo.save(
             Category(
                 name = request.name,
-                subcategories = emptySet(),
-                parentCategory = parentCategory,
+                subcategoriesIds = emptySet(),
+                parentCategoryId = parentCategory?.name,
                 requiredProps = request.requiredProps,
             )
         ).also { newCategory ->
             if (parentCategory != null)
-                categoryRepo.save(parentCategory.copy(subcategories = parentCategory.subcategories + newCategory))
+                categoryRepo.save(parentCategory.copy(subcategoriesIds = parentCategory.subcategoriesIds + newCategory.name))
         }
     }
 
