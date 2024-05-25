@@ -133,6 +133,9 @@ class MarketplaceControllerV2(
     fun makeOrder(shippingAddress: String, promoCode: String?) =
         orderBuilderService.makeOrder(shippingAddress, promoCode?.ifBlank { null })
 
+    @GetMapping("/orders/current")
+    fun getCurrentOrder() = orderBuilderService.getOrderBuilder()
+
     @PostMapping("/orders/{orderId}/cancel")
     fun cancelOrder(@PathVariable orderId: String) =
         orderService.cancelOrder(orderId)
