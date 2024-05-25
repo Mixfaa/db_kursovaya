@@ -52,10 +52,10 @@ class CommentService(
         eventPublisher.publishEvent(Event.CommentDelete(comment, this))
     }
 
-    private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
-
     fun listProductComments(productId: String, pageable: CheckedPageable) =
         commentRepo.findAllByProductId(ObjectId(productId), pageable)
+
+    private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {
         is ProductService.Event.ProductDelete -> deleteCommentsByProductId(event.product)
