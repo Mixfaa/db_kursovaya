@@ -62,5 +62,8 @@ class OrderBuilderService(
     fun makeOrder(shippingAddress: String, promoCode: String?): Order {
         val orderBuilder = getOrderBuilder()
         return orderService.registerOrder(OrderBuilder.WithOrderData(orderBuilder, shippingAddress, promoCode))
+            .also {
+                orderBuilderRepo.delete(orderBuilder)
+            }
     }
 }
