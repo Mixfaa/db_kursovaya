@@ -24,13 +24,8 @@ class OrderService(
     private val orderRepo: OrderRepository,
     private val accountService: AccountService,
     private val discountService: DiscountService,
-    private val productService: ProductService,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-    private fun calculateOrderCost(orderData: OrderBuilder.WithOrderData): TempOrder {
-        return TempOrder(processDiscounts(orderData.products, orderData.promoCode))
-    }
-
     private fun processDiscounts(products: Map<Product, Long>, promoCode: String?): List<RealizedProduct> {
         val realizedProductBuilders =
             products.asSequence().map { (product, quantity) -> RealizedProduct.Builder(product, quantity) }
@@ -42,11 +37,8 @@ class OrderService(
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
-    fun registerOrder(
-        orderData: OrderBuilder.WithOrderData
-    ): Order {
+    fun registerOrder(orderData: OrderBuilder.WithOrderData): Order {
         if (orderData.products.values.contains { it <= 0 }) throw makeMemorizedException("Product quantity must be >= 1")
-
 
         for ((product, quantity) in orderData.products)
             if (!product.haveEnoughQuantity(quantity))

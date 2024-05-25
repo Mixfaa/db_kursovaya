@@ -16,34 +16,30 @@ const val ORDER_BUILDER_COLLECTION = "order-builder"
 data class OrderBuilder(
     @Id val id: ObjectId = ObjectId(),
     @field:DBRef val owner: Account,
-    @field:DBRef val products: Map<Product, Long>
+    val productsIds: Map<String, Long>
 ) : WithDto {
-
     @delegate:JsonIgnore
     @delegate:Transient
     override val asDto: Dto by defaultLazy { Dto(this) }
 
     data class WithOrderData(
         val orderBuilder: OrderBuilder,
+        val products: Map<Product, Long>,
         val shippingAddress: String,
         val promoCode: String? = null,
     ) {
-        val products: Map<Product, Long>
-            get() = orderBuilder.products
+        val owner: Account by orderBuilder::owner
     }
 
     data class Dto(
         val id: String,
         val ownerId: String,
-        val products: Map<Product.Dto, Long>
+        val products: Map<String, Long>
     ) {
         constructor(orderBuilder: OrderBuilder) : this(
             orderBuilder.id.toString(),
             orderBuilder.owner.username,
-            buildMap {
-                for ((product, quantity) in orderBuilder.products)
-                    put(product.asDto, quantity)
-            }
+            orderBuilder.productsIds
         )
     }
 }

@@ -51,6 +51,10 @@ sealed class AbstractQueryCriteria(
           val values: List<*>
     ) : AbstractQueryCriteria(field, CriteriaType.In) {
         override fun apply(mongoCriteria: Criteria) = mongoCriteria.`in`(values)
+        override fun toString(): String {
+            return "CriteriaIn(values=$values)"
+        }
+
     }
 
     class CriteriaIs(
@@ -58,6 +62,10 @@ sealed class AbstractQueryCriteria(
         private val value: Any?
     ) : AbstractQueryCriteria(field, CriteriaType.Is) {
         override fun apply(mongoCriteria: Criteria) = mongoCriteria.`is`(value)
+        override fun toString(): String {
+            return "CriteriaIs(value=$value)"
+        }
+
     }
 
     class CriteriaAll(
@@ -65,6 +73,10 @@ sealed class AbstractQueryCriteria(
         private val values: List<*>
     ) : AbstractQueryCriteria(field, CriteriaType.All) {
         override fun apply(mongoCriteria: Criteria) = mongoCriteria.all(values)
+        override fun toString(): String {
+            return "CriteriaAll(values=$values)"
+        }
+
     }
 
     class CriteriaNin(
@@ -72,6 +84,9 @@ sealed class AbstractQueryCriteria(
         private val values: List<*>
     ) : AbstractQueryCriteria(field, CriteriaType.Nin) {
         override fun apply(mongoCriteria: Criteria) = mongoCriteria.nin(values)
+        override fun toString(): String {
+            return "CriteriaNin(values=$values)"
+        }
     }
 
     class JsonSerializationTypeIdResolver : TypeIdResolverBase() {
@@ -105,6 +120,7 @@ sealed class AbstractQueryCriteria(
     }
 }
 
+
 data class QueryConstructor(
     val criterias: List<AbstractQueryCriteria>
 ) {
@@ -117,5 +133,9 @@ data class QueryConstructor(
             )
 
         return mongoQuery
+    }
+
+    override fun toString(): String {
+        return "QueryConstructor(criterias=$criterias)"
     }
 }

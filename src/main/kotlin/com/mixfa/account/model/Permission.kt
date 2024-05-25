@@ -5,7 +5,7 @@ enum class Permission {
     MARKETPLACE_EDIT,
     COMMENTS_EDIT,
     FAVLIST_EDIT,
-    ORDERS_EDIT;
+    ORDER_EDIT;
 
     val normalName = this.name.replace('_',':')
 }

@@ -37,6 +37,7 @@ class ProductService(
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<MarketplaceEvent> {
     fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
+    fun productExists(id: String) : Boolean= productRepo.existsById(id)
 
     fun findProductsByIdsOrThrow(ids: Collection<String>): List<Product> {
         val products = productRepo.findAllById(ids)

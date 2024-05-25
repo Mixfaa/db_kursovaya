@@ -10,13 +10,15 @@ enum class Role(
             Permission.FILES_EDIT,
             Permission.MARKETPLACE_EDIT,
             Permission.COMMENTS_EDIT,
+            Permission.ORDER_EDIT,
+            Permission.FAVLIST_EDIT,
         )
     ),
     CUSTOMER(
         setOf(
             Permission.FILES_EDIT,
             Permission.MARKETPLACE_EDIT,
-            Permission.ORDERS_EDIT,
+            Permission.ORDER_EDIT,
             Permission.FAVLIST_EDIT,
             Permission.COMMENTS_EDIT
         )
