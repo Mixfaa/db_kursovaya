@@ -30,8 +30,8 @@ data class Category(
 
     data class Dto(
         val name: String,
-        val subcategories: Set<String>,
-        val requiredProps: Set<String>
+        val subcategories: Collection<String>,
+        val requiredProps: Collection<String>
     ) {
         constructor(category: Category) : this(
             category.name,

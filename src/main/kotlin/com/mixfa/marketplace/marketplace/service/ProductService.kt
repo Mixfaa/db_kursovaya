@@ -71,9 +71,10 @@ class ProductService(
         return product
     }
 
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerProduct(@Valid request: Product.RegisterRequest): Product {
-        val categories = categoryService.findCategoriesByIdOrThrow(request.categories)
+        val categories = categoryService.findCategoriesByIdOrThrow(request.categories).toHashSet()
 
         val productCharacteristicsKeys = request.characteristics.keys
 
@@ -86,7 +87,7 @@ class ProductService(
         return productRepo.save(
             Product(
                 caption = request.caption,
-                categories = categories.toHashSet(),
+                categories = categories,
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,
@@ -120,6 +121,7 @@ class ProductService(
 
         val total = mongoTemplate.count(query, PRODUCT_MONGO_COLLECTION)
         val products = mongoTemplate.find(query, Product::class.java, PRODUCT_MONGO_COLLECTION)
+
         return PageImpl(products, pageable, total)
     }
 

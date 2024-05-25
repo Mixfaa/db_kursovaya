@@ -28,14 +28,14 @@ class DiscountService(
     private val mongoTemplate: MongoTemplate,
 ) : ApplicationListener<ProductService.Event> {
 
-    private fun buildCategoriesSet(targetCategories: List<Category>): Set<Category> {
-        fun addCategories(set: MutableSet<Category>, categories: List<Category>) {
-            set.addAll(categories)
+    private fun buildCategoriesIdsSet(targetCategories: List<Category>): List<String> {
+        fun addCategories(set: MutableList<String>, categories: List<Category>) {
+            categories.forEach { set.add(it.name) }
 
             for (category in categories) {
                 category.parentCategoryId?.let { id ->
                     val parentCategory = categoryService.findCategoryById(id).orThrow()
-                    set.add(parentCategory)
+                    set.add(parentCategory.name)
                 }
                 addCategories(set, category.subcategoriesIds.map { id ->
                     categoryService.findCategoryById(id).orThrow()
@@ -43,7 +43,7 @@ class DiscountService(
             }
         }
 
-        return buildSet {
+        return buildList {
             addCategories(this, targetCategories)
         }
     }
@@ -51,7 +51,7 @@ class DiscountService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
         is DiscountByProduct.RegisterRequest -> {
-            val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds).toHashSet()
+            val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds)
 
             DiscountByProduct(
                 description = request.description,
@@ -66,8 +66,7 @@ class DiscountService(
             DiscountByCategory(
                 description = request.description,
                 discount = request.discount,
-                targetCategories = targetCategories,
-                allCategoriesIds = buildCategoriesSet(targetCategories).map(Category::name)
+                allCategoriesIds = buildCategoriesIdsSet(targetCategories)
             )
         }
 

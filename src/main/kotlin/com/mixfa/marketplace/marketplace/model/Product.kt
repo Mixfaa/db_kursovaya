@@ -34,7 +34,7 @@ data class Product(
     data class Dto(
         val id: String,
         val caption: String,
-        val categories: List<String>,
+        val categories: Collection<String>,
         val characteristics: Map<String, String>,
         val description: String,
         val price: Double,
@@ -42,7 +42,7 @@ data class Product(
         val rate: Double,
         val ordersCount: Long,
         val availableQuantity: Long,
-        val images: List<String>,
+        val images: Collection<String>,
     ) {
         constructor(product: Product) : this(
             product.id.toString(),

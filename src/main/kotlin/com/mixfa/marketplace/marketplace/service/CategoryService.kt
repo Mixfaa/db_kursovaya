@@ -11,15 +11,16 @@ import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
+import java.util.*
 
 @Service
 @Validated
 class CategoryService(
     private val categoryRepo: CategoryRepository
 ) {
-    fun findCategoryById(id: String) = categoryRepo.findById(id)
+    fun findCategoryById(id: String): Optional<Category> = categoryRepo.findById(id)
 
-    fun findCategoriesByIdOrThrow(ids: List<String>): List<Category> {
+    fun findCategoriesByIdOrThrow(ids: Collection<String>): List<Category> {
         if (ids.isEmpty()) return emptyList()
         val categories = categoryRepo.findAllById(ids)
         if (categories.size != ids.size) throw NotFoundException.categoryNotFound()

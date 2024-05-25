@@ -25,7 +25,7 @@ data class FavouriteList(
         val name: String,
         @field:NotNull
         val isPublic: Boolean,
-        val productsIds: List<String>? = null
+        val productsIds: Set<String>? = null
     )
 
     @delegate:Transient
@@ -35,7 +35,7 @@ data class FavouriteList(
         val id: String,
         val name: String,
         val ownerId: String,
-        val products: List<Product.Dto>,
+        val products: Collection<Product.Dto>,
         val isPublic: Boolean
     ) {
         constructor(list: FavouriteList) : this(

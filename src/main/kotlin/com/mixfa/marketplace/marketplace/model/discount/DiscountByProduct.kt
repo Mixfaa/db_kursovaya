@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef
 class DiscountByProduct(
     description: String,
     discount: Double,
-    @DBRef val targetProducts: Set<Product>,
+    @DBRef val targetProducts: List<Product>,
     id: ObjectId = ObjectId()
 ) : AbstractDiscount(description, discount, id) {
     class RegisterRequest(
@@ -19,7 +19,7 @@ class DiscountByProduct(
         @NotNull
         discount: Double,
         @NotEmpty
-        val targetProductsIds: List<String>
+        val targetProductsIds: Set<String>
     ) : AbstractRegisterRequest(description, discount)
 
 }

@@ -48,7 +48,7 @@ sealed class AbstractQueryCriteria(
 
     class CriteriaIn(
         field: String,
-        private val values: List<*>
+          val values: List<*>
     ) : AbstractQueryCriteria(field, CriteriaType.In) {
         override fun apply(mongoCriteria: Criteria) = mongoCriteria.`in`(values)
     }
