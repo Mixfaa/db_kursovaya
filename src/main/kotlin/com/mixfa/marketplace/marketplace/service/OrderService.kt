@@ -27,11 +27,8 @@ class OrderService(
     private val productService: ProductService,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-    fun calculateOrderCost(@Valid request: Order.RegisterRequest): TempOrder {
-        val products = productService
-            .findProductsByIdsOrThrow(request.products.keys)
-            .associateWith(request::findProductQuantity)
-        return TempOrder(processDiscounts(products, request.promoCode))
+    private fun calculateOrderCost(orderData: OrderBuilder.WithOrderData): TempOrder {
+        return TempOrder(processDiscounts(orderData.products, orderData.promoCode))
     }
 
     private fun processDiscounts(products: Map<Product, Long>, promoCode: String?): List<RealizedProduct> {
@@ -45,27 +42,26 @@ class OrderService(
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
-    fun registerOrder(@Valid request: Order.RegisterRequest): Order {
-        if (request.products.values.contains { it <= 0 }) throw makeMemorizedException("Product quantity must be >= 1")
+    fun registerOrder(
+        orderData: OrderBuilder.WithOrderData
+    ): Order {
+        if (orderData.products.values.contains { it <= 0 }) throw makeMemorizedException("Product quantity must be >= 1")
 
-        val productsWithQuantity = productService // products and requested quantity
-            .findProductsByIdsOrThrow(request.products.keys)
-            .associateWith(request::findProductQuantity)
 
-        for ((product, quantity) in productsWithQuantity)
+        for ((product, quantity) in orderData.products)
             if (!product.haveEnoughQuantity(quantity))
                 throw FastException("Product ${product.id} don`t have enough quantity (only available ${product.availableQuantity})")
 
-        val realizedProducts = processDiscounts(productsWithQuantity, request.promoCode)
+        val realizedProducts = processDiscounts(orderData.products, orderData.promoCode)
 
-        if (realizedProducts.size != request.products.size) throw makeMemorizedException("Can`t process all requested products")
+        if (realizedProducts.size != orderData.products.size) throw makeMemorizedException("Can`t process all requested products")
 
         return orderRepo.save(
             Order(
                 products = realizedProducts,
                 owner = accountService.getAuthenticatedAccount().orThrow(),
                 status = OrderStatus.UNPAID,
-                shippingAddress = request.shippingAddress
+                shippingAddress = orderData.shippingAddress
             )
         ).also { order ->
             eventPublisher.publishEvent(Event.OrderRegister(order, this))

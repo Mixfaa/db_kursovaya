@@ -23,14 +23,6 @@ data class Order(
     val shippingAddress: String,
     val timestamp: ZonedDateTime = ZonedDateTime.now()
 ) : WithDto {
-    data class RegisterRequest(
-        @field:NotEmpty
-        val products: Map<String, Long>, // product id to quantity
-        @field:NotBlank
-        val shippingAddress: String,
-        val promoCode: String? = null,
-    )
-
     @delegate:Transient
     override val asDto: Dto by defaultLazy { Dto(this) }
 
@@ -70,4 +62,3 @@ data class TempOrder(
     val products: List<RealizedProduct>
 )
 
-fun Order.RegisterRequest.findProductQuantity(product:Product) = this.products[product.id.toString()] ?: throw NoSuchElementException()

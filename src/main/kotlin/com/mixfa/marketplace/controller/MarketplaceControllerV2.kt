@@ -22,8 +22,8 @@ class MarketplaceControllerV2(
     private val orderService: OrderService,
     private val productService: ProductService,
     private val favouriteListsService: FavouriteListsService,
+    private val orderBuilderService: OrderBuilderService,
     private val mapper: ObjectMapper
-
 ) {
     /*
     * categories
@@ -121,10 +121,17 @@ class MarketplaceControllerV2(
     /*
     * Orders
     */
+    @PostMapping("/orders/product/{productId}")
+    fun addProductToOrderBuilder(@PathVariable productId: String, quantity: Long) =
+        orderBuilderService.addProduct(productId, quantity)
 
-    @PostMapping("/orders/register")
-    fun registerOrder(@RequestBody request: Order.RegisterRequest) =
-        orderService.registerOrder(request)
+    @DeleteMapping("/orders/product/{productId}")
+    fun removeProductToOrderBuilder(@PathVariable productId: String, quantity: Long) =
+        orderBuilderService.removeProduct(productId, quantity)
+
+    @PostMapping("/orders/make")
+    fun makeOrder(shippingAddress: String, promoCode: String?) =
+        orderBuilderService.makeOrder(shippingAddress, promoCode?.ifBlank { null })
 
     @PostMapping("/orders/{orderId}/cancel")
     fun cancelOrder(@PathVariable orderId: String) =
@@ -141,10 +148,6 @@ class MarketplaceControllerV2(
     @GetMapping("/orders/count_my")
     fun countMyOrders() =
         orderService.countMyOrders()
-
-    @GetMapping("/orders/calculate")
-    fun calculateOrder(request: Order.RegisterRequest) =
-        orderService.calculateOrderCost(request)
 
     /*
      * Comments
