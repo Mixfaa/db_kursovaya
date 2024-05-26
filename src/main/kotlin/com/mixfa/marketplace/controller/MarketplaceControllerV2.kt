@@ -126,8 +126,8 @@ class MarketplaceControllerV2(
         orderBuilderService.addProduct(productId, quantity)
 
     @DeleteMapping("/orders/product/{productId}")
-    fun removeProductToOrderBuilder(@PathVariable productId: String, quantity: Long) =
-        orderBuilderService.removeProduct(productId, quantity)
+    fun removeProductToOrderBuilder(@PathVariable productId: String) =
+        orderBuilderService.removeProduct(productId)
 
     @PostMapping("/orders/make")
     fun makeOrder(shippingAddress: String, promoCode: String?) =

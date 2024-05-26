@@ -45,7 +45,7 @@ class OrderBuilderService(
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
-    fun removeProduct(productId: String, quantity: Long) {
+    fun removeProduct(productId: String) {
         val orderBuilder = getOrderBuilder()
         if (!productService.productExists(productId)) throw NotFoundException.productNotFound()
 
