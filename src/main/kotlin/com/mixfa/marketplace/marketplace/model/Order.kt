@@ -11,6 +11,8 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
+import java.util.Calendar
+import java.util.Date
 
 const val ORDER_MONGO_COLLECTION = "order"
 
@@ -21,7 +23,7 @@ data class Order(
     @field:DBRef val owner: Account,
     val status: OrderStatus,
     val shippingAddress: String,
-    val timestamp: ZonedDateTime = ZonedDateTime.now()
+    val timestamp: Date = Calendar.getInstance().time
 ) : WithDto {
     @delegate:Transient
     override val asDto: Dto by defaultLazy { Dto(this) }
@@ -32,7 +34,7 @@ data class Order(
         val ownerId: String,
         val status: OrderStatus,
         val shippingAddress: String,
-        val timestamp: ZonedDateTime
+        val timestamp: Date
     ) {
         constructor(order: Order) : this(
             order.id.toString(),
@@ -57,8 +59,3 @@ data class Order(
         return id.hashCode()
     }
 }
-
-data class TempOrder(
-    val products: List<RealizedProduct>
-)
-
