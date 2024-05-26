@@ -1,6 +1,7 @@
 package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.account.service.AccountService
+import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.marketplace.marketplace.model.ORDER_BUILDER_COLLECTION
 import com.mixfa.marketplace.marketplace.model.Order
 import com.mixfa.marketplace.marketplace.model.OrderBuilder
@@ -25,11 +26,11 @@ class OrderBuilderService(
     private val orderService: OrderService,
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<MarketplaceEvent> {
+    private fun findOrderBuilder(): OrderBuilder? = orderBuilderRepo.findByOwnerUsername(authenticatedPrincipal().name)
+
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun getOrderBuilder(): OrderBuilder {
-        val orderBuilder = orderBuilderRepo.findByOwnerUsername(authenticatedPrincipal().name)
-
-        return orderBuilder ?: orderBuilderRepo.save(
+        return findOrderBuilder() ?: orderBuilderRepo.save(
             OrderBuilder(
                 owner = accountService.getAuthenticatedAccount().orThrow(),
                 productsIds = emptyMap()
@@ -39,8 +40,8 @@ class OrderBuilderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun addProduct(productId: String, quantity: Long) {
-        val orderBuilder = getOrderBuilder()
         if (!productService.productExists(productId)) throw NotFoundException.productNotFound()
+        val orderBuilder = getOrderBuilder()
 
         orderBuilderRepo.save(
             orderBuilder.copy(
@@ -51,8 +52,8 @@ class OrderBuilderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun removeProduct(productId: String) {
-        val orderBuilder = getOrderBuilder()
         if (!productService.productExists(productId)) throw NotFoundException.productNotFound()
+        val orderBuilder = findOrderBuilder() ?: return
 
         orderBuilderRepo.save(
             orderBuilder.copy(
@@ -63,7 +64,7 @@ class OrderBuilderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun makeOrder(shippingAddress: String, promoCode: String?): Order {
-        val orderBuilder = getOrderBuilder()
+        val orderBuilder = findOrderBuilder() ?: throw makeMemorizedException("You don't have any orders")
         val products = buildMap {
             for ((id, quantity) in orderBuilder.productsIds) {
                 val product = productService.findProductById(id).orThrow()
