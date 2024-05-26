@@ -10,10 +10,6 @@ data class RealizedProduct(
     val quantity: Long,
     val price: Double
 ) {
-    constructor(product: Product, quantity: Long) : this(
-        product.caption, product.description, product.id, quantity, product.price
-    )
-
     data class Builder(
         var caption: String,
         var description: String,
