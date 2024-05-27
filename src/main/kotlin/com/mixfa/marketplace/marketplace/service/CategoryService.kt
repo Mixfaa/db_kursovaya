@@ -7,6 +7,7 @@ import com.mixfa.shared.categoryNotFound
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service

@@ -1,9 +1,6 @@
 package com.mixfa.marketplace.marketplace.service
 
-import com.mixfa.marketplace.marketplace.model.Order
-import com.mixfa.marketplace.marketplace.model.PRODUCT_MONGO_COLLECTION
-import com.mixfa.marketplace.marketplace.model.Product
-import com.mixfa.marketplace.marketplace.model.RealizedProduct
+import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
@@ -19,7 +16,9 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.mongodb.MongoExpression
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.aggregation.StringOperators
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
@@ -27,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 @Validated
@@ -37,7 +37,7 @@ class ProductService(
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<MarketplaceEvent> {
     fun findProductById(id: String): Optional<Product> = productRepo.findById(id)
-    fun productExists(id: String) : Boolean= productRepo.existsById(id)
+    fun productExists(id: String): Boolean = productRepo.existsById(id)
 
     fun findProductsByIdsOrThrow(ids: Collection<String>): List<Product> {
         val products = productRepo.findAllById(ids)
@@ -72,6 +72,21 @@ class ProductService(
         return product
     }
 
+    private fun buildAllRelatedCategoriesIdsList(rootCategories: Set<Category>): List<String> {
+        fun addCategory(list: MutableList<String>, id: String) {
+            val category = categoryService.findCategoryById(id).getOrNull() ?: return
+            list.add(category.name)
+
+            category.parentCategoryId?.let { parentId -> addCategory(list, parentId) }
+        }
+
+        return buildList {
+            rootCategories.forEach { add(it.name) }
+            rootCategories.forEach {
+                it.parentCategoryId?.let { id -> addCategory(this, id) }
+            }
+        }
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun registerProduct(@Valid request: Product.RegisterRequest): Product {
@@ -89,6 +104,7 @@ class ProductService(
             Product(
                 caption = request.caption,
                 categories = categories,
+                allRelatedCategoriesIds = buildAllRelatedCategoriesIdsList(categories),
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,

@@ -19,6 +19,7 @@ data class Product(
     @Id val id: ObjectId = ObjectId(),
     @TextIndexed val caption: String,
     @DBRef val categories: Set<Category>,
+    val allRelatedCategoriesIds: List<String>,
     val characteristics: Map<String, String>,
     @TextIndexed val description: String,
     val price: Double,

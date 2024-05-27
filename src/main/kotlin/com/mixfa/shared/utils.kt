@@ -59,7 +59,6 @@ inline fun <reified T> ObjectMapper.readEncoded64(encoded: String): T {
     return this.readValue<T>(Base64.decode(encoded.toByteArray()))
 }
 
-
 inline fun <reified T> MongoTemplate.findIterating(query: Query, collectionName: String, handler: (List<T>) -> Unit) {
     val total = this.count(query, T::class.java, collectionName)
 

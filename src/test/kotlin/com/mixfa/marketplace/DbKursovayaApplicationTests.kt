@@ -2,7 +2,7 @@ package com.mixfa.marketplace
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.mixfa.shared.model.AbstractQueryCriteria
+import com.mixfa.shared.model.AssembleableQueryCriteria
 import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.model.AssembleableSort
 import org.junit.jupiter.api.Assertions
@@ -60,10 +60,10 @@ open class DbKursovayaApplicationTests {
         val mongoQuery = query.makeQuery()
 
         Assertions.assertTrue(
-            query.criterias.get(0) is AbstractQueryCriteria.CriteriaIn
+            query.criterias.get(0) is AssembleableQueryCriteria.CriteriaIn
         )
         Assertions.assertTrue(
-            query.criterias.get(1) is AbstractQueryCriteria.CriteriaIs
+            query.criterias.get(1) is AssembleableQueryCriteria.CriteriaIs
         )
 
         println(mongoQuery)

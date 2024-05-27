@@ -1,141 +1,76 @@
 package com.mixfa.shared.model
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.databind.DatabindContext
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
-import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.CriteriaDefinition
 import org.springframework.data.mongodb.core.query.Query
-import kotlin.reflect.KClass
+import org.springframework.data.mongodb.core.query.TextCriteria
 
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.CUSTOM,
+    use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    visible = true, // important
+    visible = false,
     property = "type"
 )
-@JsonTypeIdResolver(AbstractQueryCriteria.JsonSerializationTypeIdResolver::class)
-sealed class AbstractQueryCriteria(
-    val field: String,
-    val type: CriteriaType,
-) {
-    enum class CriteriaType(val klass: KClass<*>) {
-        In(CriteriaIn::class),
-        Is(CriteriaIs::class),
-        All(CriteriaAll::class),
-        Nin(CriteriaNin::class);
+@JsonSubTypes(
+    JsonSubTypes.Type(value = AssembleableQueryCriteria.CriteriaIn::class, name = "In"),
+    JsonSubTypes.Type(value = AssembleableQueryCriteria.CriteriaIs::class, name = "Is"),
+    JsonSubTypes.Type(value = AssembleableQueryCriteria.CriteriaAll::class, name = "All"),
+    JsonSubTypes.Type(value = AssembleableQueryCriteria.CriteriaNin::class, name = "Nin"),
+    JsonSubTypes.Type(value = AssembleableQueryCriteria.CriteriaText::class, name = "Text"),
+)
+sealed interface AssembleableQueryCriteria {
+    fun makeCriteria(): CriteriaDefinition?
 
-        companion object {
-            fun fromCriteriaClass(value: Any): CriteriaType {
-                return entries.first { it.klass == value::class }
-            }
-
-            fun forValue(value: String): CriteriaType {
-                val ordinal = value.toIntOrNull()
-                return if (ordinal != null)
-                    entries[ordinal]
-                else try {
-                    valueOf(value)
-                } catch (ex: IllegalArgumentException) {
-                    valueOf(value.lowercase().replaceFirstChar { it.uppercase() })
-                }
-            }
-        }
+    data class CriteriaIn @JsonCreator constructor(
+        val field: String,
+        val values: List<*>
+    ) : AssembleableQueryCriteria {
+        override fun makeCriteria(): CriteriaDefinition = Criteria.where(field).`in`(values)
     }
 
-    abstract fun apply(mongoCriteria: Criteria): Criteria
-
-    class CriteriaIn(
-        field: String,
-          val values: List<*>
-    ) : AbstractQueryCriteria(field, CriteriaType.In) {
-        override fun apply(mongoCriteria: Criteria) = mongoCriteria.`in`(values)
-        override fun toString(): String {
-            return "CriteriaIn(values=$values)"
-        }
-
+    data class CriteriaIs @JsonCreator constructor(
+        val field: String,
+        val value: Any?
+    ) : AssembleableQueryCriteria {
+        override fun makeCriteria(): CriteriaDefinition = Criteria.where(field).`is`(value)
     }
 
-    class CriteriaIs(
-        field: String,
-        private val value: Any?
-    ) : AbstractQueryCriteria(field, CriteriaType.Is) {
-        override fun apply(mongoCriteria: Criteria) = mongoCriteria.`is`(value)
-        override fun toString(): String {
-            return "CriteriaIs(value=$value)"
-        }
-
+    data class CriteriaAll @JsonCreator constructor(
+        val field: String,
+        val values: List<*>
+    ) : AssembleableQueryCriteria {
+        override fun makeCriteria(): CriteriaDefinition = Criteria.where(field).all(values)
     }
 
-    class CriteriaAll(
-        field: String,
-        private val values: List<*>
-    ) : AbstractQueryCriteria(field, CriteriaType.All) {
-        override fun apply(mongoCriteria: Criteria) = mongoCriteria.all(values)
-        override fun toString(): String {
-            return "CriteriaAll(values=$values)"
-        }
-
+    data class CriteriaNin @JsonCreator constructor(
+        val field: String,
+        val values: List<*>
+    ) : AssembleableQueryCriteria {
+        override fun makeCriteria(): CriteriaDefinition = Criteria.where(field).nin(values)
     }
 
-    class CriteriaNin(
-        field: String,
-        private val values: List<*>
-    ) : AbstractQueryCriteria(field, CriteriaType.Nin) {
-        override fun apply(mongoCriteria: Criteria) = mongoCriteria.nin(values)
-        override fun toString(): String {
-            return "CriteriaNin(values=$values)"
-        }
-    }
+    data class CriteriaText @JsonCreator constructor(
+        val text: String
+    ) : AssembleableQueryCriteria {
+        override fun makeCriteria(): CriteriaDefinition? =
+            if (text.isBlank()) null else TextCriteria.forDefaultLanguage().matching(text)
 
-    class JsonSerializationTypeIdResolver : TypeIdResolverBase() {
-        private lateinit var baseType: JavaType
-
-        override fun init(bt: JavaType?) {
-            baseType = bt!!
-        }
-
-        override fun idFromValue(value: Any?): String {
-            if (value !is AbstractQueryCriteria) throw Exception("Can`t resolve type")
-            return CriteriaType.fromCriteriaClass(value).ordinal.toString()
-        }
-
-        override fun idFromValueAndType(value: Any?, suggestedType: Class<*>?): String {
-            TODO("Not yet implemented")
-        }
-
-        override fun typeFromId(context: DatabindContext?, id: String?): JavaType {
-            val type = CriteriaType.forValue(id!!)
-
-            return context!!.constructSpecializedType(
-                baseType,
-                type.klass.java
-            )
-        }
-
-        override fun getMechanism(): JsonTypeInfo.Id {
-            return JsonTypeInfo.Id.CUSTOM
-        }
     }
 }
 
 
 data class QueryConstructor(
-    val criterias: List<AbstractQueryCriteria>
+    val criterias: List<AssembleableQueryCriteria>
 ) {
     fun makeQuery(): Query {
         val mongoQuery = Query()
 
         for (criteria in criterias)
-            mongoQuery.addCriteria(
-                criteria.apply(Criteria.where(criteria.field))
-            )
+            criteria.makeCriteria()?.let(mongoQuery::addCriteria)
 
         return mongoQuery
-    }
-
-    override fun toString(): String {
-        return "QueryConstructor(criterias=$criterias)"
     }
 }
