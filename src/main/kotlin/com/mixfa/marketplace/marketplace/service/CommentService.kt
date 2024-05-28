@@ -4,6 +4,7 @@ import com.mixfa.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
+import com.mixfa.shared.IS_AUTHENTICATED
 import com.mixfa.shared.authenticatedPrincipal
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
@@ -54,6 +55,9 @@ class CommentService(
 
     fun listProductComments(productId: String, pageable: CheckedPageable) =
         commentRepo.findAllByProductId(ObjectId(productId), pageable)
+
+    @PreAuthorize(IS_AUTHENTICATED)
+    fun findMyComments(page: CheckedPageable) = commentRepo.findAllByOwnerUsername(authenticatedPrincipal().name, page)
 
     private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
 

@@ -168,6 +168,10 @@ class MarketplaceControllerV2(
     fun listComments(@PathVariable productId: String, page: Int, pageSize: Int) =
         commentService.listProductComments(productId, CheckedPageable(page, pageSize))
 
+    @GetMapping("/comments/my")
+    fun listMyComments(page: Int, pageSize: Int) =
+        commentService.findMyComments(CheckedPageable(page, pageSize))
+
     /*
      * Favourite
      */
