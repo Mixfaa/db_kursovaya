@@ -7,10 +7,11 @@ import com.mixfa.shared.categoryNotFound
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
+import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
 import java.util.*
 
@@ -20,6 +21,7 @@ class CategoryService(
     private val categoryRepo: CategoryRepository
 ) {
     fun findCategoryById(id: String): Optional<Category> = categoryRepo.findById(id)
+    fun findCategoryById(id: ObjectId): Optional<Category> = categoryRepo.findById(id.toString())
 
     fun findCategoriesByIdOrThrow(ids: Collection<String>): List<Category> {
         if (ids.isEmpty()) return emptyList()
@@ -28,20 +30,21 @@ class CategoryService(
         return categories
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerCategory(@Valid request: Category.RegisterRequest): Category {
+    open fun registerCategory(@Valid request: Category.RegisterRequest): Category {
         val parentCategory = request.parentCategory?.let { id -> categoryRepo.findById(id).orThrow() }
 
         return categoryRepo.save(
             Category(
                 name = request.name,
                 subcategoriesIds = emptySet(),
-                parentCategoryId = parentCategory?.name,
-                requiredProps = request.requiredProps,
+                parentCategoryId = parentCategory?.id,
+                requiredProps = if (parentCategory != null) request.requiredProps + parentCategory.requiredProps else request.requiredProps,
             )
         ).also { newCategory ->
             if (parentCategory != null)
-                categoryRepo.save(parentCategory.copy(subcategoriesIds = parentCategory.subcategoriesIds + newCategory.name))
+                categoryRepo.save(parentCategory.copy(subcategoriesIds = parentCategory.subcategoriesIds + newCategory.id))
         }
     }
 

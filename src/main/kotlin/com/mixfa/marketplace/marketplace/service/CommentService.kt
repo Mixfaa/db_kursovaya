@@ -4,7 +4,6 @@ import com.mixfa.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
-import com.mixfa.shared.IS_AUTHENTICATED
 import com.mixfa.shared.authenticatedPrincipal
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
@@ -16,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
 import java.util.*
 
@@ -28,8 +28,9 @@ class CommentService(
     private val productService: ProductService,
     private val eventPublisher: ApplicationEventPublisher
 ) : ApplicationListener<ProductService.Event> {
+    @Transactional
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
-    fun registerComment(@Valid request: Comment.RegisterRequest): Comment {
+    open fun registerComment(@Valid request: Comment.RegisterRequest): Comment {
         val account = accountService.getAuthenticatedAccount().orThrow()
         val product = productService.findProductById(request.productId).orThrow()
 
@@ -44,8 +45,9 @@ class CommentService(
         ).also { comment -> eventPublisher.publishEvent(Event.CommentRegister(comment, this)) }
     }
 
+    @Transactional
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
-    fun deleteComment(commentId: String) {
+    open fun deleteComment(commentId: String) {
         val comment = commentRepo.findById(commentId).orThrow()
         authenticatedPrincipal().throwIfNot(comment.owner)
 
@@ -56,7 +58,7 @@ class CommentService(
     fun listProductComments(productId: String, pageable: CheckedPageable) =
         commentRepo.findAllByProductId(ObjectId(productId), pageable)
 
-    @PreAuthorize(IS_AUTHENTICATED)
+    @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
     fun findMyComments(page: CheckedPageable) = commentRepo.findAllByOwnerUsername(authenticatedPrincipal().name, page)
 
     private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)

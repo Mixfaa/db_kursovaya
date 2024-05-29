@@ -48,8 +48,6 @@ class OrderService(
 
         if (realizedProducts.size != orderData.products.size) throw makeMemorizedException("Can`t process all requested products")
 
-
-        println(orderData.shippingAddress)
         return orderRepo.save(
             Order(
                 products = realizedProducts,

@@ -9,6 +9,7 @@ import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.OrderBuilderRepo
 import com.mixfa.shared.*
 import com.mixfa.shared.model.MarketplaceEvent
+import jakarta.validation.constraints.NotEmpty
 import org.springframework.context.ApplicationListener
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -64,6 +65,7 @@ class OrderBuilderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun makeOrder(shippingAddress: String, promoCode: String?): Order {
+        if (shippingAddress.isBlank()) throw makeMemorizedException("Shipping address can`t be empty")
         val orderBuilder = findOrderBuilder() ?: throw makeMemorizedException("You don't have any orders")
         val products = buildMap {
             for ((id, quantity) in orderBuilder.productsIds) {

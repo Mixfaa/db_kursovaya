@@ -12,6 +12,7 @@ import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.model.SortConstructor
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
@@ -24,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
@@ -72,24 +74,25 @@ class ProductService(
         return product
     }
 
-    private fun buildAllRelatedCategoriesIdsList(rootCategories: Set<Category>): List<String> {
-        fun addCategory(list: MutableList<String>, id: String) {
-            val category = categoryService.findCategoryById(id).getOrNull() ?: return
-            list.add(category.name)
+    private fun buildAllRelatedCategoriesIdsList(rootCategories: Set<Category>): List<ObjectId> {
+        fun addCategory(list: MutableList<ObjectId>, id: ObjectId) {
+            val category = categoryService.findCategoryById(id.toString()).getOrNull() ?: return
+            list.add(category.id)
 
             category.parentCategoryId?.let { parentId -> addCategory(list, parentId) }
         }
 
         return buildList {
-            rootCategories.forEach { add(it.name) }
+            rootCategories.forEach { add(it.id) }
             rootCategories.forEach {
                 it.parentCategoryId?.let { id -> addCategory(this, id) }
             }
         }
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerProduct(@Valid request: Product.RegisterRequest): Product {
+    open fun registerProduct(@Valid request: Product.RegisterRequest): Product {
         val categories = categoryService.findCategoriesByIdOrThrow(request.categories).toHashSet()
 
         val productCharacteristicsKeys = request.characteristics.keys
@@ -104,7 +107,7 @@ class ProductService(
             Product(
                 caption = request.caption,
                 categories = categories,
-                allRelatedCategoriesIds = buildAllRelatedCategoriesIdsList(categories),
+                allRelatedCategoriesIds = buildAllRelatedCategoriesIdsList(categories).map(ObjectId::toString),
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,

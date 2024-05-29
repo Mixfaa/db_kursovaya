@@ -10,6 +10,7 @@ import com.mixfa.shared.model.PrecompiledSort
 import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.orThrow
 import com.mixfa.shared.readEncoded64
+import com.mixfa.shared.runOrNull
 import org.springframework.data.domain.Page
 import org.springframework.web.bind.annotation.*
 
@@ -47,6 +48,10 @@ class MarketplaceControllerV2(
     @GetMapping("/categories/count")
     fun countCategories() = categoryService.countCategories()
 
+    @GetMapping("/categories/{categoryId}")
+    fun findCategory(@PathVariable categoryId: String) =
+        categoryService.findCategoryById(categoryId).orThrow()
+
     /*
     * Products
     */
@@ -80,7 +85,7 @@ class MarketplaceControllerV2(
 
     @GetMapping("/products/findV3")
     fun findProductsV3(query: String, sort: PrecompiledSort, page: Int, pageSize: Int): Page<Product> {
-        val queryConstructed = mapper.readEncoded64<QueryConstructor>(query)
+        val queryConstructed = runOrNull { mapper.readEncoded64<QueryConstructor>(query) } ?: QueryConstructor.EMPTY
         return productService.findProducts(queryConstructed, sort, CheckedPageable(page, pageSize))
     }
 

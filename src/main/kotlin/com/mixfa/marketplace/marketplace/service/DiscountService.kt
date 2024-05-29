@@ -9,6 +9,7 @@ import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
+import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
 
 @Service
@@ -28,14 +30,14 @@ class DiscountService(
     private val mongoTemplate: MongoTemplate,
 ) : ApplicationListener<ProductService.Event> {
 
-    private fun buildCategoriesIdsSet(targetCategories: List<Category>): List<String> {
-        fun addCategories(set: MutableList<String>, categories: List<Category>) {
-            categories.forEach { set.add(it.name) }
+    private fun buildCategoriesIdsSet(targetCategories: List<Category>): List<ObjectId> {
+        fun addCategories(set: MutableList<ObjectId>, categories: List<Category>) {
+            categories.forEach { set.add(it.id) }
 
             for (category in categories) {
                 category.parentCategoryId?.let { id ->
                     val parentCategory = categoryService.findCategoryById(id).orThrow()
-                    set.add(parentCategory.name)
+                    set.add(parentCategory.id)
                 }
                 addCategories(set, category.subcategoriesIds.map { id ->
                     categoryService.findCategoryById(id).orThrow()
@@ -48,8 +50,9 @@ class DiscountService(
         }
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
+    open fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
         is DiscountByProduct.RegisterRequest -> {
             val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds)
 
