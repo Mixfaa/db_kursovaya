@@ -14,7 +14,6 @@ import java.net.URI
 sealed class StoredFile(
     @Id val id: ObjectId = ObjectId(), val name: String, @DBRef val owner: Account
 ) : WithDto {
-
     @delegate:Transient
     override val asDto: Dto by lazy { Dto(this) }
 

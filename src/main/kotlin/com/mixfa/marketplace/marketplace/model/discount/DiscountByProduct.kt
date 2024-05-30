@@ -21,5 +21,4 @@ class DiscountByProduct(
         @NotEmpty
         val targetProductsIds: Set<String>
     ) : AbstractRegisterRequest(description, discount)
-
 }

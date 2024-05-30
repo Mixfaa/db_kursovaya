@@ -30,14 +30,14 @@ class DiscountService(
     private val mongoTemplate: MongoTemplate,
 ) : ApplicationListener<ProductService.Event> {
 
-    private fun buildCategoriesIdsSet(targetCategories: List<Category>): List<ObjectId> {
-        fun addCategories(set: MutableList<ObjectId>, categories: List<Category>) {
-            categories.forEach { set.add(it.id) }
+    private fun buildCategoriesIdsSet(targetCategories: List<Category>): List<String> {
+        fun addCategories(set: MutableList<String>, categories: List<Category>) {
+            categories.forEach { set.add(it.id.toString()) }
 
             for (category in categories) {
                 category.parentCategoryId?.let { id ->
                     val parentCategory = categoryService.findCategoryById(id).orThrow()
-                    set.add(parentCategory.id)
+                    set.add(parentCategory.id.toString())
                 }
                 addCategories(set, category.subcategoriesIds.map { id ->
                     categoryService.findCategoryById(id).orThrow()

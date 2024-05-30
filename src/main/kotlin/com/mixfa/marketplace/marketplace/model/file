@@ -1,1 +1,0 @@
-{"criterias":[{"field":"allRelatedCategoriesIds","type":"In","values":["Laptops"]},{"type":"is","field":"characteristics.cpu","value":"inter"},{"type":"is","field":"characteristics.cpu","value":"intel"}]}

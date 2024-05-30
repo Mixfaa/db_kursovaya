@@ -22,7 +22,7 @@ class MarketplaceControllerV2(
     private val discountService: DiscountService,
     private val orderService: OrderService,
     private val productService: ProductService,
-    private val favouriteListsService: FavouriteListsService,
+//    private val favouriteListsService: FavouriteListsService,
     private val orderBuilderService: OrderBuilderService,
     private val mapper: ObjectMapper
 ) {
@@ -180,36 +180,36 @@ class MarketplaceControllerV2(
     /*
      * Favourite
      */
-
-    @PostMapping("/favlists/create")
-    fun createFavouriteList(@RequestBody request: FavouriteList.RegisterRequest) =
-        favouriteListsService.createList(request)
-
-    @DeleteMapping("/favlists/{listId}")
-    fun deleteFavouriteList(@PathVariable listId: String) =
-        favouriteListsService.deleteList(listId)
-
-    @PostMapping("/favlists/{listId}/change_visibility")
-    fun changeFavouriteListVisibility(@PathVariable listId: String, isPublic: Boolean) =
-        favouriteListsService.changeListVisibility(listId, isPublic)
-
-    @PostMapping("/favlists/{listId}/product/{productId}")
-    fun addProductToFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
-        favouriteListsService.addProductToList(listId, productId)
-
-    @DeleteMapping("/favlists/{listId}/product/{productId}")
-    fun removeProductFromFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
-        favouriteListsService.removeProductFromList(listId, productId)
-
-    @GetMapping("/favlists/my")
-    fun getMyFavouriteLists() =
-        favouriteListsService.getMyFavouriteLists()
-
-    @GetMapping("/favlists/{listId}/get_public")
-    fun getPublicFavouriteList(@PathVariable listId: String) =
-        favouriteListsService.getPublicFavouriteList(listId)
-
-    @GetMapping("/favlists/from_account/{accountId}")
-    fun findPublicFavouriteListsOf(@PathVariable accountId: String) =
-        favouriteListsService.findPublicFavouriteListsOf(accountId)
+//
+//    @PostMapping("/favlists/create")
+//    fun createFavouriteList(@RequestBody request: FavouriteList.RegisterRequest) =
+//        favouriteListsService.createList(request)
+//
+//    @DeleteMapping("/favlists/{listId}")
+//    fun deleteFavouriteList(@PathVariable listId: String) =
+//        favouriteListsService.deleteList(listId)
+//
+//    @PostMapping("/favlists/{listId}/change_visibility")
+//    fun changeFavouriteListVisibility(@PathVariable listId: String, isPublic: Boolean) =
+//        favouriteListsService.changeListVisibility(listId, isPublic)
+//
+//    @PostMapping("/favlists/{listId}/product/{productId}")
+//    fun addProductToFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
+//        favouriteListsService.addProductToList(listId, productId)
+//
+//    @DeleteMapping("/favlists/{listId}/product/{productId}")
+//    fun removeProductFromFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
+//        favouriteListsService.removeProductFromList(listId, productId)
+//
+//    @GetMapping("/favlists/my")
+//    fun getMyFavouriteLists() =
+//        favouriteListsService.getMyFavouriteLists()
+//
+//    @GetMapping("/favlists/{listId}/get_public")
+//    fun getPublicFavouriteList(@PathVariable listId: String) =
+//        favouriteListsService.getPublicFavouriteList(listId)
+//
+//    @GetMapping("/favlists/from_account/{accountId}")
+//    fun findPublicFavouriteListsOf(@PathVariable accountId: String) =
+//        favouriteListsService.findPublicFavouriteListsOf(accountId)
 }

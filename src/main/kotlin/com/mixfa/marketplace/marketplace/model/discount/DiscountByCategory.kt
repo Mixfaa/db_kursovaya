@@ -6,7 +6,7 @@ import org.bson.types.ObjectId
 class DiscountByCategory(
     description: String,
     discount: Double,
-    val allCategoriesIds: List<ObjectId>,
+    val allCategoriesIds: List<String>,
     id: ObjectId = ObjectId()
 ) : AbstractDiscount(description, discount, id) {
     class RegisterRequest(

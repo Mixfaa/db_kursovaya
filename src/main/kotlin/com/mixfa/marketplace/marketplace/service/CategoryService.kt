@@ -21,7 +21,6 @@ class CategoryService(
     private val categoryRepo: CategoryRepository
 ) {
     fun findCategoryById(id: String): Optional<Category> = categoryRepo.findById(id)
-    fun findCategoryById(id: ObjectId): Optional<Category> = categoryRepo.findById(id.toString())
 
     fun findCategoriesByIdOrThrow(ids: Collection<String>): List<Category> {
         if (ids.isEmpty()) return emptyList()
@@ -39,12 +38,12 @@ class CategoryService(
             Category(
                 name = request.name,
                 subcategoriesIds = emptySet(),
-                parentCategoryId = parentCategory?.id,
+                parentCategoryId = parentCategory?.id.toString(),
                 requiredProps = if (parentCategory != null) request.requiredProps + parentCategory.requiredProps else request.requiredProps,
             )
         ).also { newCategory ->
             if (parentCategory != null)
-                categoryRepo.save(parentCategory.copy(subcategoriesIds = parentCategory.subcategoriesIds + newCategory.id))
+                categoryRepo.save(parentCategory.copy(subcategoriesIds = parentCategory.subcategoriesIds + newCategory.id.toString()))
         }
     }
 

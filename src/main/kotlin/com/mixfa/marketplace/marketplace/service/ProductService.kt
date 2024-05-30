@@ -74,16 +74,16 @@ class ProductService(
         return product
     }
 
-    private fun buildAllRelatedCategoriesIdsList(rootCategories: Set<Category>): List<ObjectId> {
-        fun addCategory(list: MutableList<ObjectId>, id: ObjectId) {
-            val category = categoryService.findCategoryById(id.toString()).getOrNull() ?: return
-            list.add(category.id)
+    private fun buildAllRelatedCategoriesIdsList(rootCategories: Set<Category>): List<String> {
+        fun addCategory(list: MutableList<String>, id: String) {
+            val category = categoryService.findCategoryById(id).getOrNull() ?: return
+            list.add(category.id.toString())
 
             category.parentCategoryId?.let { parentId -> addCategory(list, parentId) }
         }
 
         return buildList {
-            rootCategories.forEach { add(it.id) }
+            rootCategories.forEach { add(it.id.toString()) }
             rootCategories.forEach {
                 it.parentCategoryId?.let { id -> addCategory(this, id) }
             }
@@ -107,7 +107,7 @@ class ProductService(
             Product(
                 caption = request.caption,
                 categories = categories,
-                allRelatedCategoriesIds = buildAllRelatedCategoriesIdsList(categories).map(ObjectId::toString),
+                allRelatedCategoriesIds = buildAllRelatedCategoriesIdsList(categories),
                 characteristics = request.characteristics,
                 description = request.description,
                 price = request.price,
@@ -194,7 +194,7 @@ class ProductService(
         val targetProducts = when (discount) {
             is DiscountByCategory -> {
                 mongoTemplate.findIterating<Product>(
-                    Query(Criteria.where(Product::categories.name).`in`(discount.allCategoriesIds)),
+                    Query(Criteria.where("${Product::categories.name}._id").`in`(discount.allCategoriesIds)),
                     PRODUCT_MONGO_COLLECTION
                 )
             }
