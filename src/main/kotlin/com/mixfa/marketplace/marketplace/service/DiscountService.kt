@@ -9,12 +9,12 @@ import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
-import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -52,34 +52,35 @@ class DiscountService(
 
     @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    open fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount = when (request) {
-        is DiscountByProduct.RegisterRequest -> {
-            val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds)
+    open fun registerDiscount(@Valid request: AbstractDiscount.AbstractRegisterRequest): AbstractDiscount =
+        when (request) {
+            is DiscountByProduct.RegisterRequest -> {
+                val targetProducts = productService.findProductsByIdsOrThrow(request.targetProductsIds)
 
-            DiscountByProduct(
-                description = request.description,
-                discount = request.discount,
-                targetProducts = targetProducts
-            )
+                DiscountByProduct(
+                    description = request.description,
+                    discount = request.discount,
+                    targetProducts = targetProducts
+                )
+            }
+
+            is DiscountByCategory.RegisterRequest -> {
+                val targetCategories = categoryService.findCategoriesByIdOrThrow(request.targetCategoriesIds)
+
+                DiscountByCategory(
+                    description = request.description,
+                    discount = request.discount,
+                    allCategoriesIds = buildCategoriesIdsSet(targetCategories)
+                )
+            }
+
+            is PromoCode.RegisterRequest -> PromoCode(request.code, request.description, request.discount)
         }
-
-        is DiscountByCategory.RegisterRequest -> {
-            val targetCategories = categoryService.findCategoriesByIdOrThrow(request.targetCategoriesIds)
-
-            DiscountByCategory(
-                description = request.description,
-                discount = request.discount,
-                allCategoriesIds = buildCategoriesIdsSet(targetCategories)
-            )
-        }
-
-        is PromoCode.RegisterRequest -> PromoCode(request.code, request.description, request.discount)
-    }
-        .let(discountRepo::save)
-        .also { discount ->
-            val event = Event.DiscountRegister(discount, this)
-            publisher.publishEvent(event)
-        }
+            .let(discountRepo::save)
+            .also { discount ->
+                val event = Event.DiscountRegister(discount, this)
+                publisher.publishEvent(event)
+            }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun deleteDiscount(discountId: String) {
@@ -98,19 +99,26 @@ class DiscountService(
     }
 
     private fun handleProductDeletion(product: Product) {
-        val discounts = mongoTemplate.findIterating<DiscountByProduct>(
+        mongoTemplate.updateMulti(
             Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)),
+            Update().pull(DiscountByProduct::targetProducts.name, product),
             DISCOUNT_MONGO_COLLECTION
         )
 
-        for (discount in discounts)
-            discountRepo.save(
-                DiscountByProduct(
-                    discount.description,
-                    discount.discount,
-                    discount.targetProducts - product
-                )
-            )
+//        val discounts = mongoTemplate.findIterating<DiscountByProduct>(
+//            Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)),
+//            DISCOUNT_MONGO_COLLECTION
+//        )
+//
+//
+//        for (discount in discounts)
+//            discountRepo.save(
+//                DiscountByProduct(
+//                    discount.description,
+//                    discount.discount,
+//                    discount.targetProducts - product
+//                )
+//            )
     }
 
     fun findDiscounts(query: String, pageable: CheckedPageable) =

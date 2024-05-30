@@ -7,13 +7,16 @@ import com.mixfa.marketplace.marketplace.model.Order
 import com.mixfa.marketplace.marketplace.model.OrderBuilder
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.OrderBuilderRepo
-import com.mixfa.shared.*
+import com.mixfa.shared.NotFoundException
+import com.mixfa.shared.authenticatedPrincipal
 import com.mixfa.shared.model.MarketplaceEvent
-import jakarta.validation.constraints.NotEmpty
+import com.mixfa.shared.orThrow
+import com.mixfa.shared.productNotFound
 import org.springframework.context.ApplicationListener
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
@@ -42,23 +45,32 @@ class OrderBuilderService(
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun addProduct(productId: String, quantity: Long) {
         if (!productService.productExists(productId)) throw NotFoundException.productNotFound()
-        val orderBuilder = getOrderBuilder()
 
-        orderBuilderRepo.save(
-            orderBuilder.copy(
-                productsIds = orderBuilder.productsIds + (productId to quantity)
+        val principalName = authenticatedPrincipal().name
+        if (orderBuilderRepo.existsByOwnerUsername(principalName)) {
+            val orderBuilder = findOrderBuilder()!!
+            orderBuilderRepo.save(
+                orderBuilder.copy(
+                    productsIds = orderBuilder.productsIds + (productId to quantity)
+                )
             )
-        )
+        } else {
+            orderBuilderRepo.save(
+                OrderBuilder(
+                    owner = accountService.getAuthenticatedAccount().orThrow(),
+                    productsIds = mapOf(productId to quantity)
+                )
+            )
+        }
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun removeProduct(productId: String) {
-        if (!productService.productExists(productId)) throw NotFoundException.productNotFound()
         val orderBuilder = findOrderBuilder() ?: return
 
         orderBuilderRepo.save(
             orderBuilder.copy(
-                productsIds = orderBuilder.productsIds - productId
+                productsIds = orderBuilder.productsIds - productId // it's a map, so i can't use mongoTemplate
             )
         )
     }
@@ -89,13 +101,20 @@ class OrderBuilderService(
 
     private fun handleProductDeletion(product: Product) {
         val stringId = product.id.toString()
-        mongoTemplate.findIterating<OrderBuilder>(
+        mongoTemplate.updateMulti(
             Query(Criteria.where("productsIds.$stringId").exists(true)),
+            Update().pull("productsIds", stringId),
             ORDER_BUILDER_COLLECTION
-        ) { orderBuilders ->
-            for (orderBuilder in orderBuilders)
-                orderBuilderRepo.save(orderBuilder.copy(productsIds = orderBuilder.productsIds - stringId))
-        }
+        )
+
+//
+//        mongoTemplate.findIterating<OrderBuilder>(
+//            Query(Criteria.where("productsIds.$stringId").exists(true)),
+//            ORDER_BUILDER_COLLECTION
+//        ) { orderBuilders ->
+//            for (orderBuilder in orderBuilders)
+//                orderBuilderRepo.save(orderBuilder.copy(productsIds = orderBuilder.productsIds - stringId))
+//        }
     }
 
     override fun onApplicationEvent(event: MarketplaceEvent) {

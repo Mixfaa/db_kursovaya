@@ -5,4 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 interface OrderBuilderRepo : MongoRepository<OrderBuilder, String> {
     fun findByOwnerUsername(username: String): OrderBuilder?
+    fun existsByOwnerUsername(username: String) : Boolean
 }

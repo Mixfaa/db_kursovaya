@@ -12,14 +12,11 @@ import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.model.SortConstructor
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
-import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.mongodb.MongoExpression
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.aggregation.StringOperators
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
@@ -48,30 +45,37 @@ class ProductService(
     }
 
     @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
-    private fun updateProductRate(product: Product, newRate: Double): Product {
+    private fun updateProductRate(product: Product, newRate: Double) {
         var newProductRate = (product.rate + newRate) / (if (product.rate == 0.0) 1.0 else 2.0)
         if (newProductRate < 0.0) newProductRate = 0.0
-        return productRepo.save(product.copy(rate = newProductRate))
+
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(product.id)),
+            Update.update(Product::rate.name, newProductRate),
+            PRODUCT_MONGO_COLLECTION
+        )
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun addProductImage(productId: String, @NotBlank imageLink: String): Product {
-        val product = findProductById(productId).orThrow()
+    fun addProductImage(productId: String, @NotBlank imageLink: String) {
+        if (!productExists(productId)) throw NotFoundException.productNotFound()
 
-        if (!product.images.contains(imageLink))
-            return productRepo.save(product.copy(images = product.images + imageLink))
-
-        return product
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(productId)),
+            Update().addToSet(Product::images.name, imageLink),
+            PRODUCT_MONGO_COLLECTION
+        )
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun removeProductImage(productId: String, imageLink: String): Product {
-        val product = findProductById(productId).orThrow()
+    fun removeProductImage(productId: String, imageLink: String) {
+        if (!productExists(productId)) throw NotFoundException.productNotFound()
 
-        if (product.images.contains(imageLink))
-            return productRepo.save(product.copy(images = product.images - imageLink))
-
-        return product
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(productId)),
+            Update().pull(Product::images.name, imageLink),
+            PRODUCT_MONGO_COLLECTION
+        )
     }
 
     private fun buildAllRelatedCategoriesIdsList(rootCategories: Set<Category>): List<String> {
@@ -153,7 +157,7 @@ class ProductService(
 
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(productId)),
-            Update().set(Product::availableQuantity.name, quantity),
+            Update.update(Product::availableQuantity.name, quantity),
             PRODUCT_MONGO_COLLECTION
         )
     }
@@ -194,7 +198,7 @@ class ProductService(
         val targetProducts = when (discount) {
             is DiscountByCategory -> {
                 mongoTemplate.findIterating<Product>(
-                    Query(Criteria.where("${Product::categories.name}._id").`in`(discount.allCategoriesIds)),
+                    Query(Criteria.where(Product::allRelatedCategoriesIds.name).`in`(discount.allCategoriesIds)),
                     PRODUCT_MONGO_COLLECTION
                 )
             }
@@ -203,12 +207,16 @@ class ProductService(
             else -> emptyList()
         }
 
-        for (product in targetProducts)
-            productRepo.save(
-                product.copy(
-                    actualPrice = if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
-                )
+        for (product in targetProducts) {
+            mongoTemplate.updateFirst(
+                Query(Criteria.where("_id").`is`(product.id)),
+                Update.update(
+                    Product::actualPrice.name,
+                    if (discountDeleted) product.actualPrice / discount.multiplier else product.actualPrice * discount.multiplier
+                ),
+                PRODUCT_MONGO_COLLECTION
             )
+        }
     }
 
     override fun onApplicationEvent(event: MarketplaceEvent) {

@@ -1,5 +1,6 @@
 package com.mixfa.account.service
 
+import com.mixfa.account.model.ACCOUNT_MONGO_COLLECTION
 import com.mixfa.account.model.Account
 import com.mixfa.account.model.Role
 import com.mixfa.`excify-either`.makeMemorizedException
@@ -11,6 +12,10 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.userdetails.UserDetails
@@ -24,6 +29,7 @@ import java.util.*
 import kotlin.collections.set
 import kotlin.random.Random
 
+
 private typealias Mail = String
 private typealias MailCode = String
 
@@ -34,6 +40,7 @@ class AccountService(
     private val passwordEncoder: PasswordEncoder,
     private val mailSender: MailSender,
     @Value("\${admin.secret}") private val adminSecret: String,
+    private val mongoTemplate: MongoTemplate,
 ) : UserDetailsService {
     private val mailCodes =
         Collections.synchronizedMap(PassiveExpiringMap<MailCode, Mail>(CODE_EXPIRATION_TIME_IN_MILLI))
@@ -50,8 +57,6 @@ class AccountService(
 
     fun getAuthenticatedAccount(): Optional<Account> =
         accountRepo.findById(authenticatedPrincipal().name)
-
-    fun findAccount(accountId: String): Optional<Account> = accountRepo.findById(accountId)
 
     fun register(@Valid request: Account.RegisterRequest): Account {
         if (accountRepo.existsByUsername(request.username))
@@ -87,30 +92,25 @@ class AccountService(
     }
 
     @PreAuthorize(IS_AUTHENTICATED)
-    fun addShippingAddress(@Valid @NotBlank shippingAddress: String): Account {
-        val account = getAuthenticatedAccount().orThrow()
-
-        return if (account.shippingAddresses.contains(shippingAddress))
-            account
-        else accountRepo.save(
-            account.copy(shippingAddresses = account.shippingAddresses + shippingAddress)
+    fun addShippingAddress(@Valid @NotBlank shippingAddress: String) {
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(authenticatedPrincipal().name)),
+            Update().addToSet(Account::shippingAddresses.name, shippingAddress),
+            ACCOUNT_MONGO_COLLECTION
         )
     }
 
     @PreAuthorize(IS_AUTHENTICATED)
-    fun removeShippingAddress(@Valid @NotBlank shippingAddress: String): Account {
-        val account = getAuthenticatedAccount().orThrow()
-
-        return if (!account.shippingAddresses.contains(shippingAddress))
-            account
-        else
-            accountRepo.save(
-                account.copy(shippingAddresses = account.shippingAddresses - shippingAddress)
-            )
+    fun removeShippingAddress(@Valid @NotBlank shippingAddress: String){
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(authenticatedPrincipal().name)),
+            Update().pull(Account::shippingAddresses.name, shippingAddress),
+            ACCOUNT_MONGO_COLLECTION
+        )
     }
 
     fun sendEmailTo(@Valid @NotBlank email: String) {
-        val code = takeWhile(mailCodes::containsKey, Companion::random6DigitCode)
+        val code = takeWhile(mailCodes::containsKey, ::random6DigitCode)
 
         mailCodes[code] = email
         mailSender.sendMail(email, "marketplace email verification", code)

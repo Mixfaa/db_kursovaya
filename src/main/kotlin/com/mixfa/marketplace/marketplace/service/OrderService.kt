@@ -1,5 +1,6 @@
 package com.mixfa.marketplace.marketplace.service
 
+
 import com.mixfa.account.service.AccountService
 import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
@@ -11,9 +12,12 @@ import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.orThrow
 import com.mixfa.shared.throwIfNot
-import jakarta.validation.Valid
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
@@ -25,7 +29,9 @@ class OrderService(
     private val accountService: AccountService,
     private val discountService: DiscountService,
     private val eventPublisher: ApplicationEventPublisher,
+    private val mongoTemplate: MongoTemplate,
 ) {
+
     private fun processDiscounts(products: Map<Product, Long>, promoCode: String?): List<RealizedProduct> {
         val realizedProductBuilders =
             products.asSequence().map { (product, quantity) -> RealizedProduct.Builder(product, quantity) }
@@ -83,9 +89,12 @@ class OrderService(
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun changeOrderStatus(orderId: String, newStatus: OrderStatus): Order {
-        val order = orderRepo.findById(orderId).orThrow()
-        return orderRepo.save(order.copy(status = newStatus))
+    fun changeOrderStatus(orderId: String, newStatus: OrderStatus) {
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("_id").`is`(orderId)),
+            Update.update(Order::status.name, newStatus.name),
+            ORDER_MONGO_COLLECTION
+        )
     }
 
     sealed class Event(src: Any) : MarketplaceEvent(src) {
