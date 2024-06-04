@@ -100,6 +100,10 @@ class MarketplaceControllerV2(
     @PostMapping("/products/{productId}/quantity")
     fun changeProductQuantity(@PathVariable productId: String, quantity: Long) =
         productService.changeProductQuantity(productId, quantity)
+
+    @PostMapping("/products/{productId}/update")
+    fun registerProduct(@PathVariable productId: String, @RequestBody request: Product.RegisterRequest) =
+        productService.updateProduct(productId, request)
     /*
     * Discounts
     */
@@ -117,7 +121,7 @@ class MarketplaceControllerV2(
         discountService.listDiscounts(CheckedPageable(page, pageSize))
 
     @GetMapping("/discounts/{query}")
-    fun findDiscounts(@PathVariable query: String, page: Int, pageSize: Int) = if (query.isEmpty())
+    fun findDiscounts(@PathVariable query: String, page: Int, pageSize: Int) = if (query.isBlank())
         discountService.listDiscounts(CheckedPageable(page, pageSize))
     else
         discountService.findDiscounts(query, CheckedPageable(page, pageSize))

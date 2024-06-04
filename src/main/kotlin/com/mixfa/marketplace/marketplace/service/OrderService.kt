@@ -6,12 +6,9 @@ import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
 import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
-import com.mixfa.shared.authenticatedPrincipal
-import com.mixfa.shared.contains
+import com.mixfa.shared.*
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
-import com.mixfa.shared.orThrow
-import com.mixfa.shared.throwIfNot
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -92,7 +89,7 @@ class OrderService(
     fun changeOrderStatus(orderId: String, newStatus: OrderStatus) {
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(orderId)),
-            Update.update(Order::status.name, newStatus.name),
+            Update.update(fieldName(Order::status), newStatus.name),
             ORDER_MONGO_COLLECTION
         )
     }

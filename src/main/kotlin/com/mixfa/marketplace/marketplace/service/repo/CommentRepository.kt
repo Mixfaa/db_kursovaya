@@ -11,5 +11,6 @@ import org.springframework.data.mongodb.repository.MongoRepository
 interface CommentRepository : MongoRepository<Comment, String> {
     fun findAllByProductId(id: ObjectId, pageable: Pageable): Page<Comment>
     fun deleteAllByProduct(product: Product)
+    fun deleteAllByProductId(productId: ObjectId)
     fun findAllByOwnerUsername(username: String, pageable: Pageable) : Page<Comment>
 }

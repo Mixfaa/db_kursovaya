@@ -12,6 +12,7 @@ import com.mixfa.shared.model.QueryConstructor
 import com.mixfa.shared.model.SortConstructor
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
@@ -46,12 +47,13 @@ class ProductService(
 
     @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
     private fun updateProductRate(product: Product, newRate: Double) {
-        var newProductRate = (product.rate + newRate) / (if (product.rate == 0.0) 1.0 else 2.0)
-        if (newProductRate < 0.0) newProductRate = 0.0
+        if (newRate < 0.0) return
+
+        val newProductRate = if (product.rate == 0.0) newRate else doubleArrayOf(product.rate, newRate).average()
 
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(product.id)),
-            Update.update(Product::rate.name, newProductRate),
+            Update.update(fieldName(Product::rate), newProductRate),
             PRODUCT_MONGO_COLLECTION
         )
     }
@@ -62,7 +64,7 @@ class ProductService(
 
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(productId)),
-            Update().addToSet(Product::images.name, imageLink),
+            Update().addToSet(fieldName(Product::images), imageLink),
             PRODUCT_MONGO_COLLECTION
         )
     }
@@ -73,7 +75,7 @@ class ProductService(
 
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(productId)),
-            Update().pull(Product::images.name, imageLink),
+            Update().pull(fieldName(Product::images), imageLink),
             PRODUCT_MONGO_COLLECTION
         )
     }
@@ -94,18 +96,47 @@ class ProductService(
         }
     }
 
-    @Transactional
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    open fun registerProduct(@Valid request: Product.RegisterRequest): Product {
-        val categories = categoryService.findCategoriesByIdOrThrow(request.categories).toHashSet()
-
-        val productCharacteristicsKeys = request.characteristics.keys
+    private fun checkProductCharacteristics(
+        characteristics: Map<String, String>,
+        categories: Collection<Category>
+    ) {
+        val productCharacteristicsKeys = characteristics.keys
 
         for (category in categories)
             if (!productCharacteristicsKeys.containsAll(category.requiredProps))
                 throw ProductCharacteristicsNotSetException(
                     category.requiredProps, productCharacteristicsKeys
                 )
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    fun updateProduct(productId: String, request: Product.RegisterRequest): Product {
+        if (!productExists(productId)) throw NotFoundException.productNotFound()
+
+        val categories = categoryService.findCategoriesByIdOrThrow(request.categories).toHashSet()
+
+        checkProductCharacteristics(request.characteristics, categories)
+
+        return productRepo.save(
+            Product(
+                id = ObjectId(productId),
+                caption = request.caption,
+                categories = categories,
+                allRelatedCategoriesIds = buildAllRelatedCategoriesIdsList(categories),
+                characteristics = request.characteristics,
+                description = request.description,
+                price = request.price,
+                availableQuantity = request.availableQuantity,
+                images = request.images
+            )
+        )
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    open fun registerProduct(@Valid request: Product.RegisterRequest): Product {
+        val categories = categoryService.findCategoriesByIdOrThrow(request.categories).toHashSet()
+        checkProductCharacteristics(request.characteristics, categories)
 
         return productRepo.save(
             Product(
@@ -121,12 +152,13 @@ class ProductService(
         ).also { product -> eventPublisher.publishEvent(Event.ProductRegister(product, this)) }
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun deleteProduct(productId: String) {
-        val product = productRepo.findById(productId).orThrow()
+    open fun deleteProduct(productId: String) {
+        if (!productRepo.existsById(productId)) throw NotFoundException.productNotFound()
 
-        productRepo.delete(product)
-        eventPublisher.publishEvent(Event.ProductDelete(product, this))
+        eventPublisher.publishEvent(Event.ProductDelete(productId, this))
+        productRepo.deleteById(productId)
     }
 
     fun findProducts(query: String, pageable: CheckedPageable): Page<Product> {
@@ -153,26 +185,26 @@ class ProductService(
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     fun changeProductQuantity(productId: String, quantity: Long) {
-        if (!productRepo.existsById(productId)) throw NotFoundException.productNotFound()
-
-        mongoTemplate.updateFirst(
+        val updateResult = mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(productId)),
-            Update.update(Product::availableQuantity.name, quantity),
+            Update.update(fieldName(Product::availableQuantity), quantity),
             PRODUCT_MONGO_COLLECTION
         )
+
+        if (updateResult.nothingModified()) throw NotFoundException.productNotFound()
     }
 
     private fun handleOrderRegistration(order: Order) {
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),
-            Update().inc(Product::ordersCount.name, 1),
+            Update().inc(fieldName(Product::ordersCount), 1),
             PRODUCT_MONGO_COLLECTION
         )
 
         for (product in order.products) {
             mongoTemplate.updateFirst(
                 Query(Criteria.where("_id").`is`(product.productId)),
-                Update().inc(Product::availableQuantity.name, -product.quantity),
+                Update().inc(fieldName(Product::availableQuantity), -product.quantity),
                 PRODUCT_MONGO_COLLECTION
             )
         }
@@ -181,14 +213,14 @@ class ProductService(
     private fun handleOrderCancellation(order: Order) {
         mongoTemplate.updateMulti(
             Query(Criteria.where("_id").`in`(order.products.map(RealizedProduct::productId))),
-            Update().inc(Product::ordersCount.name, -1),
+            Update().inc(fieldName(Product::ordersCount), -1),
             PRODUCT_MONGO_COLLECTION
         )
 
         for (product in order.products) {
             mongoTemplate.updateFirst(
                 Query(Criteria.where("_id").`is`(product.productId)),
-                Update().inc(Product::availableQuantity.name, product.quantity),
+                Update().inc(fieldName(Product::availableQuantity), product.quantity),
                 PRODUCT_MONGO_COLLECTION
             )
         }
@@ -198,7 +230,7 @@ class ProductService(
         val targetProducts = when (discount) {
             is DiscountByCategory -> {
                 mongoTemplate.findIterating<Product>(
-                    Query(Criteria.where(Product::allRelatedCategoriesIds.name).`in`(discount.allCategoriesIds)),
+                    Query(Criteria.where(fieldName(Product::allRelatedCategoriesIds)).`in`(discount.allCategoriesIds)),
                     PRODUCT_MONGO_COLLECTION
                 )
             }
@@ -233,7 +265,11 @@ class ProductService(
 
     sealed class Event(src: Any) : MarketplaceEvent(src) {
         class ProductRegister(val product: Product, src: Any) : Event(src)
-        class ProductDelete(val product: Product, src: Any) : Event(src)
+        class ProductDelete(
+            val productId: String,
+            src: Any,
+            var product: Product? = null,
+        ) : Event(src)
     }
 }
 

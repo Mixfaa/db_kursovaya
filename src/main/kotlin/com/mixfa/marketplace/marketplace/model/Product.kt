@@ -35,7 +35,7 @@ data class Product(
     data class Dto(
         val id: String,
         val caption: String,
-        val categories: Collection<String>,
+        val categories: Collection<Category>,// automatically maps to dto
         val characteristics: Map<String, String>,
         val description: String,
         val price: Double,
@@ -48,7 +48,7 @@ data class Product(
         constructor(product: Product) : this(
             product.id.toString(),
             product.caption,
-            product.categories.map(Category::name),
+            product.categories,
             product.characteristics,
             product.description,
             product.price,

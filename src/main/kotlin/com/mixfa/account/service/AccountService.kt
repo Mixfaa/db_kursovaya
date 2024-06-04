@@ -95,7 +95,7 @@ class AccountService(
     fun addShippingAddress(@Valid @NotBlank shippingAddress: String) {
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(authenticatedPrincipal().name)),
-            Update().addToSet(Account::shippingAddresses.name, shippingAddress),
+            Update().addToSet(fieldName(Account::shippingAddresses), shippingAddress),
             ACCOUNT_MONGO_COLLECTION
         )
     }
@@ -104,7 +104,7 @@ class AccountService(
     fun removeShippingAddress(@Valid @NotBlank shippingAddress: String){
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(authenticatedPrincipal().name)),
-            Update().pull(Account::shippingAddresses.name, shippingAddress),
+            Update().pull(fieldName(Account::shippingAddresses), shippingAddress),
             ACCOUNT_MONGO_COLLECTION
         )
     }

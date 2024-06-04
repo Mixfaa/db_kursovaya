@@ -61,10 +61,10 @@ class CommentService(
     @PreAuthorize("hasAuthority('COMMENTS:EDIT')")
     fun findMyComments(page: CheckedPageable) = commentRepo.findAllByOwnerUsername(authenticatedPrincipal().name, page)
 
-    private fun deleteCommentsByProductId(product: Product) = commentRepo.deleteAllByProduct(product)
+    private fun deleteCommentsByProductId(productId: String) = commentRepo.deleteAllByProductId(ObjectId(productId))
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {
-        is ProductService.Event.ProductDelete -> deleteCommentsByProductId(event.product)
+        is ProductService.Event.ProductDelete -> deleteCommentsByProductId(event.productId)
         is ProductService.Event.ProductRegister -> {}
     }
 

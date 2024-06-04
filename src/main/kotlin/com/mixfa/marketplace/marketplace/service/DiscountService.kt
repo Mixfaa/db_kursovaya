@@ -1,10 +1,9 @@
 package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Category
-import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.discount.*
 import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
-import com.mixfa.shared.findIterating
+import com.mixfa.shared.fieldName
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
 import com.mixfa.shared.orThrow
@@ -19,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
+import kotlin.reflect.KProperty
 
 @Service
 @Validated
@@ -35,10 +35,6 @@ class DiscountService(
             categories.forEach { set.add(it.id.toString()) }
 
             for (category in categories) {
-                category.parentCategoryId?.let { id ->
-                    val parentCategory = categoryService.findCategoryById(id).orThrow()
-                    set.add(parentCategory.id.toString())
-                }
                 addCategories(set, category.subcategoriesIds.map { id ->
                     categoryService.findCategoryById(id).orThrow()
                 })
@@ -92,16 +88,21 @@ class DiscountService(
 
     fun findPromoCode(code: String): PromoCode? {
         return mongoTemplate.findOne(
-            Query(Criteria.where(PromoCode::code.name).`is`(code)),
+            Query(Criteria.where(fieldName(PromoCode::code)).`is`(code)),
             PromoCode::class.java,
             DISCOUNT_MONGO_COLLECTION
         )
     }
 
-    private fun handleProductDeletion(product: Product) {
+    private fun handleProductDeletion(productDeleteEvent: ProductService.Event.ProductDelete) {
+        productDeleteEvent.product =
+            productDeleteEvent.product ?: productService.findProductById(productDeleteEvent.productId).orThrow()
+
+        val product = productDeleteEvent.product
+
         mongoTemplate.updateMulti(
-            Query(Criteria.where(DiscountByProduct::targetProducts.name).`in`(product)),
-            Update().pull(DiscountByProduct::targetProducts.name, product),
+            Query(Criteria.where(fieldName(DiscountByProduct::targetProducts)).`in`(product)),
+            Update().pull(fieldName(DiscountByProduct::targetProducts), product),
             DISCOUNT_MONGO_COLLECTION
         )
 
@@ -127,7 +128,7 @@ class DiscountService(
     fun listDiscounts(pageable: CheckedPageable) = discountRepo.findAll(pageable)
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {
-        is ProductService.Event.ProductDelete -> handleProductDeletion(event.product)
+        is ProductService.Event.ProductDelete -> handleProductDeletion(event)
         else -> {}
     }
 

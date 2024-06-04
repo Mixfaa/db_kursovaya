@@ -2,6 +2,8 @@ package com.mixfa.shared
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.mixfa.shared.model.WithDto
+import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.*
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Query
@@ -9,11 +11,14 @@ import java.net.http.HttpResponse
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.math.ceil
+import kotlin.reflect.KProperty
 
 const val DEFAULT_FIXED_RATE = 15000L
 
 fun <T> defaultLazy(block: () -> T) = lazy(LazyThreadSafetyMode.PUBLICATION, block)
 
+fun fieldName(field: KProperty<*>): String = field.name
+fun UpdateResult.nothingModified() = this.modifiedCount == 0L
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
         block()

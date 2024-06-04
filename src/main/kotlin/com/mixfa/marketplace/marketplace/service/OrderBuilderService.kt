@@ -7,11 +7,8 @@ import com.mixfa.marketplace.marketplace.model.Order
 import com.mixfa.marketplace.marketplace.model.OrderBuilder
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.OrderBuilderRepo
-import com.mixfa.shared.NotFoundException
-import com.mixfa.shared.authenticatedPrincipal
+import com.mixfa.shared.*
 import com.mixfa.shared.model.MarketplaceEvent
-import com.mixfa.shared.orThrow
-import com.mixfa.shared.productNotFound
 import org.springframework.context.ApplicationListener
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -99,11 +96,10 @@ class OrderBuilderService(
             }
     }
 
-    private fun handleProductDeletion(product: Product) {
-        val stringId = product.id.toString()
+    private fun handleProductDeletion(productId: String) {
         mongoTemplate.updateMulti(
-            Query(Criteria.where("productsIds.$stringId").exists(true)),
-            Update().pull("productsIds", stringId),
+            Query(Criteria.where("${fieldName(OrderBuilder::productsIds)}.$productId").exists(true)),
+            Update().pull(fieldName(OrderBuilder::productsIds), productId),
             ORDER_BUILDER_COLLECTION
         )
 
@@ -119,7 +115,7 @@ class OrderBuilderService(
 
     override fun onApplicationEvent(event: MarketplaceEvent) {
         when (event) {
-            is ProductService.Event.ProductDelete -> handleProductDeletion(event.product)
+            is ProductService.Event.ProductDelete -> handleProductDeletion(event.productId)
         }
     }
 }
