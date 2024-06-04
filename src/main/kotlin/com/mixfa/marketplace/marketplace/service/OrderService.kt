@@ -69,11 +69,6 @@ class OrderService(
     }
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
-    fun countMyOrders(): Long {
-        return orderRepo.countByOwnerUsername(authenticatedPrincipal().name)
-    }
-
-    @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun cancelOrder(orderId: String): Order {
         val order = orderRepo.findById(orderId).orThrow()
         authenticatedPrincipal().throwIfNot(order.owner)

@@ -2,7 +2,6 @@ package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
-import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
 import com.mixfa.shared.authenticatedPrincipal
 import com.mixfa.shared.model.CheckedPageable

@@ -29,7 +29,6 @@ import java.util.*
 import kotlin.collections.set
 import kotlin.random.Random
 
-
 private typealias Mail = String
 private typealias MailCode = String
 

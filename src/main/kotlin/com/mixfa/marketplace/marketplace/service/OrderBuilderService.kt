@@ -5,7 +5,6 @@ import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.marketplace.marketplace.model.ORDER_BUILDER_COLLECTION
 import com.mixfa.marketplace.marketplace.model.Order
 import com.mixfa.marketplace.marketplace.model.OrderBuilder
-import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.repo.OrderBuilderRepo
 import com.mixfa.shared.*
 import com.mixfa.shared.model.MarketplaceEvent
@@ -45,11 +44,10 @@ class OrderBuilderService(
 
         val principalName = authenticatedPrincipal().name
         if (orderBuilderRepo.existsByOwnerUsername(principalName)) {
-            val orderBuilder = findOrderBuilder()!!
-            orderBuilderRepo.save(
-                orderBuilder.copy(
-                    productsIds = orderBuilder.productsIds + (productId to quantity)
-                )
+            mongoTemplate.updateFirst(
+                Query(Criteria.where("${fieldName(OrderBuilder::owner)}.\$id").`is`(authenticatedPrincipal().name)),
+                Update().set("${fieldName(OrderBuilder::productsIds)}.$productId", quantity),
+                ORDER_BUILDER_COLLECTION
             )
         } else {
             orderBuilderRepo.save(
@@ -63,12 +61,10 @@ class OrderBuilderService(
 
     @PreAuthorize("hasAuthority('ORDER:EDIT')")
     fun removeProduct(productId: String) {
-        val orderBuilder = findOrderBuilder() ?: return
-
-        orderBuilderRepo.save(
-            orderBuilder.copy(
-                productsIds = orderBuilder.productsIds - productId // it's a map, so i can't use mongoTemplate
-            )
+        mongoTemplate.updateFirst(
+            Query(Criteria.where("${fieldName(OrderBuilder::owner)}.\$id").`is`(authenticatedPrincipal().name)),
+            Update().unset("${fieldName(OrderBuilder::productsIds)}.$productId"),
+            ORDER_BUILDER_COLLECTION
         )
     }
 
@@ -97,20 +93,12 @@ class OrderBuilderService(
     }
 
     private fun handleProductDeletion(productId: String) {
+        val fieldToUnset = "${fieldName(OrderBuilder::productsIds)}.$productId"
         mongoTemplate.updateMulti(
-            Query(Criteria.where("${fieldName(OrderBuilder::productsIds)}.$productId").exists(true)),
-            Update().pull(fieldName(OrderBuilder::productsIds), productId),
+            Query(Criteria.where(fieldToUnset).exists(true)),
+            Update().unset(fieldToUnset),
             ORDER_BUILDER_COLLECTION
         )
-
-//
-//        mongoTemplate.findIterating<OrderBuilder>(
-//            Query(Criteria.where("productsIds.$stringId").exists(true)),
-//            ORDER_BUILDER_COLLECTION
-//        ) { orderBuilders ->
-//            for (orderBuilder in orderBuilders)
-//                orderBuilderRepo.save(orderBuilder.copy(productsIds = orderBuilder.productsIds - stringId))
-//        }
     }
 
     override fun onApplicationEvent(event: MarketplaceEvent) {

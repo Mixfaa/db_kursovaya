@@ -40,13 +40,9 @@ class MarketplaceControllerV2(
     else
         categoryService.findCategories(query, CheckedPageable(page, pageSize))
 
-
     @GetMapping("/categories")
     fun listCategories(page: Int, pageSize: Int) =
         categoryService.listCategories(CheckedPageable(page, pageSize))
-
-    @GetMapping("/categories/count")
-    fun countCategories() = categoryService.countCategories()
 
     @GetMapping("/categories/{categoryId}")
     fun findCategory(@PathVariable categoryId: String) =
@@ -71,9 +67,6 @@ class MarketplaceControllerV2(
     fun findProducts(query: String, page: Int, pageSize: Int) =
         productService.findProducts(query, CheckedPageable(page, pageSize))
 
-    @GetMapping("/products/count")
-    fun countProducts() =
-        productService.countProducts()
 
     @GetMapping("/products/findV2")
     fun findProductsV2(query: String, sort: String, page: Int, pageSize: Int): Page<Product> {
@@ -157,9 +150,6 @@ class MarketplaceControllerV2(
     fun listMyOrders(page: Int, pageSize: Int) =
         orderService.listMyOrders(CheckedPageable(page, pageSize))
 
-    @GetMapping("/orders/count_my")
-    fun countMyOrders() =
-        orderService.countMyOrders()
 
     /*
      * Comments

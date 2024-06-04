@@ -7,7 +7,6 @@ import com.mixfa.shared.categoryNotFound
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.orThrow
 import jakarta.validation.Valid
-import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -52,8 +51,6 @@ class CategoryService(
 
     fun listCategories(pageable: CheckedPageable): Page<Category> =
         categoryRepo.findAll(pageable)
-
-    fun countCategories() = categoryRepo.count()
 }
 
 
