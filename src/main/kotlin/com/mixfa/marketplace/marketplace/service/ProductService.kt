@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationListener
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
@@ -45,15 +46,23 @@ class ProductService(
         return products
     }
 
-    @PreAuthorize("hasAuthority('MARKETPLACE:EDIT')")
-    private fun updateProductRate(product: Product, newRate: Double) {
-        if (newRate < 0.0) return
+    private fun updateProductRate(product: Product) {
+        data class AverageRateAggregatingResult(val _id: Any?, val averageRate: Double)
 
-        val newProductRate = if (product.rate == 0.0) newRate else doubleArrayOf(product.rate, newRate).average()
+        val aggregation = Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("${fieldName(Comment::product)}.\$id").`is`(product.id)),
+            Aggregation.group().avg(fieldName(Comment::rate)).`as`("averageRate")
+        )
+
+        val result = mongoTemplate.aggregate(
+            aggregation,
+            COMMENT_MONGO_COLLECTION,
+            AverageRateAggregatingResult::class.java
+        ).mappedResults.first()
 
         mongoTemplate.updateFirst(
             Query(Criteria.where("_id").`is`(product.id)),
-            Update.update(fieldName(Product::rate), newProductRate),
+            Update.update(fieldName(Product::rate), result.averageRate),
             PRODUCT_MONGO_COLLECTION
         )
     }
@@ -253,8 +262,8 @@ class ProductService(
 
     override fun onApplicationEvent(event: MarketplaceEvent) {
         when (event) {
-            is CommentService.Event.CommentRegister -> updateProductRate(event.comment.product, event.comment.rate)
-            is CommentService.Event.CommentDelete -> updateProductRate(event.comment.product, -event.comment.rate)
+            is CommentService.Event.CommentRegister -> updateProductRate(event.comment.product)
+            is CommentService.Event.CommentDelete -> updateProductRate(event.comment.product)
             is OrderService.Event.OrderRegister -> handleOrderRegistration(event.order)
             is OrderService.Event.OrderCancel -> handleOrderCancellation(event.order)
 
