@@ -26,9 +26,12 @@ repositories {
 
 dependencies {
     implementation("com.github.Mixfaa:excify:0.0.2")
+
+
+//    testImplementation("org.springframework.amqp:spring-rabbit-test")
     ksp("com.github.Mixfaa:excify:0.0.2")
     implementation("com.github.Mixfaa:excify-either-module:1b6ab4f980fb34b764fcfad298e7b115827c44bf")
-
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 

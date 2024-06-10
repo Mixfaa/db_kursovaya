@@ -176,14 +176,14 @@ class MarketplaceControllerV2(
         commentService.findMyComments(CheckedPageable(page, pageSize))
 
 
-    @GetMapping("/indexer/{categoryId}/{prop}")
-    fun findIndexes(@PathVariable categoryId: String, @PathVariable prop: String): Collection<String> {
-        return indexerService.findValues(categoryService.findCategoryById(categoryId).orThrow(), prop)
-    }
-
-    @GetMapping("/indexer/{categoryId}")
-    fun findIndexes(@PathVariable categoryId: String, page: Int, pageSize: Int) = indexerService.findValues(
-        categoryService.findCategoryById(categoryId).orThrow(),
-        CheckedPageable(page, pageSize)
-    )
+//    @GetMapping("/indexer/{categoryId}/{prop}")
+//    fun findIndexes(@PathVariable categoryId: String, @PathVariable prop: String): Collection<String> {
+//        return indexerService.findValues(categoryService.findCategoryById(categoryId).orThrow(), prop)
+//    }
+//
+//    @GetMapping("/indexer/{categoryId}")
+//    fun findIndexes(@PathVariable categoryId: String, page: Int, pageSize: Int) = indexerService.findValues(
+//        categoryService.findCategoryById(categoryId).orThrow(),
+//        CheckedPageable(page, pageSize)
+//    )
 }

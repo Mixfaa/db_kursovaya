@@ -19,6 +19,16 @@ services:
       - "mongo1_data:/data/db"
       - "mongo1_config:/data/configdb"
 
+
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - 'RABBITMQ_DEFAULT_PASS=password'
+      - 'RABBITMQ_DEFAULT_USER=rabbituser'
+
 volumes:
   mongo1_data:
   mongo1_config:
