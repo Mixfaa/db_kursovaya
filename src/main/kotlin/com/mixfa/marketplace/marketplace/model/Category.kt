@@ -15,7 +15,7 @@ const val CATEGORY_MONGO_COLLECTION = "category"
 data class Category(
     @Id val id: ObjectId = ObjectId(),
     val name: String,
-    val parentCategoryId: String?,
+    val parentCategoryId: ObjectId?,
     val subcategoriesIds: Set<String>,
     val requiredProps: Set<String>
 ) : WithDto {

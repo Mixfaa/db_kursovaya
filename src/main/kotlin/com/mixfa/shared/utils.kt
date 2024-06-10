@@ -5,6 +5,9 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.mixfa.shared.model.WithDto
 import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import java.net.http.HttpResponse
@@ -18,7 +21,9 @@ const val DEFAULT_FIXED_RATE = 15000L
 fun <T> defaultLazy(block: () -> T) = lazy(LazyThreadSafetyMode.PUBLICATION, block)
 
 fun fieldName(field: KProperty<*>): String = field.name
+
 fun UpdateResult.nothingModified() = this.modifiedCount == 0L
+
 inline fun <R> runOrNull(block: () -> R): R? {
     return try {
         block()
@@ -77,6 +82,13 @@ inline fun <reified T> MongoTemplate.findIterating(query: Query, collectionName:
     for (page in 0..totalPages) {
         this.find(query.skip(page * Long.MAX_VALUE).limit(MAX_PAGE_SIZE), T::class.java, collectionName).let(handler)
     }
+}
+
+inline fun <reified T> MongoTemplate.findPageable(q: Query, pageable: Pageable, collection: String): Page<T> {
+    val total = this.count(q, collection)
+    val elements = this.find(q.with(pageable), T::class.java, collection)
+
+    return PageImpl(elements, pageable, total)
 }
 
 inline fun <reified T> MongoTemplate.findIterating(query: Query, collectionName: String): List<T> {

@@ -2,7 +2,7 @@ package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.model.discount.*
-import com.mixfa.marketplace.marketplace.service.repo.DiscountRepository
+import com.mixfa.marketplace.marketplace.repository.DiscountRepository
 import com.mixfa.shared.fieldName
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent

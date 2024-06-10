@@ -1,4 +1,4 @@
-package com.mixfa.marketplace.marketplace.service.repo
+package com.mixfa.marketplace.marketplace.repository
 
 import com.mixfa.account.model.Account
 import com.mixfa.marketplace.marketplace.model.Comment

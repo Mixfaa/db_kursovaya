@@ -5,7 +5,7 @@ import com.mixfa.account.service.AccountService
 import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.excify.FastException
 import com.mixfa.marketplace.marketplace.model.*
-import com.mixfa.marketplace.marketplace.service.repo.OrderRepository
+import com.mixfa.marketplace.marketplace.repository.OrderRepository
 import com.mixfa.shared.*
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent

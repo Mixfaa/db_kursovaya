@@ -4,7 +4,7 @@ import com.mixfa.marketplace.marketplace.model.*
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByCategory
 import com.mixfa.marketplace.marketplace.model.discount.DiscountByProduct
-import com.mixfa.marketplace.marketplace.service.repo.ProductRepository
+import com.mixfa.marketplace.marketplace.repository.ProductRepository
 import com.mixfa.shared.*
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
@@ -94,13 +94,13 @@ class ProductService(
             val category = categoryService.findCategoryById(id).getOrNull() ?: return
             list.add(category.id.toString())
 
-            category.parentCategoryId?.let { parentId -> addCategory(list, parentId) }
+            category.parentCategoryId?.let { parentId -> addCategory(list, parentId.toString()) }
         }
 
         return buildList {
             rootCategories.forEach { add(it.id.toString()) }
             rootCategories.forEach {
-                it.parentCategoryId?.let { id -> addCategory(this, id) }
+                it.parentCategoryId?.let { id -> addCategory(this, id.toString()) }
             }
         }
     }
@@ -138,7 +138,9 @@ class ProductService(
                 availableQuantity = request.availableQuantity,
                 images = request.images
             )
-        )
+        ).also { product ->
+            eventPublisher.publishEvent(Event.ProductUpdated(product, this))
+        }
     }
 
     @Transactional
@@ -189,8 +191,6 @@ class ProductService(
 
         return PageImpl(products, pageable, total)
     }
-
-    fun countProducts() = productRepo.count()
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     fun changeProductQuantity(productId: String, quantity: Long) {
@@ -279,6 +279,8 @@ class ProductService(
             src: Any,
             var product: Product? = null,
         ) : Event(src)
+
+        class ProductUpdated(val product: Product, src: Any) : Event(src)
     }
 }
 

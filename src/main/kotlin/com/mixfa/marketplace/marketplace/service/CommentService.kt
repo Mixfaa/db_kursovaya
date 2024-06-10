@@ -2,7 +2,7 @@ package com.mixfa.marketplace.marketplace.service
 
 import com.mixfa.account.service.AccountService
 import com.mixfa.marketplace.marketplace.model.Comment
-import com.mixfa.marketplace.marketplace.service.repo.CommentRepository
+import com.mixfa.marketplace.marketplace.repository.CommentRepository
 import com.mixfa.shared.authenticatedPrincipal
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.MarketplaceEvent
@@ -64,7 +64,7 @@ class CommentService(
 
     override fun onApplicationEvent(event: ProductService.Event) = when (event) {
         is ProductService.Event.ProductDelete -> deleteCommentsByProductId(event.productId)
-        is ProductService.Event.ProductRegister -> {}
+        else -> {}
     }
 
     sealed class Event(src: Any) : MarketplaceEvent(src) {

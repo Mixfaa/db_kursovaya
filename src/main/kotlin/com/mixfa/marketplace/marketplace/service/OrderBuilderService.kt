@@ -5,7 +5,7 @@ import com.mixfa.`excify-either`.makeMemorizedException
 import com.mixfa.marketplace.marketplace.model.ORDER_BUILDER_COLLECTION
 import com.mixfa.marketplace.marketplace.model.Order
 import com.mixfa.marketplace.marketplace.model.OrderBuilder
-import com.mixfa.marketplace.marketplace.service.repo.OrderBuilderRepo
+import com.mixfa.marketplace.marketplace.repository.OrderBuilderRepo
 import com.mixfa.shared.*
 import com.mixfa.shared.model.MarketplaceEvent
 import org.springframework.context.ApplicationListener

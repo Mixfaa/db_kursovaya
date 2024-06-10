@@ -24,10 +24,6 @@ class ProductCharacteristicsNotSetException(
 """.trimMargin()
 )
 
-//@ExcifyCachedException
-//@ExcifyOptionalOrThrow(type = FavouriteList::class, methodName = "orThrow")
-//val favouriteListNotFound = NotFoundException("Favourite list")
-
 @ExcifyCachedException
 @ExcifyOptionalOrThrow(type = Comment::class, methodName = "orThrow")
 val commentNotFound = NotFoundException("Comment")

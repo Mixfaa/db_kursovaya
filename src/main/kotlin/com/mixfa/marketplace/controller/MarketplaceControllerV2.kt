@@ -1,9 +1,13 @@
 package com.mixfa.marketplace.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mixfa.marketplace.marketplace.model.*
+import com.mixfa.marketplace.marketplace.model.Category
+import com.mixfa.marketplace.marketplace.model.Comment
+import com.mixfa.marketplace.marketplace.model.OrderStatus
+import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.model.discount.AbstractDiscount
 import com.mixfa.marketplace.marketplace.service.*
+import com.mixfa.marketplace.prop_indexer.service.IndexerService
 import com.mixfa.shared.model.AssembleableSort
 import com.mixfa.shared.model.CheckedPageable
 import com.mixfa.shared.model.PrecompiledSort
@@ -22,8 +26,8 @@ class MarketplaceControllerV2(
     private val discountService: DiscountService,
     private val orderService: OrderService,
     private val productService: ProductService,
-//    private val favouriteListsService: FavouriteListsService,
     private val orderBuilderService: OrderBuilderService,
+    private val indexerService: IndexerService,
     private val mapper: ObjectMapper
 ) {
     /*
@@ -171,39 +175,15 @@ class MarketplaceControllerV2(
     fun listMyComments(page: Int, pageSize: Int) =
         commentService.findMyComments(CheckedPageable(page, pageSize))
 
-    /*
-     * Favourite
-     */
-//
-//    @PostMapping("/favlists/create")
-//    fun createFavouriteList(@RequestBody request: FavouriteList.RegisterRequest) =
-//        favouriteListsService.createList(request)
-//
-//    @DeleteMapping("/favlists/{listId}")
-//    fun deleteFavouriteList(@PathVariable listId: String) =
-//        favouriteListsService.deleteList(listId)
-//
-//    @PostMapping("/favlists/{listId}/change_visibility")
-//    fun changeFavouriteListVisibility(@PathVariable listId: String, isPublic: Boolean) =
-//        favouriteListsService.changeListVisibility(listId, isPublic)
-//
-//    @PostMapping("/favlists/{listId}/product/{productId}")
-//    fun addProductToFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
-//        favouriteListsService.addProductToList(listId, productId)
-//
-//    @DeleteMapping("/favlists/{listId}/product/{productId}")
-//    fun removeProductFromFavouriteList(@PathVariable listId: String, @PathVariable productId: String) =
-//        favouriteListsService.removeProductFromList(listId, productId)
-//
-//    @GetMapping("/favlists/my")
-//    fun getMyFavouriteLists() =
-//        favouriteListsService.getMyFavouriteLists()
-//
-//    @GetMapping("/favlists/{listId}/get_public")
-//    fun getPublicFavouriteList(@PathVariable listId: String) =
-//        favouriteListsService.getPublicFavouriteList(listId)
-//
-//    @GetMapping("/favlists/from_account/{accountId}")
-//    fun findPublicFavouriteListsOf(@PathVariable accountId: String) =
-//        favouriteListsService.findPublicFavouriteListsOf(accountId)
+
+    @GetMapping("/indexer/{categoryId}/{prop}")
+    fun findIndexes(@PathVariable categoryId: String, @PathVariable prop: String): Collection<String> {
+        return indexerService.findValues(categoryService.findCategoryById(categoryId).orThrow(), prop)
+    }
+
+    @GetMapping("/indexer/{categoryId}")
+    fun findIndexes(@PathVariable categoryId: String, page: Int, pageSize: Int) = indexerService.findValues(
+        categoryService.findCategoryById(categoryId).orThrow(),
+        CheckedPageable(page, pageSize)
+    )
 }

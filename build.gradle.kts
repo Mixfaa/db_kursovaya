@@ -6,7 +6,6 @@ plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
     id("com.google.devtools.ksp") version "1.9.23-1.0.19"
-    kotlin("plugin.allopen") version "1.9.23"
 }
 
 group = "com.mixfa"
