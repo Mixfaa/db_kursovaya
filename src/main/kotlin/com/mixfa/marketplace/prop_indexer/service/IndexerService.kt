@@ -6,8 +6,8 @@ import com.mixfa.marketplace.marketplace.model.Category
 import com.mixfa.marketplace.marketplace.model.Product
 import com.mixfa.marketplace.marketplace.service.CategoryService
 import com.mixfa.marketplace.marketplace.service.ProductService
-import com.mixfa.marketplace.prop_indexer.model.CLUSTER_REF_MONGO_COLLECTION
-import com.mixfa.marketplace.prop_indexer.model.IndexClusterRef
+import com.mixfa.marketplace.prop_indexer.model.INDEX_COLLECTION_MONGO_COLLECTION
+import com.mixfa.marketplace.prop_indexer.model.IndexCollectionRef
 import com.mixfa.marketplace.prop_indexer.model.IndexedProperty
 import com.mixfa.shared.fieldName
 import com.mixfa.shared.findPageable
@@ -23,77 +23,76 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
 
-
 @Service
 class IndexerService(
     private val mongoTemplate: MongoTemplate,
 ) : ApplicationListener<MarketplaceEvent> {
 
     fun findValues(category: Category, pageable: CheckedPageable): Page<IndexedProperty> {
-        val cluster = mongoTemplate.findOne(
-            Query(Criteria.where(fieldName(IndexClusterRef::categories)).`in`(category.id)),
-            IndexClusterRef::class.java,
-            CLUSTER_REF_MONGO_COLLECTION
+        val indexCollectionRef = mongoTemplate.findOne(
+            Query(Criteria.where(fieldName(IndexCollectionRef::categories)).`in`(category.id)),
+            IndexCollectionRef::class.java,
+            INDEX_COLLECTION_MONGO_COLLECTION
         ) ?: return Page.empty()
 
         return mongoTemplate.findPageable<IndexedProperty>(
             Query(),
             pageable,
-            cluster.clusterName
+            indexCollectionRef.collectionName
         )
     }
 
     fun findValues(category: Category, prop: String): Collection<String> {
-        val cluster = mongoTemplate.findOne(
-            Query(Criteria.where(fieldName(IndexClusterRef::categories)).`in`(category.id)),
-            IndexClusterRef::class.java,
-            CLUSTER_REF_MONGO_COLLECTION
+        val indexCollectionRef = mongoTemplate.findOne(
+            Query(Criteria.where(fieldName(IndexCollectionRef::categories)).`in`(category.id)),
+            IndexCollectionRef::class.java,
+            INDEX_COLLECTION_MONGO_COLLECTION
         ) ?: return emptyList()
 
         return mongoTemplate.findOne(
             Query(Criteria.where("_id").`is`(prop)),
             IndexedProperty::class.java,
-            cluster.clusterName
+            indexCollectionRef.collectionName
         )?.values?.keys ?: emptyList()
     }
 
     private fun onProductCreated(product: Product) {
-        val cluster = mongoTemplate.findOne(
+        val indexCollectionRef = mongoTemplate.findOne(
             Query(
-                Criteria.where(fieldName(IndexClusterRef::categories))
+                Criteria.where(fieldName(IndexCollectionRef::categories))
                     .all(product.allRelatedCategoriesIds.map(::ObjectId))
             ),
-            IndexClusterRef::class.java,
-            CLUSTER_REF_MONGO_COLLECTION,
-        ) ?: throw FastException("Can`t find cluster for product ${product.id} (${product.caption})")
+            IndexCollectionRef::class.java,
+            INDEX_COLLECTION_MONGO_COLLECTION,
+        ) ?: throw FastException("Can`t find collection for product ${product.id} (${product.caption})")
 
         for ((prop, value) in product.characteristics) {
             mongoTemplate.updateFirst(
                 Query(Criteria.where("_id").`is`(prop)),
                 Update().inc("${fieldName(IndexedProperty::values)}.$value", 1),
-                cluster.clusterName
+                indexCollectionRef.collectionName
             )
         }
     }
 
     private fun onCategoryCreated(category: Category) {
         if (category.parentCategoryId == null) {
-            val newClusterRef = IndexClusterRef(listOf(category))
-            mongoTemplate.insert(newClusterRef, CLUSTER_REF_MONGO_COLLECTION)
+            val indexCollectionRef = IndexCollectionRef(listOf(category))
+            mongoTemplate.insert(indexCollectionRef, INDEX_COLLECTION_MONGO_COLLECTION)
 
             for (requiredProp in category.requiredProps)
-                mongoTemplate.insert(IndexedProperty(requiredProp, emptyMap()), newClusterRef.clusterName)
+                mongoTemplate.insert(IndexedProperty(requiredProp, emptyMap()), indexCollectionRef.collectionName)
         } else { // expand cluster
             mongoTemplate.updateMulti(
                 Query(
-                    Criteria.where("${fieldName(IndexClusterRef::categories)}.\$id")
+                    Criteria.where("${fieldName(IndexCollectionRef::categories)}.\$id")
                         .`in`(category.parentCategoryId!!)
                 ),
                 Update().addToSet(
-                    fieldName(IndexClusterRef::categories),
+                    fieldName(IndexCollectionRef::categories),
                     DBRef(CATEGORY_MONGO_COLLECTION, category.id)
                 ),
-                CLUSTER_REF_MONGO_COLLECTION
+                INDEX_COLLECTION_MONGO_COLLECTION
             )
         }
     }

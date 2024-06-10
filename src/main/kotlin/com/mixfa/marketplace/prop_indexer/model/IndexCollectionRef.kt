@@ -6,11 +6,11 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
-const val CLUSTER_REF_MONGO_COLLECTION = "index_cluster_ref"
+const val INDEX_COLLECTION_MONGO_COLLECTION = "index_collection_ref"
 
-@Document(CLUSTER_REF_MONGO_COLLECTION)
-data class IndexClusterRef(
+@Document(INDEX_COLLECTION_MONGO_COLLECTION)
+data class IndexCollectionRef(
     @DBRef(lazy = true) val categories: List<Category>,
     @Id val id: ObjectId = ObjectId(),
-    val clusterName: String = "index_cluster_${ObjectId()}",
+    val collectionName: String = "index_collection_${ObjectId()}",
 )
